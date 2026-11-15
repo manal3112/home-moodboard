@@ -5,7 +5,8 @@ A shared board for the design studio: live Instagram posts you can scroll and pl
 Files:
 
 - `index.html`: the whole app (one file, no build step)
-- `schema.sql`: the database, file storage and access rules for Supabase
+- `schema.sql`: the database, file storage and access rules for Supabase (for a new setup)
+- `update-2.sql`: a one-time update for boards set up before documents, the floor plan and replies were added
 
 ## Try it first (2 minutes)
 
@@ -53,20 +54,34 @@ In **Authentication → URL Configuration**:
 2. Click **Rooms & people**, add each architect's email, then **Copy link** and send it to them.
 3. They enter their email on the page, click the link in their inbox, and they're in.
 
+## Updating a board that's already set up
+
+If your board was set up before November 2026, run the update once: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, and click **Run**. Until then the board shows a yellow banner, and documents, the floor plan, replies and @mentions stay switched off. Everything else keeps working.
+
 ## Day-to-day use
 
 - **+ Add** opens the form: Instagram, Photo, Sketch, Link or Note. Give each item a room, a type, a priority and a "why I like it" note.
 - **Instagram**: paste one link, or a whole list of links (one per line) to add them all at once. Optionally attach a screenshot as a backup in case the post is later deleted or made private.
 - **Paste anywhere**: paste an Instagram link, a web link or a copied image anywhere on the board, and the add form opens with it filled in. You can also drag image files onto the page.
-- **Sketch**: draw freehand, or load a photo and mark it up with pen and highlighter. On any photo card, **Draw on this** saves a marked-up copy as a new card.
-- **Board / Feed**: Board is a grid; Feed is a single Instagram-style column.
-- **Rooms & people**: rename, reorder, add or remove rooms, and manage who has access.
+- **Instagram cover**: to show a particular photo from a carousel (say photo 4), screenshot that photo, attach it, and tick **Show the screenshot as the cover**. Clicking the cover plays the live post.
+- **Links**: the page's picture, title and description are fetched automatically. YouTube links play on the card.
+- **Sketch**: draw freehand, or load a photo and mark it up with pen and highlighter.
+- **Draw on this**: anyone can scribble on any post. The drawing is saved with that post (open the post to see its markups). For an Instagram post or a link without a picture, you'll be asked for a screenshot to draw on.
+- **Comments**: reply to any comment, and type **@** to tag someone. **For you** (top of the page) lists comments that tag you, replies to you, and comments on things you added, with a red count for new ones.
+- **Documents**: a shared folder for drawings, PDFs, quotes, spreadsheets and CAD files (up to 50 MB each). Drag files onto the page or click **+ Upload**. Anyone can open, rename, file under a room, or delete them.
+- **Floor plan**: in **Rooms & people**, upload the layout as an image and mark where each room is. The plan then shows above the board: click a room to filter, and rooms with matching items light up when you filter by type, priority or search.
+- **Board / Feed / By room**: Board is a grid; Feed is a single Instagram-style column; By room is a summary with a row of thumbnails per room, must-haves first.
+- **New**: items other people added since your last visit get a "New" tag, and the **New** button filters to just those.
+- **Rooms & people**: rename, reorder, add or remove rooms, upload the floor plan, manage who has access, and give each person a name for @tags.
 - Changes appear for everyone within a second or two. No reload needed.
 
 To change the title, subtitle or the list of item types, edit `CONFIG` at the top of `index.html` and upload the file again. That's the only part that needs a re-upload.
 
 ## Good to know
 
+- Instagram's like and comment buttons inside an embedded post can't be removed: the embed is Instagram's own frame. Clicking them just opens instagram.com; nothing is posted from the board.
+- Tagging someone doesn't email them (that would need a mail server). They see it under **For you** next time they open the board.
+- Link previews are fetched through microlink.io, and pictures some sites block are fetched through wsrv.nl. Both see only the link's web address. The picture is then stored privately in your Supabase.
 - Only posts from **public** Instagram accounts can be embedded. If a post goes private or is deleted, the card shows your backup screenshot instead.
 - Ad blockers and some privacy settings (Safari's, Brave's) can block Instagram embeds. The card then shows a link and your screenshot.
 - Images over ~1.5 MB are shrunk in the browser before upload. The free Supabase plan includes 1 GB of file storage, which is a few thousand photos.

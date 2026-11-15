@@ -193,6 +193,106 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .signin-card .sub{margin:0;color:var(--muted)}
 .signin-form{display:grid;gap:12px}
 
+/* Sections, badges */
+.nav{display:flex;gap:4px}
+.nav-btn{border:0;background:transparent;color:var(--muted);font:600 14px/1 var(--body);padding:9px 12px;border-radius:8px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.nav-btn[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.nav-btn .n{font-weight:500;font-size:12px;opacity:.8}
+.badge{min-width:18px;height:18px;border-radius:9px;background:var(--avoid);color:var(--surface);font:600 11px/18px var(--body);padding:0 5px;text-align:center}
+.chip.new-chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.new-pill{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 7px;border-radius:999px}
+.banner.warn{background:var(--must-soft)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+
+/* Floor plan */
+.plan{margin-top:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.plan-head{display:flex;align-items:center;gap:10px;padding:10px 14px;flex-wrap:wrap}
+.plan-head h2{font:600 16px/1.2 var(--display);margin:0}
+.plan-body{padding:0 14px 14px;display:grid;justify-items:center}
+.plan-box{position:relative;max-width:100%;line-height:0}
+.plan-box img{display:block;max-width:100%;max-height:min(440px,60vh);width:auto;height:auto;border-radius:6px;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+.zone{position:absolute;border:1.5px solid color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 8%,transparent);border-radius:4px;cursor:pointer;padding:3px;margin:0;display:block;text-align:left;line-height:1.2;transition:background .15s,opacity .15s}
+.zone .zl{display:inline-block;font:600 11px/1.3 var(--body);background:var(--surface);color:var(--ink);padding:2px 7px;border-radius:999px;box-shadow:0 1px 3px rgb(0 0 0 / .18);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+.zone.has{background:color-mix(in srgb,var(--accent) 24%,transparent);border-color:var(--accent)}
+.zone.none{opacity:.3}
+.zone.on{background:color-mix(in srgb,var(--must) 28%,transparent);border:2.5px solid var(--must);opacity:1}
+.zone.on .zl{background:var(--must);color:var(--surface)}
+.zone:hover{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.pe{position:fixed;inset:0;z-index:70;background:var(--sunk);display:flex;flex-direction:column;padding:env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)}
+.pe-rooms{padding:10px 14px;flex-wrap:wrap;overflow:visible}
+.pe-stage{flex:1;min-height:0;overflow:auto;display:grid;place-items:center;padding:0 14px 14px}
+.pe-box{touch-action:none;cursor:crosshair}
+.pe-box img{max-height:calc(100vh - 210px);max-height:calc(100dvh - 210px)}
+.pe .zone{cursor:crosshair}
+.zx{position:absolute;top:-10px;right:-10px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:14px;line-height:1;padding:0}
+
+/* Documents */
+.docs{padding-block:20px 40px;display:grid;gap:14px;align-content:start}
+.docs-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.docs-bar input[type=search]{flex:1 1 220px}
+.doc-list{display:grid;gap:8px}
+.doc{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.doc-ic{width:48px;height:48px;border-radius:8px;display:grid;place-items:center;font:700 11px/1 var(--body);letter-spacing:.04em;background:var(--sunk);color:var(--muted);overflow:hidden;text-decoration:none}
+.doc-ic img{width:100%;height:100%;object-fit:cover}
+.doc-ic.pdf{background:var(--avoid-soft);color:var(--avoid)}
+.doc-ic.cad{background:var(--accent-soft);color:var(--accent)}
+.doc-ic.sheet{background:var(--nice-soft);color:var(--nice)}
+.doc-ic.word{background:var(--must-soft);color:var(--must)}
+.doc-main{display:grid;gap:2px;min-width:0}
+.doc-name{font-weight:600;color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.doc-name:hover{color:var(--accent)}
+.doc-meta{font-size:12px;color:var(--muted)}
+.doc-note{font-size:13px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
+.doc-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:560px){ .doc{grid-template-columns:40px minmax(0,1fr)} .doc-ic{width:40px;height:40px} .doc-acts{grid-column:1/-1;justify-content:flex-start} }
+
+/* Comments: replies and mentions */
+.c-thread{display:grid;gap:8px}
+.c-replies{display:grid;gap:8px;margin-left:14px;padding-left:10px;border-left:2px solid var(--line)}
+.c-head .acts{margin-left:auto;display:flex;gap:12px}
+.c-act{border:0;background:none;color:var(--muted);cursor:pointer;font-size:12px;text-decoration:underline;padding:0}
+.mention{color:var(--accent);font-weight:600}
+.composer{position:relative;width:100%}
+.mention-pop{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);z-index:5;display:grid;max-height:220px;overflow:auto}
+.mention-pop button{border:0;background:none;text-align:left;padding:8px 12px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;display:grid}
+.mention-pop button small{color:var(--muted);font-size:12px}
+.mention-pop button[aria-selected="true"]{background:var(--accent-soft)}
+.fy{display:grid;gap:8px}
+.fy-row{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;display:grid;gap:3px}
+.fy-row.unread{border-color:var(--accent);background:var(--accent-soft)}
+.fy-row .c-body{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Markups, covers, link previews */
+.mk-grid{display:flex;gap:8px;flex-wrap:wrap}
+.mk-grid button{border:1px solid var(--line);padding:0;border-radius:8px;overflow:hidden;cursor:pointer;background:#fff;width:96px;height:96px}
+.mk-grid img{width:100%;height:100%;object-fit:cover;display:block}
+.ig-cover{position:relative}
+.ig-cover img{display:block;width:100%;height:auto;cursor:pointer;background:var(--sunk)}
+.play{position:absolute;left:10px;bottom:10px;border:0;border-radius:999px;background:rgb(0 0 0 / .72);color:#fff;font:600 13px/1 var(--body);padding:9px 14px;cursor:pointer}
+.yt{display:block;width:100%;aspect-ratio:16/9;border:0;background:#000}
+.lc-desc{padding:0 14px 12px;font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.lprev{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;border:1px solid var(--line);border-radius:8px;padding:8px;align-items:center}
+.lprev img{width:96px;height:72px;object-fit:cover;border-radius:6px;background:var(--sunk)}
+.lprev p{margin:2px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* By-room overview */
+.rooms-view{padding-block:20px 40px;display:grid;gap:26px}
+.rv-head{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap}
+.rv-head h2{font:600 20px/1.2 var(--display);margin:0}
+.rv-stats{display:flex;gap:6px;flex-wrap:wrap}
+.rv-row{display:flex;gap:12px;overflow-x:auto;padding:10px 2px 6px;scroll-snap-type:x proximity}
+.tile{flex:none;width:160px;scroll-snap-align:start;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden;cursor:pointer;padding:0;text-align:left;font:inherit;color:var(--ink);display:grid;grid-template-rows:160px auto}
+.tile:hover{border-color:var(--muted)}
+.tile .tm{background:var(--sunk);display:grid;place-items:center;overflow:hidden;color:var(--muted);font-size:12px}
+.tile .tm img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .tm.txt{padding:12px;font:500 13px/1.35 var(--display);color:var(--ink);place-items:start;white-space:pre-wrap;overflow-wrap:anywhere}
+.tile[data-prio="avoid"] .tm img{filter:grayscale(.65) opacity(.85)}
+.tile .tt{padding:8px 10px;font-size:13px;font-weight:500;display:flex;gap:6px;align-items:center;min-width:0}
+.tile .tt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.dot.must{background:var(--must)} .dot.nice{background:var(--nice)} .dot.avoid{background:var(--avoid)}
+
 #toast{position:fixed;left:50%;bottom:max(20px, env(safe-area-inset-bottom, 0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:9px;font-size:14px;z-index:90;transition:opacity .2s, transform .2s;max-width:calc(100vw - 32px)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.err{background:var(--avoid);color:var(--surface)}
@@ -269,7 +369,7 @@ function igPermalink(u) {
 function titleOf(it) {
   if (it.title && it.title.trim()) return it.title.trim();
   if (it.kind === "instagram") return "Instagram post";
-  if (it.kind === "link") return hostOf(it.url) || "Link";
+  if (it.kind === "link") return metaOf(it).preview?.title || hostOf(it.url) || "Link";
   if (it.kind === "note") return (it.note || "").split("\n")[0].slice(0, 80) || "Note";
   return it.kind === "sketch" ? "Sketch" : "Photo";
 }
@@ -277,6 +377,68 @@ function roomName(id) { return (id && S.rooms.find(r => r.id === id)?.name) || "
 function typesList() { return [...new Set([...CONFIG.TYPES, ...S.items.map(i => i.type).filter(Boolean)])]; }
 function prioBadge(p) { return el("span", { class: "prio " + p }, PRIO[p] || p); }
 function imgUrl(it) { return it.image_path ? S.urls.get(it.image_path) || null : null; }
+const metaOf = it => (it && it.meta && typeof it.meta === "object" && !Array.isArray(it.meta)) ? it.meta : {};
+const myEmail = () => (S.user?.email || "").toLowerCase();
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function nameOf(email) {
+  if (!email) return "someone";
+  const e = String(email).toLowerCase();
+  const m = S.members.find(x => x.email === e);
+  return (m && m.name && m.name.trim()) || String(email).split("@")[0];
+}
+function ytId(u) {
+  const m = String(u || "").match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function fmtWhen(s) {
+  const d = new Date(s); if (isNaN(d)) return "";
+  const now = new Date();
+  if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", ...(d.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}) });
+}
+function fmtSize(n) {
+  if (!n && n !== 0) return "";
+  if (n < 1024) return n + " B";
+  if (n < 1024 * 1024) return Math.round(n / 1024) + " KB";
+  return (n / 1024 / 1024).toFixed(n < 10 * 1024 * 1024 ? 1 : 0) + " MB";
+}
+function safeName(n) { return (String(n || "file").normalize("NFKD").replace(/[^\w.\-]+/g, "_").replace(/_+/g, "_").slice(-100)) || "file"; }
+function pickFile(accept, multiple) {
+  return new Promise(res => {
+    const i = el("input", { type: "file", accept: accept || null, multiple: multiple || null, hidden: true });
+    const done = v => { res(v); i.remove(); };
+    i.addEventListener("change", () => done([...i.files]));
+    i.addEventListener("cancel", () => done([]));
+    document.body.append(i); i.click();
+  });
+}
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("Timed out")), ms))]); }
+/* Columns added by update-2.sql are left out until that update has been run, so older databases keep working. */
+function extras(obj) { return S.needsUpdate ? {} : obj; }
+
+/* Link previews: the page title, description and cover image of any web link (via microlink.io's free API). */
+async function fetchPreview(url) {
+  try {
+    const r = await withTimeout(fetch("https://api.microlink.io/?url=" + encodeURIComponent(url)), 10000);
+    const j = await r.json();
+    if (j.status !== "success" || !j.data) return null;
+    const d = j.data;
+    return { title: (d.title || "").slice(0, 200), description: (d.description || "").slice(0, 400), site: (d.publisher || "").slice(0, 80), image: d.image?.url || "" };
+  } catch { return null; }
+}
+/* Download the cover image so the board keeps its own copy (and it can be drawn on). Falls back to an image proxy when the site blocks this. */
+async function grabImage(src) {
+  if (!src) return null;
+  for (const u of [src, "https://wsrv.nl/?url=" + encodeURIComponent(src) + "&w=1600&we&output=jpg"]) {
+    try {
+      const r = await withTimeout(fetch(u), 12000); if (!r.ok) continue;
+      const b = await r.blob();
+      if (!/^image\//.test(b.type) || b.size < 500) continue;
+      return b;
+    } catch {}
+  }
+  return null;
+}
 
 async function prepareImage(file) {
   const type = file.type || "image/jpeg";
@@ -328,14 +490,27 @@ class SupaStore {
   }
   async removeFile(path) { try { await this.sb.storage.from(this.bucket).remove([path]); } catch {} }
   comments() { return this.q(this.sb.from("comments").select("*").order("created_at")); }
-  addComment(item_id, body) { return this.q(this.sb.from("comments").insert({ item_id, body })); }
+  addComment(item_id, body, extra = {}) { return this.q(this.sb.from("comments").insert({ item_id, body, ...extra })); }
   deleteComment(id) { return this.q(this.sb.from("comments").delete().eq("id", id)); }
   members() { return this.q(this.sb.from("members").select("*").order("added_at")); }
   addMember(email) { return this.q(this.sb.from("members").insert({ email })); }
+  updateMember(email, patch) { return this.q(this.sb.from("members").update(patch).eq("email", email)); }
   removeMember(email) { return this.q(this.sb.from("members").delete().eq("email", email)); }
-  subscribe(cb) {
+  documents() { return this.q(this.sb.from("documents").select("*").order("created_at", { ascending: false })); }
+  addDocument(row) { return this.q(this.sb.from("documents").insert(row)); }
+  updateDocument(id, patch) { return this.q(this.sb.from("documents").update(patch).eq("id", id)); }
+  async deleteDocument(d) { await this.q(this.sb.from("documents").delete().eq("id", d.id)); this.removeFile(d.path); }
+  async uploadFile(file) {
+    const path = `docs/${uid()}/${safeName(file.name)}`;
+    await this.q(this.sb.storage.from(this.bucket).upload(path, file, { contentType: file.type || "application/octet-stream" }));
+    return path;
+  }
+  async settings() { const rows = await this.q(this.sb.from("settings").select("*")); return Object.fromEntries(rows.map(r => [r.key, r.value])); }
+  setSetting(key, value) { return this.q(this.sb.from("settings").upsert({ key, value, updated_at: new Date().toISOString() })); }
+  subscribe(cb, withUpdate) {
     const ch = this.sb.channel("board");
-    for (const table of ["items", "comments", "rooms"]) ch.on("postgres_changes", { event: "*", schema: "public", table }, cb);
+    const tables = ["items", "comments", "rooms", ...(withUpdate ? ["documents", "settings"] : [])];
+    for (const table of tables) ch.on("postgres_changes", { event: "*", schema: "public", table }, cb);
     ch.subscribe();
   }
 }
@@ -360,9 +535,15 @@ class LocalStore {
     this.key = "home-moodboard-demo-v1";
     try { const raw = localStorage.getItem(this.key); if (raw) this.db = JSON.parse(raw); } catch {}
     if (!this.db) this.db = seedDemo();
+    this.fill();
+  }
+  fill() {
+    const d = this.db;
+    d.documents ||= []; d.settings ||= {};
+    d.members ||= [{ email: "you (demo)", name: "You" }, { email: "studio@example.com", name: "Studio (sample)" }];
   }
   save() { try { localStorage.setItem(this.key, JSON.stringify(this.db)); } catch { toast("This browser ran out of demo storage. Connect Supabase to store images properly.", "err"); } }
-  reset() { this.db = seedDemo(); this.save(); }
+  reset() { this.db = seedDemo(); this.fill(); this.save(); }
   async user() { return { id: "demo", email: "you (demo)" }; }
   onAuth() {} async signIn() {} async signOut() {}
   async isMember() { return true; }
@@ -374,7 +555,7 @@ class LocalStore {
   async insertItems(rows) {
     for (const r of rows) {
       const t = r.created_at || new Date().toISOString();
-      this.db.items.push({ id: uid(), url: null, image_path: null, note: "", title: "", type: null, room_id: null, priority: "nice", ...r, created_by: "you (demo)", created_at: t, updated_at: t });
+      this.db.items.push({ id: uid(), url: null, image_path: null, note: "", title: "", type: null, room_id: null, priority: "nice", meta: {}, ...r, created_by: "you (demo)", created_at: t, updated_at: t });
     }
     this.save();
   }
@@ -392,22 +573,41 @@ class LocalStore {
   async urls(paths) { return new Map(paths.filter(p => this.db.files[p]).map(p => [p, this.db.files[p]])); }
   async removeFile(p) { delete this.db.files[p]; this.save(); }
   async comments() { return this.db.comments.map(c => ({ ...c })); }
-  async addComment(item_id, body) { this.db.comments.push({ id: uid(), item_id, body, author: "you (demo)", created_at: new Date().toISOString() }); this.save(); }
-  async deleteComment(id) { this.db.comments = this.db.comments.filter(c => c.id !== id); this.save(); }
-  async members() { return [{ email: "you (demo)" }]; }
+  async addComment(item_id, body, extra = {}) { this.db.comments.push({ id: uid(), item_id, body, mentions: [], parent_id: null, ...extra, author: "you (demo)", created_at: new Date().toISOString() }); this.save(); }
+  async deleteComment(id) {
+    const gone = new Set([id]);
+    this.db.comments.forEach(c => { if (gone.has(c.parent_id)) gone.add(c.id); });
+    this.db.comments = this.db.comments.filter(c => !gone.has(c.id)); this.save();
+  }
+  async members() { return this.db.members.map(m => ({ ...m })); }
   async addMember() { throw new Error("Inviting people needs Supabase. Follow the README to connect it."); }
+  async updateMember(email, patch) { const m = this.db.members.find(x => x.email === email); if (m) Object.assign(m, patch); this.save(); }
   async removeMember() {}
+  async documents() { return [...this.db.documents].sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)).map(d => ({ ...d })); }
+  async addDocument(row) { this.db.documents.push({ id: uid(), note: "", room_id: null, ...row, uploaded_by: "you (demo)", created_at: new Date().toISOString() }); this.save(); }
+  async updateDocument(id, patch) { const d = this.db.documents.find(x => x.id === id); if (d) Object.assign(d, patch); this.save(); }
+  async deleteDocument(d) { this.db.documents = this.db.documents.filter(x => x.id !== d.id); delete this.db.files[d.path]; this.save(); }
+  async uploadFile(file) {
+    const data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+    const path = `local/docs/${uid()}/${safeName(file.name)}`; this.db.files[path] = data; this.save(); return path;
+  }
+  async settings() { return JSON.parse(JSON.stringify(this.db.settings)); }
+  async setSetting(key, value) { this.db.settings[key] = value; this.save(); }
   subscribe() {}
 }
 
 /* ===================== APP STATE ===================== */
 const S = {
   store: null, user: null, ready: false, subscribed: false,
-  rooms: [], items: [], comments: [], byId: new Map(), ccount: new Map(), urls: new Map(),
-  nodes: new Map(), pendingIG: new Set(),
-  filter: { room: "all", type: "all", prio: "all", q: "" },
-  sort: "newest", view: lsGet("mb-view") === "feed" ? "feed" : "board",
-  stack: [], overlays: {}, detailId: null, detailVer: null, ed: null,
+  rooms: [], items: [], boardItems: [], comments: [], members: [], docs: [], settings: {},
+  byId: new Map(), ccount: new Map(), markups: new Map(), urls: new Map(),
+  nodes: new Map(), pendingIG: new Set(), needsUpdate: false, newSince: 0,
+  filter: { room: "all", type: "all", prio: "all", q: "", newOnly: false },
+  docFilter: { room: "all", q: "" },
+  sort: "newest", view: ["feed", "rooms"].includes(lsGet("mb-view")) ? lsGet("mb-view") : "board",
+  section: lsGet("mb-section") === "docs" ? "docs" : "board",
+  planOpen: lsGet("mb-plan") !== "closed",
+  stack: [], overlays: {}, detailId: null, detailVer: null, ed: null, replyOpen: null,
 };
 
 async function boot() {
@@ -424,25 +624,68 @@ async function gate() {
   let ok;
   try { ok = await S.store.isMember(); } catch (e) { return renderError(e); }
   if (!ok) return renderNotMember();
+  if (!S.newSince) {
+    const key = "mb-last-visit:" + myEmail();
+    S.newSince = +lsGet(key) || Date.now();
+    lsSet(key, String(Date.now()));
+  }
   renderShell();
   S.ready = true;
   await refresh();
-  if (!S.subscribed) { S.store.subscribe(debounce(() => S.ready && refresh(), 400)); S.subscribed = true; }
+  if (!S.subscribed) { S.store.subscribe(debounce(() => S.ready && refresh(), 400), !S.needsUpdate); S.subscribed = true; }
 }
 
 async function refresh() {
   try {
     const st = S.store;
-    const [rooms, items, comments] = await Promise.all([st.rooms(), st.items(), st.comments()]);
-    S.rooms = rooms; S.items = items; S.comments = comments;
+    let missing = false;
+    const soft = (p, fallback) => p.catch(() => { missing = true; return fallback; });
+    const [rooms, items, comments, members, docs, settings] = await Promise.all([
+      st.rooms(), st.items(), st.comments(), st.members().catch(() => []), soft(st.documents(), []), soft(st.settings(), {})]);
+    S.needsUpdate = LIVE && missing;
+    S.rooms = rooms; S.items = items; S.comments = comments; S.members = members || []; S.docs = docs || []; S.settings = settings || {};
     S.byId = new Map(items.map(i => [i.id, i]));
     S.ccount = new Map(); comments.forEach(c => S.ccount.set(c.item_id, (S.ccount.get(c.item_id) || 0) + 1));
-    const need = [...new Set(items.map(i => i.image_path).filter(p => p && !S.urls.has(p)))];
+    // A markup is a sketch attached to another item: it shows inside that item, not as its own card.
+    S.markups = new Map();
+    for (const i of items) { const p = metaOf(i).markup_of; if (p && S.byId.has(p)) { if (!S.markups.has(p)) S.markups.set(p, []); S.markups.get(p).push(i); } }
+    S.boardItems = items.filter(i => !(metaOf(i).markup_of && S.byId.has(metaOf(i).markup_of)));
+    const need = [...new Set([...items.map(i => i.image_path), ...S.docs.map(d => d.path), planData()?.path].filter(p => p && !S.urls.has(p)))];
     if (need.length) (await st.urls(need)).forEach((u, p) => S.urls.set(p, u));
+    renderBanner();
     renderFilters();
+    renderPlan();
     renderGrid();
+    renderDocs();
+    updateForYou();
     if (S.detailId) renderDetail(false);
+    backfillPreviews();
   } catch (e) { toast("Couldn't load the board: " + errMsg(e), "err"); }
+}
+
+/* Older link cards get their preview the first time someone opens the board (a few at a time). */
+async function backfillPreviews() {
+  if (S.backfilling || S.needsUpdate) return;
+  S.triedPreview ||= new Set();
+  const todo = S.items.filter(i => i.kind === "link" && !i.image_path && !metaOf(i).preview_tried && !ytId(i.url) && !S.triedPreview.has(i.id)).slice(0, 4);
+  if (!todo.length) return;
+  S.backfilling = true;
+  try {
+    for (const it of todo) {
+      S.triedPreview.add(it.id);
+      const meta = { ...metaOf(it), preview_tried: true };
+      const patch = {};
+      const pv = await fetchPreview(it.url);
+      if (pv) {
+        meta.preview = { title: pv.title, description: pv.description, site: pv.site };
+        const b = await grabImage(pv.image);
+        if (b) { const p = await prepareImage(b); patch.image_path = await S.store.upload(p.blob, p.ext); }
+      }
+      patch.meta = meta;
+      await S.store.updateItem(it.id, patch);
+    }
+    await refresh();
+  } catch {} finally { S.backfilling = false; }
 }
 
 /* ===================== SCREENS ===================== */
@@ -490,78 +733,125 @@ function renderShell() {
   const prioSeg = el("div", { class: "seg", id: "f-prio", role: "group", "aria-label": "Filter by priority" },
     ...["all", "must", "nice", "avoid"].map(p => el("button", { type: "button", class: "seg-btn", "data-p": p, "aria-pressed": String(S.filter.prio === p),
       onclick: () => { S.filter.prio = p; applyFilters(); } }, p === "all" ? "All" : PRIO[p])));
+  const viewBtn = (v, label) => el("button", { type: "button", class: "seg-btn", id: "v-" + v, "aria-pressed": String(S.view === v), onclick: () => setView(v) }, label);
   const header = el("header", { class: "top" },
     el("div", { class: "wrap top-row" },
       el("div", { class: "brand" }, el("h1", {}, CONFIG.BOARD_TITLE), el("p", {}, CONFIG.BOARD_SUBTITLE)),
-      el("div", { class: "seg", role: "group", "aria-label": "Layout" },
-        el("button", { type: "button", class: "seg-btn", id: "v-board", "aria-pressed": String(S.view === "board"), onclick: () => setView("board") }, "Board"),
-        el("button", { type: "button", class: "seg-btn", id: "v-feed", "aria-pressed": String(S.view === "feed"), onclick: () => setView("feed") }, "Feed")),
+      el("nav", { class: "nav", "aria-label": "Sections" },
+        el("button", { type: "button", class: "nav-btn", id: "n-board", onclick: () => setSection("board") }, "Moodboard"),
+        el("button", { type: "button", class: "nav-btn", id: "n-docs", onclick: () => setSection("docs") }, "Documents", el("span", { class: "n", id: "n-docs-n" }))),
+      el("button", { type: "button", class: "btn ghost", id: "fy-btn", onclick: openForYou, title: "Comments that tag you, replies to you, and comments on your posts" },
+        "For you", el("span", { class: "badge", id: "fy-badge", hidden: true })),
       el("button", { type: "button", class: "btn ghost", onclick: openSettings }, "Rooms & people"),
-      el("button", { type: "button", class: "btn primary", onclick: () => openEditor() }, "+ Add")),
-    el("div", { class: "wrap filters" },
+      el("button", { type: "button", class: "btn primary", id: "add-btn", onclick: () => (S.section === "docs" ? uploadDocs() : openEditor()) }, "+ Add")),
+    el("div", { class: "wrap filters", id: "filters" },
       el("div", { class: "chips", id: "room-chips", role: "group", "aria-label": "Filter by room" }),
       el("div", { class: "filter-row" },
+        el("div", { class: "seg", role: "group", "aria-label": "Layout" }, viewBtn("board", "Board"), viewBtn("feed", "Feed"), viewBtn("rooms", "By room")),
         el("select", { id: "f-type", "aria-label": "Filter by type", onchange: e => { S.filter.type = e.target.value; applyFilters(); } }),
         prioSeg,
+        el("button", { type: "button", class: "chip new-chip", id: "f-new", "aria-pressed": "false", hidden: true, title: "Items other people added since your last visit",
+          onclick: () => { S.filter.newOnly = !S.filter.newOnly; applyFilters(); } }, "New", el("span", { class: "n", id: "f-new-n" })),
         el("input", { id: "f-q", type: "search", placeholder: "Search titles, notes, comments", "aria-label": "Search",
           oninput: debounce(e => { S.filter.q = e.target.value.trim().toLowerCase(); applyFilters(); }, 150) }),
         el("select", { id: "f-sort", "aria-label": "Sort", onchange: e => { S.sort = e.target.value; renderGrid(); } },
           ...[["newest", "Newest first"], ["oldest", "Oldest first"], ["priority", "Must-haves first"], ["room", "By room"]].map(([v, l]) => el("option", { value: v }, l))),
         el("span", { class: "count", id: "count" }))));
-  const banner = LIVE ? null : el("div", { class: "wrap" }, el("div", { class: "banner" },
-    el("strong", {}, "Demo mode. "), "Everything is saved only in this browser. Add your Supabase details at the top of index.html to share the board with the studio."));
-  const main = el("main", { class: "wrap" },
+  const main = el("main", { class: "wrap", id: "board-sec" },
+    el("section", { id: "plan", class: "plan", hidden: true, "aria-label": "Floor plan" }),
     el("div", { id: "grid", class: "grid" + (S.view === "feed" ? " feed" : "") }),
+    el("div", { id: "rooms-view", class: "rooms-view", hidden: true }),
     el("div", { id: "empty", class: "empty", hidden: true }));
+  const docsSec = el("main", { class: "wrap docs", id: "docs-sec", hidden: true });
   const foot = el("footer", { class: "wrap foot" },
     el("span", {}, "Signed in as " + (S.user.email || "")),
     LIVE ? el("button", { class: "btn small ghost", onclick: () => S.store.signOut() }, "Sign out") : null,
     el("span", { class: "spacer" }),
     el("span", {}, "Tip: paste an Instagram link or an image anywhere on this page to add it."));
-  $("#app").replaceChildren(header, ...(banner ? [banner] : []), main, foot);
+  $("#app").replaceChildren(header, el("div", { class: "wrap", id: "banner" }), main, docsSec, foot);
   $("#f-sort").value = S.sort;
+  setSection(S.section);
+  setView(S.view);
+}
+
+function renderBanner() {
+  const b = $("#banner"); if (!b) return;
+  if (!LIVE) b.replaceChildren(el("div", { class: "banner" },
+    el("strong", {}, "Demo mode. "), "Everything is saved only in this browser. Add your Supabase details at the top of index.html to share the board with the studio."));
+  else if (S.needsUpdate) b.replaceChildren(el("div", { class: "banner warn" },
+    el("strong", {}, "One-time database update needed. "),
+    "Documents, the floor plan, replies, @mentions, covers and link previews need it. In Supabase open SQL Editor → New query, paste all of update-2.sql from the project folder, click Run, then reload this page."));
+  else b.replaceChildren();
+}
+
+function setSection(s) {
+  S.section = s; lsSet("mb-section", s);
+  $("#n-board").setAttribute("aria-current", s === "board" ? "page" : "false");
+  $("#n-docs").setAttribute("aria-current", s === "docs" ? "page" : "false");
+  $("#filters").hidden = s !== "board";
+  $("#board-sec").hidden = s !== "board";
+  $("#docs-sec").hidden = s !== "docs";
+  $("#add-btn").textContent = s === "docs" ? "+ Upload" : "+ Add";
+  renderDocs();
 }
 
 function setView(v) {
   S.view = v; lsSet("mb-view", v);
-  $("#grid").classList.toggle("feed", v === "feed");
-  $("#v-board").setAttribute("aria-pressed", String(v === "board"));
-  $("#v-feed").setAttribute("aria-pressed", String(v === "feed"));
+  const grid = $("#grid");
+  grid.classList.toggle("feed", v === "feed");
+  grid.hidden = v === "rooms";
+  $("#rooms-view").hidden = v !== "rooms";
+  ["board", "feed", "rooms"].forEach(k => $("#v-" + k).setAttribute("aria-pressed", String(v === k)));
+  $("#f-sort").hidden = v === "rooms";
+  applyFilters();
 }
 
 function renderFilters() {
   const counts = new Map(); let none = 0;
   const roomIds = new Set(S.rooms.map(r => r.id));
-  S.items.forEach(i => { if (i.room_id && roomIds.has(i.room_id)) counts.set(i.room_id, (counts.get(i.room_id) || 0) + 1); else none++; });
+  S.boardItems.forEach(i => { if (i.room_id && roomIds.has(i.room_id)) counts.set(i.room_id, (counts.get(i.room_id) || 0) + 1); else none++; });
   if (!["all", "none"].includes(S.filter.room) && !roomIds.has(S.filter.room)) S.filter.room = "all";
   const chip = (id, label, n) => el("button", { type: "button", class: "chip", "data-id": id, "aria-pressed": String(S.filter.room === id),
     onclick: () => { S.filter.room = id; applyFilters(); } }, label, el("span", { class: "n" }, String(n)));
-  $("#room-chips").replaceChildren(chip("all", "All rooms", S.items.length), ...S.rooms.map(r => chip(r.id, r.name, counts.get(r.id) || 0)), chip("none", "Whole home", none));
+  $("#room-chips").replaceChildren(chip("all", "All rooms", S.boardItems.length), ...S.rooms.map(r => chip(r.id, r.name, counts.get(r.id) || 0)), chip("none", "Whole home", none));
   const ft = $("#f-type"), cur = S.filter.type;
   ft.replaceChildren(el("option", { value: "all" }, "All types"), ...typesList().map(t => el("option", { value: t }, t)));
   ft.value = cur; if (ft.value !== cur) { S.filter.type = "all"; ft.value = "all"; }
 }
 
-function matches(it) {
-  const f = S.filter;
+function isNew(it) {
+  return !!S.newSince && tsOf(it) > S.newSince && (it.created_by || "").toLowerCase() !== myEmail();
+}
+function matchesWith(it, f) {
   if (f.room === "none") { if (it.room_id && S.rooms.some(r => r.id === it.room_id)) return false; }
   else if (f.room !== "all" && it.room_id !== f.room) return false;
   if (f.type !== "all" && it.type !== f.type) return false;
   if (f.prio !== "all" && it.priority !== f.prio) return false;
+  if (f.newOnly && !isNew(it)) return false;
   if (f.q) {
-    const hay = [it.title, it.note, it.url, it.type, roomName(it.room_id), ...S.comments.filter(c => c.item_id === it.id).map(c => c.body)].join(" ").toLowerCase();
+    const pv = metaOf(it).preview || {};
+    const hay = [it.title, it.note, it.url, it.type, pv.title, pv.description, roomName(it.room_id), nameOf(it.created_by),
+      ...S.comments.filter(c => c.item_id === it.id).map(c => c.body)].join(" ").toLowerCase();
     if (!hay.includes(f.q)) return false;
   }
   return true;
 }
+const matches = it => matchesWith(it, S.filter);
 
 function applyFilters() {
+  if (!$("#grid")) return;
   document.querySelectorAll("#room-chips .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === S.filter.room)));
   document.querySelectorAll("#f-prio .seg-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === S.filter.prio)));
   let shown = 0;
-  for (const it of S.items) { const n = S.nodes.get(it.id); if (!n) continue; const m = matches(it); n.hidden = !m; if (m) shown++; }
-  const total = S.items.length;
+  for (const it of S.boardItems) { const n = S.nodes.get(it.id); if (!n) continue; const m = matches(it); n.hidden = !m; if (m) shown++; }
+  const total = S.boardItems.length;
   $("#count").textContent = shown === total ? `${total} item${total === 1 ? "" : "s"}` : `${shown} of ${total}`;
+  const nNew = S.boardItems.filter(isNew).length, nb = $("#f-new");
+  nb.hidden = !nNew && !S.filter.newOnly;
+  nb.setAttribute("aria-pressed", String(S.filter.newOnly));
+  $("#f-new-n").textContent = String(nNew);
+  updatePlanZones();
+  if (S.view === "rooms") renderRoomsView();
   const empty = $("#empty");
   empty.hidden = shown > 0;
   if (!shown) {
@@ -571,12 +861,12 @@ function applyFilters() {
   }
 }
 function clearFilters() {
-  S.filter = { room: "all", type: "all", prio: "all", q: "" };
+  S.filter = { room: "all", type: "all", prio: "all", q: "", newOnly: false };
   $("#f-q").value = ""; $("#f-type").value = "all"; applyFilters();
 }
 
 function sortedItems() {
-  const a = [...S.items];
+  const a = [...S.boardItems];
   const newest = (x, y) => tsOf(y) - tsOf(x);
   if (S.sort === "oldest") a.sort((x, y) => tsOf(x) - tsOf(y));
   else if (S.sort === "priority") a.sort((x, y) => (PRIO_ORDER[x.priority] - PRIO_ORDER[y.priority]) || newest(x, y));
@@ -609,6 +899,8 @@ function renderGrid() {
     const n = S.ccount.get(it.id) || 0;
     node.querySelector(".c-room").textContent = roomName(it.room_id);
     node.querySelector(".c-comments").textContent = n ? `${n} comment${n === 1 ? "" : "s"}` : "No comments";
+    const mk = S.markups.get(it.id)?.length || 0;
+    node.querySelector(".c-mk").textContent = mk ? `✎ ${mk} markup${mk === 1 ? "" : "s"} · ` : "";
   }
   applyFilters();
   processIG();
@@ -621,30 +913,47 @@ function cardNode(it) {
     mediaNode(it, false),
     el("div", { class: "cbody", role: "button", tabindex: "0", "aria-label": "Open " + titleOf(it), onclick: open,
       onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } } },
-      el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", { class: "c-room" }), it.type ? el("span", {}, "· " + it.type) : null),
+      el("div", { class: "cmeta" }, prioBadge(it.priority), isNew(it) ? el("span", { class: "new-pill" }, "New") : null,
+        el("span", { class: "c-room" }), it.type ? el("span", {}, "· " + it.type) : null),
       showTitle ? el("div", { class: "ctitle" }, titleOf(it)) : null,
       it.kind !== "note" && it.note ? el("div", { class: "cwhy" }, it.note) : null,
-      el("div", { class: "cfoot" }, el("span", { class: "c-comments" }), el("span", {}, KIND_LABEL[it.kind] || ""))));
+      el("div", { class: "cfoot" }, el("span", { class: "c-comments" }), el("span", {}, el("span", { class: "c-mk" }), KIND_LABEL[it.kind] || ""))));
 }
 
 function mediaNode(it, captioned) {
   const url = imgUrl(it);
   switch (it.kind) {
-    case "instagram": return igNode(it.url, captioned, url);
+    case "instagram":
+      if (!captioned && url && metaOf(it).cover === "shot") return igCoverNode(it, url);
+      return igNode(it.url, captioned, url);
     case "image": case "sketch":
       return el("div", { class: "media img" + (it.kind === "sketch" ? " paper" : "") },
         url ? el("img", { src: url, alt: titleOf(it), loading: "lazy", decoding: "async" })
             : el("div", { class: "img-missing" }, it.image_path ? "Loading image…" : "No image"));
-    case "link":
+    case "link": {
+      const yt = ytId(it.url);
+      if (yt) return el("div", { class: "media" }, el("iframe", { class: "yt", src: `https://www.youtube-nocookie.com/embed/${yt}`, title: titleOf(it), loading: "lazy",
+        allow: "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share", allowfullscreen: true, referrerpolicy: "strict-origin-when-cross-origin" }));
+      const pv = metaOf(it).preview;
       return el("a", { class: "media linkcard", href: it.url, target: "_blank", rel: "noopener" },
         url ? el("img", { src: url, alt: "", loading: "lazy" }) : null,
-        el("span", { class: "lc-host" }, (hostOf(it.url) || "Open link") + " ↗"));
+        el("span", { class: "lc-host" }, (pv?.site || hostOf(it.url) || "Open link") + " ↗"),
+        pv?.description ? el("span", { class: "lc-desc" }, pv.description) : null);
+    }
     case "note": return el("div", { class: "media note-body" }, it.note || "");
   }
   return null;
 }
 
 /* ---------- Instagram embeds ---------- */
+/* Cover mode: the saved screenshot (e.g. slide 4 of a carousel) shows on the board; clicking it swaps in the live post. */
+function igCoverNode(it, shot) {
+  const wrap = el("div", { class: "media ig-cover" });
+  const play = () => { const live = igNode(it.url, false, shot); wrap.replaceWith(live); processIG(); };
+  wrap.append(el("img", { src: shot, alt: "Cover for " + titleOf(it), loading: "lazy", onclick: play }),
+    el("button", { type: "button", class: "play", onclick: play }, "▶ Play post"));
+  return wrap;
+}
 function igNode(url, captioned, shotUrl) {
   const perma = igPermalink(url);
   const wrap = el("div", { class: "media ig" });
@@ -711,7 +1020,7 @@ function closeOverlay(name) {
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape" || !S.stack.length) return;
   const top = S.stack[S.stack.length - 1];
-  if (top !== "sketch") closeOverlay(top);
+  if (top !== "sketch" && top !== "plan-editor") closeOverlay(top);
 });
 
 /* Two-step button: first click arms, second click runs. Replaces confirm() dialogs. */
@@ -727,64 +1036,192 @@ function confirmBtn(label, armedLabel, fn, extra = "") {
 }
 
 /* ---------- Item detail ---------- */
-function openDetail(id) { S.detailId = id; renderDetail(true); }
+function openDetail(id) { S.detailId = id; S.replyOpen = null; renderDetail(true); }
 function renderDetail(force) {
   const it = S.byId.get(S.detailId);
   if (!it) { closeOverlay("detail"); return; }
-  const ver = itemVer(it);
+  const mks = S.markups.get(it.id) || [];
+  const ver = itemVer(it) + "|" + mks.map(m => m.id + (S.urls.has(m.image_path) ? "u" : "")).join(",");
   if (!force && ver === S.detailVer && S.overlays.detail) { renderComments(it); return; }
   S.detailVer = ver;
   const url = imgUrl(it);
+  const parent = S.byId.get(metaOf(it).markup_of);
   const left = el("div", { class: "d-media" },
     mediaNode(it, true),
-    it.kind === "instagram" && url ? el("details", { class: "shot" }, el("summary", {}, "Saved screenshot"), el("img", { src: url, alt: "Screenshot of the Instagram post" })) : null);
-  const drawable = url;
+    it.kind === "instagram" && url ? el("details", { class: "shot", open: metaOf(it).cover === "shot" || null },
+      el("summary", {}, metaOf(it).cover === "shot" ? "Cover screenshot" : "Saved screenshot"), el("img", { src: url, alt: "Screenshot of the Instagram post" })) : null,
+    mks.length ? el("div", { class: "field" }, el("span", { class: "lbl" }, `Markups (${mks.length})`),
+      el("div", { class: "mk-grid" }, ...mks.map(m => el("button", { type: "button", "aria-label": "Open " + titleOf(m), title: `${titleOf(m)} · ${nameOf(m.created_by)}`, onclick: () => openDetail(m.id) },
+        imgUrl(m) ? el("img", { src: imgUrl(m), alt: "" }) : "…")))) : null);
   const right = el("div", { class: "d-info" },
     el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", {}, roomName(it.room_id)), it.type ? el("span", {}, "· " + it.type) : null),
     el("h2", { class: "d-title" }, titleOf(it)),
+    parent ? el("p", { class: "d-by" }, "Markup on ", el("a", { href: "#", onclick: e => { e.preventDefault(); openDetail(parent.id); } }, titleOf(parent))) : null,
     it.kind !== "note" && it.note ? el("p", { class: "d-why" }, it.note) : null,
-    el("p", { class: "d-by" }, `Added by ${it.created_by || "someone"} · ${fmtDate(it.created_at)}`),
+    el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}`),
     el("div", { class: "d-actions" },
       it.url ? el("a", { class: "btn", href: it.url, target: "_blank", rel: "noopener" }, it.kind === "instagram" ? "Open on Instagram ↗" : "Open link ↗") : null,
       el("button", { type: "button", class: "btn", onclick: () => openEditor({ item: it }) }, "Edit"),
-      drawable ? el("button", { type: "button", class: "btn", onclick: () => drawOn(it, drawable) }, "Draw on this") : null,
+      el("button", { type: "button", class: "btn", onclick: () => drawOn(it),
+        title: url || it.kind === "note" || it.kind === "sketch" ? "Scribble on a copy. It's saved with this post." : "You'll be asked for a screenshot to draw on" }, "Draw on this"),
       confirmBtn("Delete", "Delete for everyone?", async () => {
         await S.store.deleteItem(it); closeOverlay("detail"); toast("Deleted"); await refresh();
       }, "ghost")),
-    el("section", { class: "comments", "aria-label": "Comments" }, el("h3", {}, "Comments"), el("div", { id: "c-list", class: "list" }), commentForm(it)));
+    el("section", { class: "comments", "aria-label": "Comments" }, el("h3", {}, "Comments"), el("div", { id: "c-list", class: "list" }),
+      composer({ it, placeholder: "Add a comment for the team. Type @ to tag someone.", label: "New comment" })));
   openOverlay("detail", el("div", { class: "panel wide", role: "dialog", "aria-modal": "true", "aria-label": titleOf(it) },
     panelHead(KIND_LABEL[it.kind] + " · " + roomName(it.room_id), () => closeOverlay("detail")),
     el("div", { class: "panel-body detail" }, left, right)));
   renderComments(it);
   processIG();
 }
+
+/* Comment text with @Name tags highlighted. */
+function richBody(text) {
+  const names = [...new Set(S.members.map(m => nameOf(m.email)).filter(Boolean))].sort((a, b) => b.length - a.length);
+  if (!names.length) return [text];
+  const re = new RegExp("@(" + names.map(escRe).join("|") + ")", "gi");
+  const out = []; let last = 0;
+  for (const m of text.matchAll(re)) { out.push(text.slice(last, m.index), el("span", { class: "mention" }, m[0])); last = m.index + m[0].length; }
+  out.push(text.slice(last));
+  return out;
+}
+
 function renderComments(it) {
   const list = $("#c-list"); if (!list) return;
+  // Don't wipe a reply someone is typing when a live update arrives; redraw once they leave the box.
+  if (list.contains(document.activeElement) && document.activeElement.tagName === "TEXTAREA") {
+    if (!S.cDirty) {
+      S.cDirty = true;
+      document.activeElement.addEventListener("blur", () => setTimeout(() => {
+        if (S.cDirty && !list.contains(document.activeElement)) { S.cDirty = false; renderComments(it); }
+      }, 250), { once: true });
+    }
+    return;
+  }
+  S.cDirty = false;
   const cs = S.comments.filter(c => c.item_id === it.id);
-  const me = (S.user?.email || "").toLowerCase();
-  list.replaceChildren(...(cs.length ? cs.map(c => el("div", { class: "c-item" },
-    el("div", { class: "c-head" }, el("strong", {}, c.author || "someone"), el("span", {}, fmtDate(c.created_at)),
-      (c.author || "").toLowerCase() === me ? el("button", { type: "button", class: "c-del", onclick: async () => {
-        try { await S.store.deleteComment(c.id); await refresh(); } catch (e) { toast(errMsg(e), "err"); } } }, "Delete") : null),
-    el("div", { class: "c-body" }, c.body))) : [el("p", { class: "hint" }, "No comments yet.")]));
+  const byId = new Map(cs.map(c => [c.id, c]));
+  const rootOf = c => { let r = c, n = 0; while (r.parent_id && byId.has(r.parent_id) && n++ < 20) r = byId.get(r.parent_id); return r; };
+  const roots = [], kids = new Map();
+  for (const c of cs) { const r = rootOf(c); if (r === c) roots.push(c); else { if (!kids.has(r.id)) kids.set(r.id, []); kids.get(r.id).push(c); } }
+  const me = myEmail();
+  const openReply = (root, target) => {
+    const who = (target.author || "").toLowerCase();
+    S.replyOpen = { root: root.id, text: who && who !== me ? "@" + nameOf(who) + " " : "" };
+    renderComments(it);
+    const ta = list.querySelector(".reply-form textarea");
+    if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  };
+  const node = (c, root) => el("div", { class: "c-item", id: "c-" + c.id },
+    el("div", { class: "c-head" }, el("strong", {}, nameOf(c.author)), el("span", { title: new Date(c.created_at).toLocaleString() }, fmtWhen(c.created_at)),
+      el("span", { class: "acts" },
+        el("button", { type: "button", class: "c-act", onclick: () => openReply(root, c) }, "Reply"),
+        (c.author || "").toLowerCase() === me ? miniConfirm("Delete", c === root && kids.get(c.id)?.length ? "Delete with replies?" : "Delete?", async () => {
+          await S.store.deleteComment(c.id); await refresh(); }) : null)),
+    el("div", { class: "c-body" }, ...richBody(c.body || "")));
+  const threads = roots.map(r => {
+    const reps = kids.get(r.id) || [];
+    const replying = S.replyOpen?.root === r.id;
+    return el("div", { class: "c-thread" }, node(r, r),
+      reps.length || replying ? el("div", { class: "c-replies" }, ...reps.map(c => node(c, r)),
+        replying ? composer({ it, parentId: r.id, text: S.replyOpen.text, placeholder: "Write a reply. Type @ to tag someone.", label: "Reply",
+          onText: v => { if (S.replyOpen) S.replyOpen.text = v; },
+          onDone: () => { S.replyOpen = null; },
+          onCancel: () => { S.replyOpen = null; renderComments(it); } }) : null) : null);
+  });
+  list.replaceChildren(...(threads.length ? threads : [el("p", { class: "hint" }, "No comments yet.")]));
 }
-function commentForm(it) {
-  const ta = el("textarea", { id: "c-new", rows: 2, placeholder: "Add a comment for the team", "aria-label": "New comment" });
-  const btn = el("button", { class: "btn small primary", type: "submit" }, "Post comment");
-  return el("form", { class: "c-form", onsubmit: async e => {
+
+function miniConfirm(label, armedLabel, fn) {
+  const b = el("button", { type: "button", class: "c-act" }, label);
+  let armed = false, t;
+  b.addEventListener("click", async () => {
+    if (!armed) { armed = true; b.textContent = armedLabel; t = setTimeout(() => { armed = false; b.textContent = label; }, 4000); return; }
+    clearTimeout(t);
+    try { await fn(); } catch (e) { toast(errMsg(e), "err"); }
+  });
+  return b;
+}
+
+/* Comment box with @mention suggestions from the member list. */
+function composer({ it, parentId = null, text = "", placeholder, label, onText, onDone, onCancel }) {
+  const ta = el("textarea", { rows: 2, placeholder, "aria-label": label, "aria-autocomplete": "list" });
+  ta.value = text;
+  const pop = el("div", { class: "mention-pop", role: "listbox", hidden: true });
+  const btn = el("button", { class: "btn small primary", type: "submit" }, parentId ? "Reply" : "Post comment");
+  let opts = [], sel = 0, tokenStart = -1;
+  const people = () => S.members.filter(m => m.email !== myEmail());
+  function hide() { pop.hidden = true; opts = []; }
+  function scan() {
+    const pos = ta.selectionStart, m = ta.value.slice(0, pos).match(/(^|\s)@([^\s@]{0,30})$/);
+    if (!m) return hide();
+    const q = m[2].toLowerCase(); tokenStart = pos - m[2].length - 1;
+    opts = people().filter(p => nameOf(p.email).toLowerCase().includes(q) || p.email.includes(q)).slice(0, 6);
+    if (!opts.length) return hide();
+    sel = Math.min(sel, opts.length - 1);
+    pop.replaceChildren(...opts.map((p, i) => el("button", { type: "button", role: "option", "aria-selected": String(i === sel),
+      onmousedown: e => { e.preventDefault(); pick(i); } }, nameOf(p.email), el("small", {}, p.email))));
+    pop.hidden = false;
+  }
+  function pick(i) {
+    const p = opts[i]; if (!p) return;
+    const pos = ta.selectionStart, ins = "@" + nameOf(p.email) + " ";
+    ta.value = ta.value.slice(0, tokenStart) + ins + ta.value.slice(pos);
+    const c = tokenStart + ins.length; ta.setSelectionRange(c, c);
+    hide(); ta.focus(); onText?.(ta.value);
+  }
+  ta.addEventListener("input", () => { sel = 0; scan(); onText?.(ta.value); });
+  ta.addEventListener("click", scan);
+  ta.addEventListener("blur", () => setTimeout(hide, 150));
+  ta.addEventListener("keydown", e => {
+    if (!pop.hidden && opts.length) {
+      if (e.key === "ArrowDown") { e.preventDefault(); sel = (sel + 1) % opts.length; scan(); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); sel = (sel - 1 + opts.length) % opts.length; scan(); return; }
+      if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); pick(sel); return; }
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); hide(); return; }
+    }
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); form.requestSubmit(); }
+  });
+  const form = el("form", { class: "c-form" + (parentId ? " reply-form" : ""), onsubmit: async e => {
     e.preventDefault(); const body = ta.value.trim(); if (!body) return;
     btn.disabled = true;
-    try { await S.store.addComment(it.id, body); ta.value = ""; await refresh(); } catch (err) { toast(errMsg(err), "err"); }
+    const low = body.toLowerCase();
+    const mentions = people().filter(m => low.includes("@" + nameOf(m.email).toLowerCase()) || low.includes("@" + m.email)).map(m => m.email);
+    try {
+      await S.store.addComment(it.id, body, extras({ parent_id: parentId, mentions }));
+      ta.value = ""; onText?.(""); onDone?.();
+      if (parentId) ta.blur(); // lets the thread redraw with the new reply
+      await refresh();
+      if (mentions.length) toast(`Tagged ${mentions.map(nameOf).join(", ")}. They'll see it under “For you”.`);
+    } catch (err) { toast(errMsg(err), "err"); }
     btn.disabled = false;
-  } }, ta, btn);
+  } },
+    el("div", { class: "composer" }, ta, pop),
+    el("div", { class: "form-actions" }, onCancel ? el("button", { type: "button", class: "btn small ghost", onclick: onCancel }, "Cancel") : null, btn));
+  return form;
 }
-async function drawOn(it, url) {
-  const blob = await openSketch({ bgUrl: url });
+
+/* Anyone can scribble on any post. The drawing is saved as a markup attached to that post. */
+async function drawOn(it) {
+  const target = S.byId.get(metaOf(it).markup_of) || it;
+  let url = imgUrl(it);
+  if (!url && (it.kind === "instagram" || it.kind === "link")) {
+    toast("Choose a screenshot of the post (or of the slide you mean) to draw on.");
+    const [f] = await pickFile("image/*");
+    if (!f) return;
+    const p = await prepareImage(f);
+    url = p.preview;
+    // Keep that screenshot on the post too, as its backup image.
+    S.store.upload(p.blob, p.ext).then(path => S.store.updateItem(it.id, { image_path: path })).then(refresh).catch(() => {});
+  }
+  const blob = await openSketch({ bgUrl: url || null });
   if (!blob) return;
   try {
     const path = await S.store.upload(blob, blob.type === "image/png" ? "png" : "jpg");
-    await S.store.insertItems([{ kind: "sketch", title: "Markup: " + titleOf(it), note: "", room_id: it.room_id, type: it.type, priority: it.priority, image_path: path, created_at: new Date().toISOString() }]);
-    toast("Markup added as a new card"); await refresh();
+    await S.store.insertItems([{ kind: "sketch", title: "Markup: " + titleOf(target), note: "", room_id: target.room_id, type: target.type, priority: target.priority,
+      image_path: path, created_at: new Date().toISOString(), ...extras({ meta: { markup_of: target.id } }) }]);
+    toast(S.needsUpdate ? "Markup added as a new card" : "Markup saved with this post"); await refresh();
   } catch (e) { toast(errMsg(e), "err"); }
 }
 
@@ -859,10 +1296,14 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
         ? el("input", { id: "e-ig", value: item.url || "", placeholder: "https://www.instagram.com/p/…" })
         : el("textarea", { id: "e-ig", rows: 3, placeholder: "https://www.instagram.com/p/DfHiEMmip0q/" });
       ed.igInput = inp;
+      const cover = el("input", { type: "checkbox", id: "e-cover" });
+      cover.checked = metaOf(item).cover === "shot";
+      ed.coverCb = cover;
       return el("div", { class: "stack" },
         field(isEdit ? "Instagram link" : "Instagram link(s)", inp, isEdit ? null : "Paste one link, or several (one per line) to add them all at once. Only posts from public accounts can be shown."),
-        singleImage("Backup screenshot (optional)", isEdit ? item.image_path : null),
-        el("p", { class: "hint" }, "The screenshot shows up if the post is ever deleted or made private."));
+        singleImage("Screenshot (optional)", isEdit ? item.image_path : null),
+        el("label", { class: "check", for: "e-cover" }, cover, "Show the screenshot as the cover on the board"),
+        el("p", { class: "hint" }, "For a carousel, screenshot the photo you want people to see first (say photo 4) and tick the box. Clicking the cover still plays the live post. Without the box ticked, the screenshot only appears if the post is deleted or made private."));
     }
     if (k === "image") {
       if (isEdit) return singleImage("Image", item.image_path);
@@ -889,9 +1330,32 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     if (k === "link") {
       const u = el("input", { id: "e-url", type: "url", inputmode: "url", value: item?.url || "", placeholder: "https://…" });
       ed.urlInput = u;
+      const pvBox = el("div", { "aria-live": "polite" });
+      ed.preview = isEdit ? metaOf(item).preview || null : null;
+      ed.previewFor = isEdit ? item.url : null;
+      ed.previewImg = Promise.resolve(null);
+      ed.loadPv = async () => {
+        const v = normUrl(u.value);
+        if (!v || v === ed.previewFor) return;
+        ed.previewFor = v; ed.preview = null; ed.previewImg = Promise.resolve(null);
+        if (ytId(v)) { pvBox.replaceChildren(el("p", { class: "hint" }, "YouTube video: it will play right on the card.")); return; }
+        pvBox.replaceChildren(el("p", { class: "hint" }, "Fetching a preview…"));
+        const pv = await fetchPreview(v);
+        if (ed.previewFor !== v) return;
+        ed.preview = pv;
+        if (!pv || (!pv.title && !pv.image)) { pvBox.replaceChildren(el("p", { class: "hint" }, "No preview available for this site. You can add a picture below.")); return; }
+        ed.previewImg = grabImage(pv.image);
+        if (pv.title) fTitle.placeholder = pv.title;
+        pvBox.replaceChildren(el("div", { class: "lprev" },
+          pv.image ? el("img", { src: pv.image, alt: "", referrerpolicy: "no-referrer" }) : el("span"),
+          el("div", {}, el("strong", {}, pv.title || hostOf(v)), pv.description ? el("p", { class: "hint" }, pv.description) : null)));
+      };
+      u.addEventListener("change", ed.loadPv);
+      u.addEventListener("input", debounce(ed.loadPv, 700));
       return el("div", { class: "stack" },
-        field("Link", u, "A shop, a maker, a Pinterest pin, a YouTube video: anything with a web address."),
-        singleImage("Picture for the card (optional)", isEdit ? item.image_path : null));
+        field("Link", u, "A shop, a maker, a Pinterest pin, a YouTube video: anything with a web address. The page's picture and title are fetched automatically."),
+        pvBox,
+        singleImage("Picture for the card (optional, replaces the fetched one)", isEdit ? item.image_path : null));
     }
     const n = el("textarea", { id: "e-note", rows: 6, placeholder: "Write the idea down…" });
     n.value = item?.kind === "note" ? item.note || "" : "";
@@ -905,15 +1369,44 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     const st = S.store;
     const up = async p => (p ? await st.upload(p.blob, p.ext) : null);
     saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+    // For links: the fetched page preview, and its picture when the card has no picture of its own.
+    const linkExtras = async (u, keepsImage) => {
+      if (ytId(u)) return { meta: { preview_tried: true }, img: null };
+      if (ed.previewFor !== u) await ed.loadPv();
+      const meta = { preview_tried: true };
+      if (ed.preview && ed.previewFor === u) meta.preview = { title: ed.preview.title, description: ed.preview.description, site: ed.preview.site };
+      let img = null;
+      if (!ed.shot && !keepsImage && !ed.removeImage && ed.previewFor === u) {
+        const b = await ed.previewImg.catch(() => null);
+        if (b) img = await prepareImage(b);
+      }
+      return { meta, img };
+    };
     try {
       if (isEdit) {
         const patch = { ...base, note: ed.kind === "note" ? ed.noteInput.value.trim() : why };
-        if (ed.kind === "instagram") { const p = igPermalink(ed.igInput.value); if (!p) throw new Error("That doesn't look like an Instagram post link. It should contain /p/ or /reel/."); patch.url = p; }
-        if (ed.kind === "link") { const u = normUrl(ed.urlInput.value); if (!u) throw new Error("Add a valid web address."); patch.url = u; }
+        const meta = { ...metaOf(item) };
+        let fetchedImg = null;
+        if (ed.kind === "instagram") {
+          const p = igPermalink(ed.igInput.value); if (!p) throw new Error("That doesn't look like an Instagram post link. It should contain /p/ or /reel/.");
+          patch.url = p;
+          if (ed.coverCb.checked) {
+            if (!ed.shot && (ed.removeImage || !item.image_path)) throw new Error("Add a screenshot to use as the cover, or untick the cover box.");
+            meta.cover = "shot";
+          } else delete meta.cover;
+        }
+        if (ed.kind === "link") {
+          const u = normUrl(ed.urlInput.value); if (!u) throw new Error("Add a valid web address.");
+          patch.url = u;
+          const x = await linkExtras(u, !!item.image_path);
+          Object.assign(meta, x.meta); fetchedImg = x.img;
+          if (u !== item.url && !x.meta.preview) delete meta.preview;
+        }
         if (ed.kind === "note" && !patch.note) throw new Error("The note is empty.");
-        const newImg = ed.kind === "sketch" ? ed.sketch : ed.shot;
+        const newImg = ed.kind === "sketch" ? ed.sketch : (ed.shot || fetchedImg);
         if (newImg) patch.image_path = await up(newImg);
         else if (ed.removeImage) { if (ed.kind === "image") throw new Error("A photo card needs an image. Add one, or delete the card."); patch.image_path = null; }
+        Object.assign(patch, extras({ meta }));
         await st.updateItem(item.id, patch);
         if ("image_path" in patch && item.image_path && patch.image_path !== item.image_path) st.removeFile(item.image_path);
         toast("Saved");
@@ -922,12 +1415,18 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
         const mk = (extra, k) => ({ ...base, note: why, ...extra, created_at: new Date(now - k).toISOString() });
         if (ed.kind === "instagram") {
           const raw = ed.igInput.value.split(/[\s,]+/).filter(Boolean);
-          const links = [...new Set(raw.map(igPermalink).filter(Boolean))];
-          if (!links.length) throw new Error("Paste an Instagram post link. It should contain /p/ or /reel/.");
-          const skipped = raw.filter(r => !igPermalink(r)).length;
+          const all = [...new Set(raw.map(igPermalink).filter(Boolean))];
+          if (!all.length) throw new Error("Paste an Instagram post link. It should contain /p/ or /reel/.");
+          const have = new Set(S.items.filter(i => i.kind === "instagram").map(i => igPermalink(i.url)));
+          const links = all.filter(u => !have.has(u));
+          if (!links.length) throw new Error(all.length === 1 ? "That post is already on the board." : "All of these posts are already on the board.");
+          const skipped = raw.filter(r => !igPermalink(r)).length, dupes = all.length - links.length;
+          const useCover = links.length === 1 && ed.coverCb.checked;
+          if (useCover && !ed.shot) throw new Error("Add a screenshot to use as the cover, or untick the cover box.");
           const shotPath = links.length === 1 ? await up(ed.shot) : null;
-          links.forEach((u, k) => rows.push(mk({ kind: "instagram", url: u, image_path: shotPath }, k)));
-          if (skipped) setTimeout(() => toast(`Skipped ${skipped} link${skipped === 1 ? "" : "s"} that weren't Instagram posts`), 1200);
+          links.forEach((u, k) => rows.push(mk({ kind: "instagram", url: u, image_path: shotPath, ...extras({ meta: useCover ? { cover: "shot" } : {} }) }, k)));
+          const notes = [skipped && `${skipped} link${skipped === 1 ? " wasn't an Instagram post" : "s weren't Instagram posts"}`, dupes && `${dupes} already on the board`].filter(Boolean);
+          if (notes.length) setTimeout(() => toast("Skipped: " + notes.join(", ")), 1200);
         } else if (ed.kind === "image") {
           if (!ed.files.length) throw new Error("Add at least one image.");
           let k = 0; for (const f of ed.files) rows.push(mk({ kind: "image", image_path: await up(f) }, k++));
@@ -936,7 +1435,8 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
           rows.push(mk({ kind: "sketch", image_path: await up(ed.sketch) }, 0));
         } else if (ed.kind === "link") {
           const u = normUrl(ed.urlInput.value); if (!u) throw new Error("Add a valid web address.");
-          rows.push(mk({ kind: "link", url: u, image_path: await up(ed.shot) }, 0));
+          const x = await linkExtras(u, false);
+          rows.push(mk({ kind: "link", url: u, image_path: await up(ed.shot || x.img), ...extras({ meta: x.meta }) }, 0));
         } else {
           const n = ed.noteInput.value.trim(); if (!n) throw new Error("The note is empty.");
           rows.push(mk({ kind: "note", note: n }, 0));
@@ -954,7 +1454,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
 
   setKind(ed.kind);
   if (files?.length && ed.onFiles) ed.onFiles(ed.kind === "image" ? files : files.slice(0, 1));
-  if (text) { if (ed.kind === "instagram") ed.igInput.value = text.trim(); else if (ed.kind === "link") ed.urlInput.value = text.trim(); }
+  if (text) { if (ed.kind === "instagram") ed.igInput.value = text.trim(); else if (ed.kind === "link") { ed.urlInput.value = text.trim(); ed.loadPv(); } }
   setTimeout(() => (kindBox.querySelector("textarea, input:not([type=file])") || fTitle).focus(), 40);
 }
 
@@ -1095,8 +1595,11 @@ function openSettings() {
       const link = location.origin + location.pathname;
       people = el("section", { class: "set" },
         el("h3", {}, "People who can edit"),
-        el("p", { class: "hint" }, "Everyone listed can sign in with an email link, and add, edit, delete and comment. Add each person at the studio."),
-        el("div", { class: "list" }, ...members.map(m => el("div", { class: "list-row" }, el("span", { class: "grow" }, m.email),
+        el("p", { class: "hint" }, "Everyone listed can sign in with an email link, and add, edit, delete and comment. Add each person at the studio, and give them a name so they can be @tagged in comments."),
+        el("div", { class: "list" }, ...members.map(m => el("div", { class: "list-row" },
+          el("input", { value: m.name || "", placeholder: "Name", "aria-label": "Name for " + m.email, style: "flex:0 1 150px", disabled: S.needsUpdate || null,
+            onchange: e => act(() => S.store.updateMember(m.email, { name: e.target.value.trim() || null })) }),
+          el("span", { class: "grow" }, m.email),
           m.email === me ? el("span", { class: "hint" }, "You") : confirmBtn("Remove", "Remove access?", () => act(() => S.store.removeMember(m.email)), "small ghost")))),
         el("form", { class: "list-row", onsubmit: e => { e.preventDefault(); const v = newEmail.value.trim().toLowerCase(); if (v) act(() => S.store.addMember(v)); } },
           newEmail, el("button", { class: "btn small", type: "submit" }, "Add person")),
@@ -1110,11 +1613,310 @@ function openSettings() {
           S.store.reset(); S.nodes.forEach(n => n.remove()); S.nodes.clear(); await refresh(); await draw(); toast("Demo board reset");
         }, "small ghost")));
     }
+    const plan = planData(), purl = plan && S.urls.get(plan.path);
+    const marked = S.rooms.filter(r => Array.isArray(r.area) && r.area.length).length;
+    const uploadPlan = async () => {
+      const [f] = await pickFile("image/*"); if (!f) return;
+      act(async () => {
+        const p = await prepareImage(f);
+        const path = await S.store.upload(p.blob, p.ext);
+        await S.store.setSetting("floorplan", { path });
+        if (plan) S.store.removeFile(plan.path);
+        toast(plan ? "Plan replaced. Check the room boxes still line up." : "Plan added. Now mark where each room is.");
+      });
+    };
+    const planSec = el("section", { class: "set" }, el("h3", {}, "Floor plan"),
+      el("p", { class: "hint" }, "Upload the layout as an image (PNG or JPG; for a PDF, take a screenshot of the page). Then mark where each room is. The plan appears above the board: click a room to filter, and rooms with matching items light up as you filter by type, priority or search."),
+      S.needsUpdate ? el("p", { class: "hint" }, "Needs the one-time database update first (see the banner).") : null,
+      purl ? el("img", { src: purl, alt: "Floor plan", class: "sketch-prev", style: "max-width:100%" }) : null,
+      plan ? el("p", { class: "hint" }, `${marked} of ${S.rooms.length} rooms marked on the plan.`) : null,
+      el("div", { class: "list-row" },
+        el("button", { type: "button", class: "btn small", disabled: S.needsUpdate || null, onclick: uploadPlan }, plan ? "Replace plan" : "Upload plan"),
+        plan ? el("button", { type: "button", class: "btn small primary", onclick: openPlanEditor }, "Mark rooms on plan") : null,
+        plan ? confirmBtn("Remove plan", "Remove the plan?", () => act(async () => { await S.store.setSetting("floorplan", null); S.store.removeFile(plan.path); }), "small ghost") : null));
     body.replaceChildren(
       el("section", { class: "set" }, el("h3", {}, "Rooms"), el("p", { class: "hint" }, "Rename a room by editing its name. Removing a room moves its items to “Whole home”."), rooms, addRoom),
+      planSec,
       people);
   }
+  S.redrawSettings = draw;
   draw();
+}
+
+/* ===================== FLOOR PLAN ===================== */
+function planData() { const p = S.settings?.floorplan; return p && p.path ? p : null; }
+const pctBox = a => `left:${a[0] * 100}%;top:${a[1] * 100}%;width:${a[2] * 100}%;height:${a[3] * 100}%`;
+
+function renderPlan() {
+  const sec = $("#plan"); if (!sec) return;
+  const p = planData(), url = p && S.urls.get(p.path);
+  if (!url) { sec.hidden = true; sec.replaceChildren(); return; }
+  sec.hidden = false;
+  const zones = [];
+  for (const r of S.rooms) (Array.isArray(r.area) ? r.area : []).forEach((a, k) => zones.push(
+    el("button", { type: "button", class: "zone", "data-room": r.id, style: pctBox(a), "aria-label": "Show " + r.name,
+      onclick: () => { S.filter.room = S.filter.room === r.id ? "all" : r.id; applyFilters(); } },
+      k === 0 ? el("span", { class: "zl" }, r.name, el("span", { class: "zc" })) : null)));
+  const toggle = el("button", { type: "button", class: "btn small ghost", "aria-expanded": String(S.planOpen),
+    onclick: () => { S.planOpen = !S.planOpen; lsSet("mb-plan", S.planOpen ? "open" : "closed"); renderPlan(); } }, S.planOpen ? "Hide plan" : "Show plan");
+  sec.replaceChildren(
+    el("div", { class: "plan-head" }, el("h2", {}, "Floor plan"),
+      el("span", { class: "hint grow" }, zones.length ? "Click a room to filter. Rooms with matching items light up." : "Mark the rooms in Rooms & people to make the plan clickable."),
+      toggle),
+    S.planOpen ? el("div", { class: "plan-body" }, el("div", { class: "plan-box", id: "plan-box" }, el("img", { src: url, alt: "Floor plan", draggable: "false" }), ...zones)) : null);
+  updatePlanZones();
+}
+
+function updatePlanZones() {
+  const box = $("#plan-box"); if (!box) return;
+  const f = S.filter, anyRoom = { ...f, room: "all" };
+  const counts = new Map();
+  for (const it of S.boardItems) if (it.room_id && matchesWith(it, anyRoom)) counts.set(it.room_id, (counts.get(it.room_id) || 0) + 1);
+  const filtering = f.type !== "all" || f.prio !== "all" || !!f.q || f.newOnly;
+  box.querySelectorAll(".zone").forEach(z => {
+    const id = z.dataset.room, n = counts.get(id) || 0, on = f.room === id;
+    z.classList.toggle("on", on);
+    z.setAttribute("aria-pressed", String(on));
+    z.classList.toggle("has", filtering && n > 0 && !on);
+    z.classList.toggle("none", !on && (filtering ? n === 0 : f.room !== "all"));
+    const zc = z.querySelector(".zc"); if (zc) zc.textContent = " · " + n;
+  });
+}
+
+function openPlanEditor() {
+  const p = planData(), url = p && S.urls.get(p.path); if (!url) return;
+  const areas = new Map(S.rooms.map(r => [r.id, (Array.isArray(r.area) ? r.area : []).map(a => [...a])]));
+  let cur = S.rooms.find(r => !areas.get(r.id).length)?.id || S.rooms[0]?.id;
+  S.stack.push("plan-editor");
+  document.body.classList.add("locked");
+  const img = el("img", { src: url, alt: "Floor plan", draggable: "false" });
+  const box = el("div", { class: "plan-box pe-box" }, img);
+  const roomBar = el("div", { class: "chips pe-rooms", role: "group", "aria-label": "Room to mark" });
+  const close = () => {
+    ov.remove(); S.stack = S.stack.filter(n => n !== "plan-editor");
+    if (!S.stack.length) document.body.classList.remove("locked");
+  };
+  const saveBtn = el("button", { type: "button", class: "btn primary", onclick: async () => {
+    saveBtn.disabled = true;
+    try {
+      for (const r of S.rooms) {
+        const now = areas.get(r.id);
+        if (JSON.stringify(now) !== JSON.stringify(Array.isArray(r.area) ? r.area : [])) await S.store.updateRoom(r.id, { area: now.length ? now : null });
+      }
+      close(); toast("Floor plan saved"); await refresh(); S.redrawSettings?.();
+    } catch (e) { toast(errMsg(e), "err"); saveBtn.disabled = false; }
+  } }, "Save");
+  const ov = el("div", { class: "pe", role: "dialog", "aria-modal": "true", "aria-label": "Mark rooms on the floor plan" },
+    el("div", { class: "sk-bar" }, el("strong", {}, "Mark rooms"),
+      el("span", { class: "hint grow" }, "Pick a room, then drag a box over it on the plan. Add several boxes for an L-shaped room. Tap × to remove a box."),
+      el("button", { type: "button", class: "btn ghost", onclick: close }, "Cancel"), saveBtn),
+    roomBar, el("div", { class: "pe-stage" }, box));
+  function draw() {
+    roomBar.replaceChildren(...S.rooms.map(r => el("button", { type: "button", class: "chip", "aria-pressed": String(r.id === cur), onclick: () => { cur = r.id; draw(); } },
+      r.name, el("span", { class: "n" }, areas.get(r.id).length ? "✓" : ""))));
+    box.querySelectorAll(".zone").forEach(z => z.remove());
+    for (const r of S.rooms) areas.get(r.id).forEach((a, k) => box.append(
+      el("div", { class: "zone" + (r.id === cur ? " on" : ""), style: pctBox(a) },
+        k === 0 ? el("span", { class: "zl" }, r.name) : null,
+        r.id === cur ? el("button", { type: "button", class: "zx", "aria-label": "Remove this box",
+          onpointerdown: e => e.stopPropagation(), onclick: () => { areas.get(r.id).splice(k, 1); draw(); } }, "×") : null)));
+  }
+  const clamp = v => Math.max(0, Math.min(1, v));
+  const at = e => { const r = img.getBoundingClientRect(); return { x: clamp((e.clientX - r.left) / r.width), y: clamp((e.clientY - r.top) / r.height) }; };
+  const rectOf = (a, b) => [Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(a.x - b.x), Math.abs(a.y - b.y)];
+  let start = null, live = null;
+  box.addEventListener("pointerdown", e => {
+    if (!cur || e.button > 0) return;
+    e.preventDefault(); box.setPointerCapture(e.pointerId);
+    start = at(e); live = el("div", { class: "zone on", style: pctBox([start.x, start.y, 0, 0]) }); box.append(live);
+  });
+  box.addEventListener("pointermove", e => { if (start) live.style.cssText = pctBox(rectOf(start, at(e))); });
+  box.addEventListener("pointerup", e => {
+    if (!start) return;
+    const a = rectOf(start, at(e)); start = null; live.remove(); live = null;
+    if (a[2] > 0.01 && a[3] > 0.01) areas.get(cur).push(a.map(v => +v.toFixed(4)));
+    draw();
+  });
+  box.addEventListener("pointercancel", () => { start = null; live?.remove(); live = null; });
+  document.body.append(ov);
+  draw();
+}
+
+/* ===================== BY-ROOM OVERVIEW ===================== */
+function tileNode(it) {
+  const url = imgUrl(it), yt = it.kind === "link" && ytId(it.url);
+  let tm;
+  if (url) tm = el("div", { class: "tm" }, el("img", { src: url, alt: "", loading: "lazy" }));
+  else if (yt) tm = el("div", { class: "tm" }, el("img", { src: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`, alt: "", loading: "lazy" }));
+  else if (it.kind === "note") tm = el("div", { class: "tm txt" }, (it.note || "").slice(0, 220));
+  else tm = el("div", { class: "tm" }, it.kind === "instagram" ? "Instagram post" : KIND_LABEL[it.kind]);
+  return el("button", { type: "button", class: "tile", "data-prio": it.priority, onclick: () => openDetail(it.id), title: titleOf(it) },
+    tm, el("span", { class: "tt" }, el("i", { class: "dot " + it.priority, "aria-label": PRIO[it.priority] }), el("span", {}, titleOf(it))));
+}
+function renderRoomsView() {
+  const box = $("#rooms-view"); if (!box) return;
+  const vis = S.boardItems.filter(matches);
+  const roomIds = new Set(S.rooms.map(r => r.id));
+  const groups = [...S.rooms.map(r => ({ id: r.id, name: r.name })), { id: null, name: "Whole home" }];
+  box.replaceChildren(...groups.map(g => {
+    const list = vis.filter(i => ((i.room_id && roomIds.has(i.room_id)) ? i.room_id : null) === g.id)
+      .sort((a, b) => (PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority]) || (tsOf(b) - tsOf(a)));
+    if (!list.length) return null;
+    const n = p => list.filter(i => i.priority === p).length;
+    return el("section", { class: "rv", "aria-label": g.name },
+      el("div", { class: "rv-head" }, el("h2", {}, g.name),
+        el("div", { class: "rv-stats" }, ...["must", "nice", "avoid"].filter(n).map(p => el("span", { class: "prio " + p }, `${n(p)} ${PRIO[p]}`))),
+        el("span", { class: "spacer" }),
+        el("button", { type: "button", class: "btn small ghost", onclick: () => { S.filter.room = g.id ?? "none"; setView("board"); window.scrollTo(0, 0); } },
+          `See all ${list.length} →`)),
+      el("div", { class: "rv-row" }, ...list.map(tileNode)));
+  }).filter(Boolean));
+}
+
+/* ===================== FOR YOU: mentions and replies ===================== */
+function forYouList() {
+  const me = myEmail(); if (!me) return [];
+  const byId = new Map(S.comments.map(c => [c.id, c]));
+  const out = [];
+  for (const c of S.comments) {
+    if ((c.author || "").toLowerCase() === me) continue;
+    let why = null;
+    if ((c.mentions || []).includes(me)) why = "tagged you";
+    else if (c.parent_id && (byId.get(c.parent_id)?.author || "").toLowerCase() === me) why = "replied to you";
+    else if ((S.byId.get(c.item_id)?.created_by || "").toLowerCase() === me) why = "commented on your post";
+    if (why && S.byId.has(c.item_id)) out.push({ c, why });
+  }
+  return out.sort((a, b) => Date.parse(b.c.created_at) - Date.parse(a.c.created_at));
+}
+const seenKey = () => "mb-fy-seen:" + myEmail();
+function updateForYou() {
+  const b = $("#fy-badge"); if (!b) return;
+  const seen = +lsGet(seenKey()) || 0;
+  const n = forYouList().filter(x => Date.parse(x.c.created_at) > seen).length;
+  b.hidden = !n; b.textContent = n > 99 ? "99+" : String(n);
+}
+function openForYou() {
+  const seen = +lsGet(seenKey()) || 0;
+  const list = forYouList();
+  lsSet(seenKey(), String(Date.now()));
+  updateForYou();
+  openOverlay("foryou", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "For you" },
+    panelHead("For you", () => closeOverlay("foryou")),
+    el("div", { class: "panel-body" },
+      el("p", { class: "hint" }, "Comments that tag you, replies to your comments, and comments on things you added."),
+      list.length ? el("div", { class: "fy" }, ...list.slice(0, 100).map(({ c, why }) => el("button", { type: "button", class: "fy-row" + (Date.parse(c.created_at) > seen ? " unread" : ""),
+        onclick: () => { closeOverlay("foryou"); openDetail(c.item_id); } },
+        el("div", { class: "c-head" }, el("strong", {}, `${nameOf(c.author)} ${why}`), el("span", {}, fmtWhen(c.created_at))),
+        el("div", { class: "hint" }, "on " + titleOf(S.byId.get(c.item_id))),
+        el("div", { class: "c-body" }, ...richBody(c.body || "")))))
+        : el("p", {}, "Nothing yet. When someone tags you with @ or replies to you, it shows up here."))));
+}
+
+/* ===================== DOCUMENTS ===================== */
+const DOC_KINDS = [[/\.pdf$/i, "PDF", "pdf"], [/\.(dwg|dxf|skp|rvt|ifc|3dm|3ds|max)$/i, "CAD", "cad"], [/\.(xlsx?|csv|numbers|ods)$/i, "XLS", "sheet"],
+  [/\.(docx?|pages|odt|rtf|txt|md)$/i, "DOC", "word"], [/\.(pptx?|key|odp)$/i, "PPT", "word"], [/\.(zip|rar|7z)$/i, "ZIP", ""],
+  [/\.(png|jpe?g|webp|gif|heic|heif|avif|svg)$/i, "IMG", "img"]];
+function docKind(d) {
+  for (const [re, label, cls] of DOC_KINDS) if (re.test(d.name || "")) return { label, cls };
+  if (/^image\//.test(d.mime || "")) return { label: "IMG", cls: "img" };
+  const ext = ((d.name || "").match(/\.(\w{1,5})$/) || [])[1];
+  return { label: ext ? ext.toUpperCase() : "FILE", cls: "" };
+}
+/* Demo mode keeps files as data: URLs, which browsers won't open in a new tab directly. */
+function openDocLink(e) {
+  const href = e.currentTarget.getAttribute("href") || "";
+  if (!href.startsWith("data:")) return;
+  e.preventDefault();
+  fetch(href).then(r => r.blob()).then(b => window.open(URL.createObjectURL(b), "_blank"));
+}
+function renderDocs() {
+  const sec = $("#docs-sec"); if (!sec) return;
+  const nn = $("#n-docs-n"); if (nn) nn.textContent = S.docs.length ? String(S.docs.length) : "";
+  if (S.section !== "docs") return;
+  if (!sec.dataset.built) {
+    sec.dataset.built = "1";
+    const q = el("input", { type: "search", id: "d-q", placeholder: "Search file names and notes", "aria-label": "Search documents",
+      oninput: debounce(e => { S.docFilter.q = e.target.value.trim().toLowerCase(); drawDocList(); }, 150) });
+    const room = el("select", { id: "d-room", "aria-label": "Filter documents by room", onchange: e => { S.docFilter.room = e.target.value; drawDocList(); } });
+    const drop = el("div", { class: "drop", tabindex: "0", role: "button", onclick: () => uploadDocs(),
+      onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); uploadDocs(); } },
+      ondragover: e => { e.preventDefault(); drop.classList.add("over"); },
+      ondragleave: () => drop.classList.remove("over"),
+      ondrop: e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove("over"); const fs = [...e.dataTransfer.files]; if (fs.length) uploadDocs(fs); } },
+      el("strong", {}, "Drop files here, or click to upload"),
+      el("span", { class: "hint" }, "Drawings, PDFs, quotes, spreadsheets, CAD files, photos: anything up to 50 MB each. Everyone on the board can open, rename and delete them."));
+    sec.replaceChildren(
+      el("div", { class: "docs-bar" }, q, room, el("span", { class: "count", id: "d-count" })),
+      drop,
+      el("div", { class: "doc-list", id: "doc-list" }));
+  }
+  const room = $("#d-room"), cur = S.docFilter.room;
+  room.replaceChildren(el("option", { value: "all" }, "All rooms"), ...S.rooms.map(r => el("option", { value: r.id }, r.name)), el("option", { value: "none" }, "Whole home"));
+  room.value = cur; if (room.value !== cur) { S.docFilter.room = "all"; room.value = "all"; }
+  drawDocList();
+}
+function drawDocList() {
+  const listEl = $("#doc-list"); if (!listEl) return;
+  const f = S.docFilter, roomIds = new Set(S.rooms.map(r => r.id));
+  const list = S.docs.filter(d => {
+    if (f.room === "none" ? (d.room_id && roomIds.has(d.room_id)) : (f.room !== "all" && d.room_id !== f.room)) return false;
+    if (f.q && ![d.name, d.note, roomName(d.room_id), nameOf(d.uploaded_by)].join(" ").toLowerCase().includes(f.q)) return false;
+    return true;
+  });
+  $("#d-count").textContent = list.length === S.docs.length ? `${S.docs.length} file${S.docs.length === 1 ? "" : "s"}` : `${list.length} of ${S.docs.length}`;
+  listEl.replaceChildren(...(list.length ? list.map(docRow)
+    : [el("p", { class: "hint", style: "text-align:center;padding:24px" }, S.docs.length ? "No documents match." : "No documents yet. Upload the first one above.")]));
+}
+function docRow(d) {
+  const url = S.urls.get(d.path) || null, k = docKind(d);
+  const link = (cls, ...kids) => el("a", { class: cls, href: url || "#", target: "_blank", rel: "noopener", onclick: openDocLink }, ...kids);
+  const icon = link("doc-ic " + k.cls, k.cls === "img" && url ? el("img", { src: url, alt: "", loading: "lazy" }) : k.label);
+  icon.setAttribute("aria-hidden", "true"); icon.tabIndex = -1;
+  return el("div", { class: "doc" }, icon,
+    el("div", { class: "doc-main" },
+      link("doc-name", d.name),
+      el("div", { class: "doc-meta" }, [roomName(d.room_id), nameOf(d.uploaded_by), fmtDate(d.created_at), fmtSize(d.size)].filter(Boolean).join(" · ")),
+      d.note ? el("div", { class: "doc-note" }, d.note) : null),
+    el("div", { class: "doc-acts" },
+      el("button", { type: "button", class: "btn small", onclick: () => openDocEditor(d) }, "Edit"),
+      confirmBtn("Delete", "Delete for everyone?", async () => { await S.store.deleteDocument(d); toast("Deleted"); await refresh(); }, "small ghost")));
+}
+async function uploadDocs(files) {
+  if (!files) files = await pickFile(null, true);
+  if (!files?.length) return;
+  if (S.needsUpdate) { toast("Run update-2.sql in Supabase first (see the banner at the top).", "err"); return; }
+  const room = !["all", "none"].includes(S.docFilter.room) ? S.docFilter.room : null;
+  const failed = []; let ok = 0;
+  for (const [i, f] of files.entries()) {
+    if (f.size > 50 * 1024 * 1024) { failed.push(`${f.name} (over 50 MB)`); continue; }
+    toast(files.length > 1 ? `Uploading ${i + 1} of ${files.length}: ${f.name}` : `Uploading ${f.name}…`);
+    try {
+      const path = await S.store.uploadFile(f);
+      await S.store.addDocument({ name: f.name, path, size: f.size, mime: f.type || null, room_id: room });
+      ok++;
+    } catch (e) { failed.push(`${f.name} (${errMsg(e)})`); }
+  }
+  if (ok) await refresh();
+  if (failed.length) toast(`Couldn't upload: ${failed.join(", ")}`, "err");
+  else if (ok) toast(`Uploaded ${ok} file${ok === 1 ? "" : "s"}`);
+}
+function openDocEditor(d) {
+  const name = el("input", { id: "doc-name", value: d.name, required: true });
+  const room = el("select", { id: "doc-room" }, el("option", { value: "" }, "Whole home"), ...S.rooms.map(r => el("option", { value: r.id }, r.name)));
+  room.value = d.room_id || "";
+  const note = el("textarea", { id: "doc-note", rows: 3, placeholder: "What is it? e.g. “Revised kitchen elevation, 12 Nov”" }); note.value = d.note || "";
+  const save = el("button", { class: "btn primary", type: "submit" }, "Save");
+  openOverlay("doc-editor", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "Edit document" },
+    panelHead("Edit document", () => closeOverlay("doc-editor")),
+    el("form", { class: "panel-body", onsubmit: async e => {
+      e.preventDefault(); save.disabled = true;
+      try {
+        await S.store.updateDocument(d.id, { name: name.value.trim() || d.name, room_id: room.value || null, note: note.value.trim() });
+        closeOverlay("doc-editor"); toast("Saved"); await refresh();
+      } catch (err) { toast(errMsg(err), "err"); save.disabled = false; }
+    } }, field("Name", name), field("Room", room), field("Note", note),
+      el("div", { class: "form-actions" }, el("button", { type: "button", class: "btn ghost", onclick: () => closeOverlay("doc-editor") }, "Cancel"), save))));
+  setTimeout(() => name.focus(), 40);
 }
 
 /* ---------- paste and drop anywhere ---------- */
@@ -1130,16 +1932,25 @@ document.addEventListener("paste", e => {
   if (top) return;
   const t = e.target;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+  if (S.section === "docs") {
+    const any = [...(e.clipboardData?.files || [])];
+    if (any.length) { e.preventDefault(); uploadDocs(any); }
+    return;
+  }
   if (files.length) { e.preventDefault(); openEditor({ kind: "image", files }); }
   else if (igPermalink(text)) { e.preventDefault(); openEditor({ kind: "instagram", text }); }
   else if (/^https?:\/\/\S+$/i.test(text.trim())) { e.preventDefault(); openEditor({ kind: "link", text }); }
 });
 window.addEventListener("dragover", e => { if (e.dataTransfer?.types?.includes("Files")) e.preventDefault(); });
 window.addEventListener("drop", e => {
-  const files = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith("image/"));
-  if (!files.length) return;
+  const all = [...(e.dataTransfer?.files || [])];
+  if (!all.length) return;
   e.preventDefault();
-  if (S.ready && !S.stack.length) openEditor({ kind: "image", files });
+  if (!S.ready || S.stack.length) return;
+  if (S.section === "docs") { uploadDocs(all); return; }
+  const files = all.filter(f => f.type.startsWith("image/"));
+  if (files.length) openEditor({ kind: "image", files });
+  else toast("Only images go on the board. Put other files under Documents.");
 });
 
 boot();
