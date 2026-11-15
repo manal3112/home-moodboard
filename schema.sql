@@ -237,3 +237,6 @@ insert into public.admins (email)
 select email from public.members order by added_at limit 1
 on conflict do nothing;
 insert into public.ai_users (email) select email from public.admins on conflict do nothing;
+
+-- Voice notes on comments (same as update-4.sql).
+alter table public.comments add column if not exists audio_path text;

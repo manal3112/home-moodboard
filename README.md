@@ -1,6 +1,6 @@
-# Home Moodboard
+# Riviera Majestica 1302
 
-A shared board for the design studio: live Instagram posts you can scroll and play, photos and screenshots, sketches and photo markups, links, and notes. Everything is filtered by room, type and priority, and everyone can comment. You add and edit everything from the page itself. No code changes are needed after setup.
+A shared home moodboard for Urbannest Studio: live Instagram posts you can scroll and play, photos and screenshots, sketches and photo markups, links, and notes. Everything is filtered by room, type and priority, and everyone can comment. You add and edit everything from the page itself. No code changes are needed after setup.
 
 Files:
 
@@ -9,6 +9,7 @@ Files:
 - `supabase/functions/ai/index.ts`: the AI helper (room briefs and "Suggest details"), run by Supabase so the AI key stays private
 - `update-2.sql`: a one-time update for boards set up before documents, the floor plan and replies were added
 - `update-3.sql`: a one-time update that adds upvotes and the AI access list
+- `update-4.sql`: a one-time update that adds voice notes to comments
 
 ## Try it first (2 minutes)
 
@@ -58,7 +59,7 @@ In **Authentication → URL Configuration**:
 
 ## Updating a board that's already set up
 
-If your board was set up before November 2026, run the updates once, in order: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, click **Run**, then do the same with `update-3.sql`. Until then the board shows a yellow banner naming the file still to run, and the features that need it stay switched off. Everything else keeps working.
+If your board was set up before November 2026, run the updates once, in order: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, click **Run**, then do the same with `update-3.sql` and then `update-4.sql`. Until then the board shows a yellow banner naming the file still to run, and the features that need it stay switched off. Everything else keeps working.
 
 ## AI features (optional)
 
@@ -77,7 +78,7 @@ Setup, once:
 2. In Supabase, open **Edge Functions → Secrets**, add a secret named `ANTHROPIC_API_KEY`, and paste the key as its value.
 3. Deploy the helper from this folder (needs the Supabase CLI and a one-time `supabase login`):
    ```
-   supabase functions deploy ai --no-verify-jwt --project-ref bbbxjegctpvyxozgoxab
+   supabase functions deploy ai --no-verify-jwt --remote=bbbxjegctpvyxozgoxab
    ```
    `--no-verify-jwt` is intended: the helper checks that the caller is on the member list itself.
 
@@ -93,7 +94,8 @@ Cost: you pay Anthropic per use. Each brief or suggestion is a single request, a
 - **Links**: the page's picture, title and description are fetched automatically. YouTube links play on the card.
 - **Sketch**: draw freehand, or load a photo and mark it up with pen and highlighter.
 - **Draw on this**: anyone can scribble on any post. The drawing is saved with that post (open the post to see its markups). For an Instagram post or a link without a picture, you'll be asked for a screenshot to draw on.
-- **Comments**: reply to any comment, and type **@** to tag someone. **For you** (top of the page) lists comments that tag you, replies to you, and comments on things you added, with a red count for new ones.
+- **Comments**: reply to any comment, and type **@** to tag someone. Tap **🎤 Voice note** to record instead of typing (up to 5 minutes): tap again to stop, listen, then post. The browser asks for the microphone the first time. **For you** (top of the page) lists comments that tag you, replies to you, and comments on things you added, with a red count for new ones.
+- **ગુજરાતી**: the button at the top switches the page to Gujarati (and **English** switches back). Each person's choice is remembered on their device. Buttons, menus and labels change; titles, notes and comments stay exactly as people wrote them, and anything can be typed in Gujarati.
 - **Documents**: a shared folder for drawings, PDFs, quotes, spreadsheets and CAD files (up to 50 MB each). Drag files onto the page or click **+ Upload**. Anyone can open, rename, file under a room, or delete them.
 - **Floor plan**: in **Rooms & people**, upload the layout as an image and mark where each room is. The plan then shows above the board: click a room to filter, and rooms with matching items light up when you filter by type, priority or search.
 - **Board / Feed / By room**: Board is a grid; Feed is a single Instagram-style column; By room is a summary with a row of thumbnails per room, must-haves first.

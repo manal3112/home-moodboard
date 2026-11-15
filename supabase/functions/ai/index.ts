@@ -129,7 +129,8 @@ async function autofill(body: {
   });
   const out = await ask({
     system:
-      "You help a family in Ahmedabad, India, keep a moodboard for the interior designers of their new apartment. " +
+      "You help a family in Ahmedabad, India, keep a moodboard for Urbannest Studio, the interior designers of their new apartment (Riviera Majestica 1302). " +
+      "Their notes may be in Gujarati or English; always reply in English. " +
       "Given a photo, screenshot or link, describe what it shows in the words an interior designer would use. " +
       "title: a short name for the object or idea, 2-6 words, like 'Cane-back teak dining chair' (no quotes, no trailing period). " +
       "why: one or two sentences on what is appealing about it - form, material, colour, craft technique, proportion - written in first person plural ('We like...'). " +
@@ -205,7 +206,7 @@ async function brief(sb: SupabaseClient, body: { room_id?: string | null }, emai
     if (it.url) lines.push(`Link: ${it.url}`);
     if (it.kind === "instagram") lines.push(urls.has(it.image_path ?? "") ? "(The picture below is a screenshot of the Instagram post.)" : "(Instagram post: no screenshot available, so judge it only from the notes.)");
     const cs = comments.filter((c) => c.item_id === it.id);
-    if (cs.length) lines.push("Comments:\n" + cs.map((c) => `${c.parent_id ? "  ↳ " : "- "}${nameOf(c.author)}: ${c.body}`).join("\n"));
+    if (cs.length) lines.push("Comments:\n" + cs.map((c) => `${c.parent_id ? "  ↳ " : "- "}${nameOf(c.author)}: ${c.body || "(a voice note, which you can't hear)"}`).join("\n"));
     content.push({ type: "text", text: lines.join("\n") });
     const u = it.image_path ? urls.get(it.image_path) : undefined;
     if (u) content.push({ type: "image", source: { type: "url", url: u } });
@@ -214,8 +215,9 @@ async function brief(sb: SupabaseClient, body: { room_id?: string | null }, emai
 
   const out = await ask({
     system:
-      "You help a family in Ahmedabad, India, brief the interior architects designing their new apartment. " +
+      "You help a family in Ahmedabad, India, brief Urbannest Studio, the interior architects designing their new apartment (Riviera Majestica 1302). " +
       "They collect inspiration on a shared moodboard: photos, Instagram screenshots, sketches, links and notes, each marked Must-have, Nice-to-have or Avoid, with comments from the family and the studio. " +
+      "Some notes and comments are written in Gujarati: read them as carefully as the English ones, and write the whole brief in English. Comments that are voice notes are not included, as you can't hear them. " +
       "Turn one room's items into a clear brief the architects can act on. Look closely at the pictures: name furniture types, materials, finishes, colours, patterns, craft techniques (e.g. block print, cane, jaali, inlay) and lighting. " +
       "Rules: use only what is on the board; give Must-haves the most weight; treat Avoid items as things to steer clear of; " +
       "when you refer to a specific item, use its title in quotes; point out contradictions between items or comments; " +

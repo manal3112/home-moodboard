@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Home Moodboard</title>
+<title>Riviera Majestica 1302</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;500;600&family=Noto+Serif+Gujarati:wght@500;600&display=swap">
 <style>
 /* Layout: a calm Kota-stone ground, masonry board of cards, indigo (ajrakh) as the single accent, brass for must-haves. */
 :root{
@@ -14,8 +14,8 @@
   --accent:#2e3d8c; --accent-ink:#ffffff; --accent-soft:#dde2f4;
   --must:#8a5d12; --must-soft:#f1e3c4; --nice:#3f6453; --nice-soft:#d9e6dd; --avoid:#9c3426; --avoid-soft:#f4dad4;
   --shadow:0 1px 2px rgb(20 30 25 / .05), 0 8px 28px rgb(20 30 25 / .10);
-  --display:"Fraunces", Georgia, "Times New Roman", serif;
-  --body:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display:"Fraunces", "Noto Serif Gujarati", Georgia, "Times New Roman", serif;
+  --body:"Inter", "Noto Sans Gujarati", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --r:10px;
   color-scheme:light;
 }
@@ -163,6 +163,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .c-del{margin-left:auto;border:0;background:none;color:var(--muted);cursor:pointer;font-size:12px;text-decoration:underline}
 .c-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
 .c-form{display:grid;gap:8px;justify-items:end}
+.c-form .form-actions{width:100%}
+.c-form .mic{margin-right:auto}
+.mic.rec{background:var(--avoid);border-color:var(--avoid);color:var(--surface);font-variant-numeric:tabular-nums}
+.clip{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%}
+.clip audio,.c-audio{width:100%;max-width:340px;height:40px}
 
 /* Settings */
 .set{display:grid;gap:10px}
@@ -369,8 +374,9 @@ const CONFIG = {
   // Leave both empty to try the board in demo mode (saved in this browser only).
   SUPABASE_URL: "https://bbbxjegctpvyxozgoxab.supabase.co",       // e.g. "https://abcdxyz.supabase.co"
   SUPABASE_KEY: "sb_publishable_vJ-hKFtRxbRpyG-wNH3Ogg_cpCzJDo8",       // the "publishable" (or legacy "anon public") key
-  BOARD_TITLE: "Our Ahmedabad Home",
-  BOARD_SUBTITLE: "Inspiration board for the design studio",
+  BOARD_TITLE: "Riviera Majestica 1302",
+  BOARD_SUBTITLE: "Inspiration board for Urbannest Studio",
+  STUDIO: "Urbannest Studio",
   TYPES: ["Furniture", "Embroidery / Textile", "Artwork", "Lighting", "Material / Finish",
           "Hardware / Fixture", "Layout idea", "Decor", "Other"],
 };
@@ -413,7 +419,7 @@ function toast(msg, kind = "") {
   t.textContent = msg; t.className = "show " + kind;
   clearTimeout(toast._t); toast._t = setTimeout(() => (t.className = ""), kind === "err" ? 5000 : 3000);
 }
-function fmtDate(s) { const d = new Date(s); return isNaN(d) ? "" : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }); }
+function fmtDate(s) { const d = new Date(s); return isNaN(d) ? "" : d.toLocaleDateString(LOCALE, { day: "numeric", month: "short", year: "numeric" }); }
 function normUrl(u) {
   u = (u || "").trim(); if (!u) return null;
   if (!/^https?:\/\//i.test(u)) u = "https://" + u;
@@ -454,8 +460,8 @@ function ytId(u) {
 function fmtWhen(s) {
   const d = new Date(s); if (isNaN(d)) return "";
   const now = new Date();
-  if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", ...(d.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}) });
+  if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString(LOCALE, { hour: "numeric", minute: "2-digit" });
+  return d.toLocaleDateString(LOCALE, { day: "numeric", month: "short", ...(d.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}) });
 }
 function fmtSize(n) {
   if (!n && n !== 0) return "";
@@ -564,6 +570,7 @@ class SupaStore {
   comments() { return this.q(this.sb.from("comments").select("*").order("created_at")); }
   addComment(item_id, body, extra = {}) { return this.q(this.sb.from("comments").insert({ item_id, body, ...extra })); }
   deleteComment(id) { return this.q(this.sb.from("comments").delete().eq("id", id)); }
+  voiceCheck() { return this.q(this.sb.from("comments").select("audio_path").limit(1)); }
   members() { return this.q(this.sb.from("members").select("*").order("added_at")); }
   addMember(email) { return this.q(this.sb.from("members").insert({ email })); }
   updateMember(email, patch) { return this.q(this.sb.from("members").update(patch).eq("email", email)); }
@@ -634,7 +641,7 @@ class LocalStore {
   fill() {
     const d = this.db;
     d.documents ||= []; d.settings ||= {}; d.reactions ||= [];
-    d.members ||= [{ email: "you (demo)", name: "You" }, { email: "studio@example.com", name: "Studio (sample)" }];
+    d.members ||= [{ email: "you (demo)", name: "You" }, { email: "studio@example.com", name: "Urbannest (sample)" }];
   }
   save() { try { localStorage.setItem(this.key, JSON.stringify(this.db)); } catch { toast("This browser ran out of demo storage. Connect Supabase to store images properly.", "err"); } }
   reset() { this.db = seedDemo(); this.fill(); this.save(); }
@@ -674,6 +681,7 @@ class LocalStore {
     this.db.comments.forEach(c => { if (gone.has(c.parent_id)) gone.add(c.id); });
     this.db.comments = this.db.comments.filter(c => !gone.has(c.id)); this.save();
   }
+  async voiceCheck() { return []; }
   async members() { return this.db.members.map(m => ({ ...m })); }
   async addMember() { throw new Error("Inviting people needs Supabase. Follow the README to connect it."); }
   async updateMember(email, patch) { const m = this.db.members.find(x => x.email === email); if (m) Object.assign(m, patch); this.save(); }
@@ -741,14 +749,15 @@ async function gate() {
 async function refresh() {
   try {
     const st = S.store;
-    let missing = false, missing3 = false;
+    let missing = false, missing3 = false, missing4 = false;
     const soft = (p, fallback) => p.catch(() => { missing = true; return fallback; });
     const soft3 = (p, fallback) => p.catch(() => { missing3 = true; return fallback; });
-    const [rooms, items, comments, members, docs, settings, reactions, access] = await Promise.all([
+    const [, rooms, items, comments, members, docs, settings, reactions, access] = await Promise.all([
+      st.voiceCheck().catch(() => { missing4 = true; }),
       st.rooms(), st.items(), st.comments(), st.members().catch(() => []), soft(st.documents(), []), soft(st.settings(), {}),
       soft3(st.reactions(), []), soft3(st.access(), { ai: false, admin: false, aiUsers: [] })]);
     S.needsUpdate = LIVE && missing;
-    S.missing = new Set([...(S.needsUpdate ? ["update-2.sql"] : []), ...(LIVE && missing3 ? ["update-3.sql"] : [])]);
+    S.missing = new Set([...(S.needsUpdate ? ["update-2.sql"] : []), ...(LIVE && missing3 ? ["update-3.sql"] : []), ...(LIVE && missing4 ? ["update-4.sql"] : [])]);
     S.access = access;
     const oldVotes = S.votes;
     S.votes = new Map();
@@ -761,7 +770,7 @@ async function refresh() {
     S.markups = new Map();
     for (const i of items) { const p = metaOf(i).markup_of; if (p && S.byId.has(p)) { if (!S.markups.has(p)) S.markups.set(p, []); S.markups.get(p).push(i); } }
     S.boardItems = items.filter(i => !(metaOf(i).markup_of && S.byId.has(metaOf(i).markup_of)));
-    const need = [...new Set([...items.map(i => i.image_path), ...S.docs.map(d => d.path), planData()?.path].filter(p => p && !S.urls.has(p)))];
+    const need = [...new Set([...items.map(i => i.image_path), ...S.docs.map(d => d.path), ...comments.map(c => c.audio_path), planData()?.path].filter(p => p && !S.urls.has(p)))];
     if (need.length) (await st.urls(need)).forEach((u, p) => S.urls.set(p, u));
     renderBanner();
     renderFilters();
@@ -800,6 +809,172 @@ async function backfillPreviews() {
   } catch {} finally { S.backfilling = false; }
 }
 
+/* ===================== LANGUAGE: English / ગુજરાતી =====================
+   Each person picks their language with the button in the header (remembered in this browser).
+   In Gujarati, on-screen text is swapped as it appears. What people type (titles, notes, comments) is never changed. */
+const LANG = lsGet("mb-lang") === "gu" ? "gu" : "en";
+const LOCALE = LANG === "gu" ? "gu-IN" : undefined;
+const GU = {
+  // Rooms, types, priorities, kinds
+  "Living Room": "લિવિંગ રૂમ", "Dining": "ડાઇનિંગ", "Kitchen": "રસોડું", "Pooja Room": "પૂજા રૂમ", "Master Bedroom": "માસ્ટર બેડરૂમ",
+  "Bedroom 2": "બેડરૂમ 2", "Bedroom 3": "બેડરૂમ 3", "Bathrooms": "બાથરૂમ", "Entry / Foyer": "પ્રવેશ / ફોયર", "Balcony": "બાલ્કની",
+  "Utility": "યુટિલિટી (વોશ એરિયા)", "Study": "સ્ટડી રૂમ", "Whole home": "આખું ઘર",
+  "Furniture": "ફર્નિચર", "Embroidery / Textile": "ભરતકામ / કાપડ", "Artwork": "કલાકૃતિ", "Lighting": "લાઇટિંગ",
+  "Material / Finish": "મટીરિયલ / ફિનિશ", "Hardware / Fixture": "હાર્ડવેર / ફિટિંગ", "Layout idea": "લેઆઉટનો વિચાર", "Decor": "સજાવટ", "Other": "અન્ય",
+  "Must-have": "જરૂરી", "Nice-to-have": "હોય તો સારું", "Avoid": "ટાળવું",
+  "Instagram": "ઇન્સ્ટાગ્રામ", "Photo": "ફોટો", "Sketch": "સ્કેચ", "Palette": "રંગ પેલેટ", "Link": "લિંક", "Note": "નોંધ",
+  "Instagram post": "ઇન્સ્ટાગ્રામ પોસ્ટ", "Colour palette": "રંગ પેલેટ",
+  "Inspiration board for Urbannest Studio": "Urbannest Studio માટે પ્રેરણા બોર્ડ",
+  // Sign in
+  "Email me a sign-in link": "સાઇન-ઇન લિંક ઇમેઇલ કરો", "Sending…": "મોકલી રહ્યા છીએ…", "Email": "ઇમેઇલ",
+  "Reload": "ફરી લોડ કરો", "Use another email": "બીજો ઇમેઇલ વાપરો", "Try again": "ફરી પ્રયાસ કરો",
+  "Ask the board owner to add it under Rooms & people, then reload this page.": "બોર્ડના માલિકને કહો કે “રૂમ અને લોકો”માં આ ઇમેઇલ ઉમેરે, પછી આ પેજ ફરી લોડ કરો.",
+  // Header and filters
+  "Moodboard": "મૂડબોર્ડ", "Documents": "દસ્તાવેજો", "For you": "તમારા માટે", "Rooms & people": "રૂમ અને લોકો",
+  "+ Add": "+ ઉમેરો", "+ Upload": "+ અપલોડ", "Board": "બોર્ડ", "Feed": "ફીડ", "By room": "રૂમ પ્રમાણે", "New": "નવું",
+  "✨ Room brief": "✨ રૂમ બ્રીફ", "Search titles, notes, comments": "શીર્ષક, નોંધ, કોમેન્ટમાં શોધો", "Search": "શોધો", "Sort": "ક્રમ",
+  "Most upvoted": "સૌથી વધુ પસંદ", "Newest first": "નવું પહેલાં", "Oldest first": "જૂનું પહેલાં", "Must-haves first": "જરૂરી પહેલાં",
+  "↻ Re-sort": "↻ ફરી ગોઠવો", "All": "બધું", "Filter by room": "રૂમ પ્રમાણે ફિલ્ટર", "Filter by type": "પ્રકાર પ્રમાણે ફિલ્ટર",
+  "Filter by priority": "પ્રાથમિકતા પ્રમાણે ફિલ્ટર", "Layout": "દેખાવ", "Sections": "વિભાગો", "Floor plan": "ફ્લોર પ્લાન", "Sign out": "સાઇન આઉટ",
+  "Tip: paste an Instagram link or an image anywhere on this page to add it.": "ટિપ: ઇન્સ્ટાગ્રામ લિંક કે ફોટો આ પેજ પર ક્યાંય પણ પેસ્ટ કરો, તે ઉમેરાઈ જશે.",
+  "Items other people added since your last visit": "તમારી છેલ્લી મુલાકાત પછી બીજાએ ઉમેરેલી વસ્તુઓ",
+  "Comments that tag you, replies to you, and comments on your posts": "તમને ટેગ કરતી કોમેન્ટ, તમને મળેલા જવાબ અને તમારી પોસ્ટ પરની કોમેન્ટ",
+  "Votes have changed since the board was sorted": "ક્રમ ગોઠવ્યા પછી પસંદ બદલાઈ છે",
+  "All rooms": "બધા રૂમ", "All types": "બધા પ્રકાર", "Nothing matches these filters": "આ ફિલ્ટરમાં કંઈ મળ્યું નથી", "Show everything": "બધું બતાવો",
+  "The board is empty": "બોર્ડ ખાલી છે", "Add an Instagram post, a photo, a sketch, a link or a note.": "ઇન્સ્ટાગ્રામ પોસ્ટ, ફોટો, સ્કેચ, લિંક કે નોંધ ઉમેરો.",
+  "+ Add the first item": "+ પહેલી વસ્તુ ઉમેરો", "Show plan": "પ્લાન બતાવો", "Hide plan": "પ્લાન છુપાવો",
+  "Click a room to filter. Rooms with matching items light up.": "ફિલ્ટર કરવા રૂમ પર ક્લિક કરો. મેળ ખાતી વસ્તુવાળા રૂમ ઝળકશે.",
+  // Cards and detail
+  "Upvote": "પસંદ", "Remove your upvote": "તમારી પસંદ પાછી લો", "No comments": "કોઈ કોમેન્ટ નથી",
+  "Loading image…": "ફોટો લોડ થાય છે…", "No image": "ફોટો નથી", "Open link": "લિંક ખોલો", "▶ Play post": "▶ પોસ્ટ ચલાવો",
+  "Loading Instagram post…": "ઇન્સ્ટાગ્રામ પોસ્ટ લોડ થાય છે…",
+  "Showing the saved screenshot. Open the post on Instagram.": "સાચવેલો સ્ક્રીનશૉટ બતાવીએ છીએ. પોસ્ટ ઇન્સ્ટાગ્રામ પર ખોલો.",
+  "This post couldn't be shown here. It may be private or deleted, or blocked by a browser extension. Open it on Instagram.": "આ પોસ્ટ અહીં બતાવી શકાઈ નહીં. કદાચ તે પ્રાઇવેટ છે કે ડિલીટ થઈ ગઈ છે. ઇન્સ્ટાગ્રામ પર ખોલો.",
+  "Close": "બંધ કરો", "Cover screenshot": "કવર સ્ક્રીનશૉટ", "Saved screenshot": "સાચવેલો સ્ક્રીનશૉટ", "Markup on": "આના પર દોરેલું:",
+  "Open on Instagram ↗": "ઇન્સ્ટાગ્રામ પર ખોલો ↗", "Open link ↗": "લિંક ખોલો ↗", "Edit": "ફેરફાર કરો", "Draw on this": "આના પર દોરો",
+  "Scribble on a copy. It's saved with this post.": "નકલ પર દોરો. તે આ પોસ્ટ સાથે સચવાશે.",
+  "You'll be asked for a screenshot to draw on": "દોરવા માટે સ્ક્રીનશૉટ માગવામાં આવશે",
+  "Delete": "ડિલીટ કરો", "Delete for everyone?": "બધા માટે ડિલીટ કરવું?", "Deleted": "ડિલીટ થયું",
+  // Comments
+  "Comments": "કોમેન્ટ", "Add a comment for the team. Type @ to tag someone.": "ટીમ માટે કોમેન્ટ લખો. કોઈને ટેગ કરવા @ લખો.",
+  "New comment": "નવી કોમેન્ટ", "Reply": "જવાબ આપો", "Delete with replies?": "જવાબો સાથે ડિલીટ કરવું?", "Delete?": "ડિલીટ કરવું?",
+  "Write a reply. Type @ to tag someone.": "જવાબ લખો. કોઈને ટેગ કરવા @ લખો.", "No comments yet.": "હજી કોઈ કોમેન્ટ નથી.",
+  "Post comment": "કોમેન્ટ મોકલો", "Cancel": "રદ કરો",
+  "🎤 Voice note": "🎤 વોઇસ નોટ", "Voice note": "વોઇસ નોટ", "Record a voice note": "વોઇસ નોટ રેકોર્ડ કરો", "Stop recording": "રેકોર્ડિંગ બંધ કરો",
+  "Remove recording": "રેકોર્ડિંગ કાઢો", "Record again": "ફરી રેકોર્ડ કરો", "Post voice note": "વોઇસ નોટ મોકલો",
+  "Allow the microphone to record a voice note.": "વોઇસ નોટ માટે માઇક્રોફોનની મંજૂરી આપો.",
+  "This browser can't record audio. Try Chrome or Safari.": "આ બ્રાઉઝર ઑડિયો રેકોર્ડ કરી શકતું નથી. Chrome કે Safari વાપરો.",
+  "Recorded. Listen, then post it.": "રેકોર્ડ થઈ ગયું. સાંભળો, પછી મોકલો.",
+  "Stop the recording first.": "પહેલાં રેકોર્ડિંગ બંધ કરો.", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
+  "Comments that tag you, replies to your comments, and comments on things you added.": "તમને ટેગ કરતી કોમેન્ટ, તમારી કોમેન્ટના જવાબ, અને તમે ઉમેરેલી વસ્તુઓ પરની કોમેન્ટ.",
+  "Nothing yet. When someone tags you with @ or replies to you, it shows up here.": "હજી કંઈ નથી. કોઈ તમને @ થી ટેગ કરે કે જવાબ આપે ત્યારે અહીં દેખાશે.",
+  // Adding and editing
+  "Click to choose, drag files here, or paste (Ctrl/⌘ + V)": "પસંદ કરવા ક્લિક કરો, ફાઇલ અહીં ખેંચો, અથવા પેસ્ટ કરો (Ctrl/⌘ + V)",
+  "No type": "પ્રકાર નહીં", "Priority": "પ્રાથમિકતા", "Why I like it": "મને કેમ ગમ્યું", "What are you adding?": "તમે શું ઉમેરો છો?",
+  "What do you like about it? Colour, proportions, the carving, the fabric…": "તમને શું ગમ્યું? રંગ, માપ, કોતરણી, કાપડ…",
+  "Save changes": "ફેરફાર સાચવો", "Add to board": "બોર્ડમાં ઉમેરો", "Add to the board": "બોર્ડમાં ઉમેરો", "Edit item": "વસ્તુમાં ફેરફાર",
+  "✨ Suggest details": "✨ વિગતો સૂચવો", "Title": "શીર્ષક", "Room": "રૂમ", "Type": "પ્રકાર", "Looking…": "જોઈ રહ્યા છીએ…",
+  "Remove image": "ફોટો કાઢો", "Add an image": "ફોટો ઉમેરો", "Instagram link": "ઇન્સ્ટાગ્રામ લિંક", "Instagram link(s)": "ઇન્સ્ટાગ્રામ લિંક",
+  "Paste one link, or several (one per line) to add them all at once. Only posts from public accounts can be shown.": "એક લિંક પેસ્ટ કરો, અથવા એકથી વધુ (દરેક નવી લાઇનમાં). ફક્ત પબ્લિક એકાઉન્ટની પોસ્ટ જ દેખાશે.",
+  "Screenshot (optional)": "સ્ક્રીનશૉટ (વૈકલ્પિક)", "Show the screenshot as the cover on the board": "બોર્ડ પર સ્ક્રીનશૉટને કવર તરીકે બતાવો",
+  "Image": "ફોટો", "Add photos or screenshots": "ફોટો કે સ્ક્રીનશૉટ ઉમેરો",
+  "Furniture you spotted, embroidery, artwork, a screenshot from anywhere. Each image becomes its own card.": "તમે જોયેલું ફર્નિચર, ભરતકામ, કલાકૃતિ, ક્યાંયનો પણ સ્ક્રીનશૉટ. દરેક ફોટો અલગ કાર્ડ બનશે.",
+  "Write the idea down…": "વિચાર લખો…", "Saving…": "સાચવી રહ્યા છીએ…", "Saved": "સચવાયું", "Added to the board": "બોર્ડમાં ઉમેરાયું",
+  "The note is empty.": "નોંધ ખાલી છે.", "Add at least one image.": "ઓછામાં ઓછો એક ફોટો ઉમેરો.", "Add a valid web address.": "સાચું વેબ સરનામું ઉમેરો.",
+  "That post is already on the board.": "આ પોસ્ટ બોર્ડ પર પહેલેથી છે.", "Fetching a preview…": "પ્રીવ્યૂ લાવી રહ્યા છીએ…",
+  "Picture for the card (optional, replaces the fetched one)": "કાર્ડ માટે ફોટો (વૈકલ્પિક)",
+  "A shop, a maker, a Pinterest pin, a YouTube video: anything with a web address. The page's picture and title are fetched automatically.": "દુકાન, કારીગર, Pinterest પિન, YouTube વિડિયો: કોઈ પણ વેબ સરનામું. પેજનો ફોટો અને શીર્ષક આપમેળે આવી જશે.",
+  "Open sketch pad": "સ્કેચ પેડ ખોલો", "Edit sketch": "સ્કેચમાં ફેરફાર", "No sketch yet.": "હજી સ્કેચ નથી.",
+  "Draw freehand, or load a photo inside the pad and mark it up.": "હાથે દોરો, અથવા પેડમાં ફોટો લોડ કરીને તેના પર નિશાન કરો.",
+  "Open palette tool": "પેલેટ ટૂલ ખોલો", "Edit palette": "પેલેટમાં ફેરફાર", "No palette yet.": "હજી પેલેટ નથી.",
+  // Sketch pad and palette
+  "Pen": "પેન", "Highlighter": "હાઇલાઇટર", "Eraser": "રબર", "Thin": "પાતળું", "Medium": "મધ્યમ", "Thick": "જાડું",
+  "Discard drawing?": "ચિત્ર કાઢી નાખવું?", "Undo": "પાછું", "Clear": "સાફ કરો", "Load a photo": "ફોટો લોડ કરો",
+  "Use sketch": "સ્કેચ વાપરો", "Sketch pad": "સ્કેચ પેડ",
+  "Main wall": "મુખ્ય દીવાલ", "Side walls": "બાજુની દીવાલો", "Ceiling": "છત", "Floor": "ફ્લોર", "Rug": "ગાલીચો", "Sofa": "સોફા",
+  "Cushions": "કુશન", "Wood: table, frames": "લાકડું: ટેબલ, ફ્રેમ", "Curtains": "પડદા", "Metal: lamp": "ધાતુ: લેમ્પ", "Planter": "કૂંડું",
+  "Chalk white": "ચોક સફેદ", "Ivory": "આઇવરી", "Lime plaster": "ચૂનાનું પ્લાસ્ટર", "Sandstone": "રેતિયો પથ્થર", "Kota grey": "કોટા ગ્રે",
+  "Charcoal Kota": "ઘેરો કોટા", "Charcoal": "કોલસા રંગ", "Makrana marble": "મકરાણા માર્બલ", "Terracotta": "ટેરાકોટા", "Rust": "કાટ રંગ",
+  "Clay": "માટી રંગ", "Camel": "કેમલ", "Haldi": "હળદર", "Brass": "પિત્તળ", "Mustard": "રાઈ રંગ", "Dusty rose": "આછો ગુલાબી",
+  "Rani pink": "રાણી ગુલાબી", "Maroon": "મરૂન", "Indigo": "ગળી", "Ink blue": "શાહી વાદળી", "Peacock": "મોરપીંછ", "Teal grey": "ટીલ ગ્રે",
+  "Sage": "સેજ લીલો", "Mehendi green": "મેંદી લીલો", "Bottle green": "બોટલ લીલો", "Olive": "ઓલિવ", "Cane": "નેતર",
+  "Light teak": "આછું સાગ", "Teak": "સાગ", "Sheesham": "સીસમ", "Walnut": "અખરોટ", "White": "સફેદ",
+  "Floor finish": "ફ્લોર ફિનિશ", "Plain floor": "સાદું ફ્લોર", "Planks": "પાટિયાં", "Tiles": "ટાઇલ્સ", "Use palette": "પેલેટ વાપરો",
+  "Any colour": "કોઈ પણ રંગ", "Parts of the room": "રૂમના ભાગ", "Pick a part here or tap it in the picture.": "અહીં ભાગ પસંદ કરો અથવા ચિત્રમાં ટેપ કરો.",
+  "Any other colour": "બીજો કોઈ રંગ", "Colours from the board": "બોર્ડના ફોટોમાંથી રંગ", "Start from…": "શરૂઆત…",
+  // Rooms & people, brief, documents
+  "Rooms and people": "રૂમ અને લોકો", "Rooms": "રૂમ", "People": "લોકો", "Room name": "રૂમનું નામ", "Add room": "રૂમ ઉમેરો",
+  "Remove": "કાઢો", "Remove room?": "રૂમ કાઢવો?", "Name": "નામ", "Add person": "વ્યક્તિ ઉમેરો", "Copy link": "લિંક કૉપિ કરો",
+  "Link copied": "લિંક કૉપિ થઈ", "People who can edit": "ફેરફાર કરી શકે એવા લોકો", "Save": "સાચવો", "Language": "ભાષા",
+  "Brief ✓": "બ્રીફ ✓", "✨ Brief": "✨ બ્રીફ", "Copy as text": "લખાણ કૉપિ કરો",
+  "Search file names and notes": "ફાઇલનાં નામ અને નોંધમાં શોધો", "Search documents": "દસ્તાવેજો શોધો",
+  "Drop files here, or click to upload": "ફાઇલ અહીં મૂકો, અથવા અપલોડ કરવા ક્લિક કરો",
+  "No documents yet. Upload the first one above.": "હજી કોઈ દસ્તાવેજ નથી. ઉપર પહેલો અપલોડ કરો.",
+  "No documents match.": "કોઈ દસ્તાવેજ મળ્યો નથી.", "Files": "ફાઇલો", "Edit document": "દસ્તાવેજમાં ફેરફાર",
+};
+const GU_RX = [
+  [/^(\d+) items?$/, n => n + " વસ્તુ"],
+  [/^(\d+) of (\d+)$/, (a, b) => b + " માંથી " + a],
+  [/^(\d+) comments?$/, n => n + " કોમેન્ટ"],
+  [/^✎ (\d+) markups? ·$/, n => "✎ " + n + " ચિત્ર ·"],
+  [/^▲ (\d+) Upvoted$/, n => "▲ " + n + " પસંદ કર્યું"],
+  [/^▲ (\d+) Upvote$/, n => "▲ " + n + " પસંદ"],
+  [/^(Remove your upvote|Upvote)\. (\d+) upvotes?$/, (a, n) => tr(a) + ". " + n + " પસંદ"],
+  [/^Upvoted by (.+)$/, w => w + " ને ગમ્યું"],
+  [/^Added by (.+?) · (.+?)(?: · From: (.+))?$/, (w, d, f) => w + " એ ઉમેર્યું · " + d + (f ? " · સ્રોત: " + f : "")],
+  [/^Signed in as (.*)$/, e => "સાઇન ઇન: " + e],
+  [/^Markups \((\d+)\)$/, n => "દોરેલાં ચિત્રો (" + n + ")"],
+  [/^Open (.+)$/, t => tr(t) + " ખોલો"],
+  [/^Tagged (.+)\. They'll see it under “For you”\.$/, w => w + " ને ટેગ કર્યા. તેઓ “તમારા માટે”માં જોશે."],
+  [/^Added (\d+) items$/, n => n + " વસ્તુઓ ઉમેરી"],
+  [/^(.+) tagged you$/, w => w + " એ તમને ટેગ કર્યા"],
+  [/^(.+) replied to you$/, w => w + " એ તમને જવાબ આપ્યો"],
+  [/^(.+) commented on your post$/, w => w + " એ તમારી પોસ્ટ પર કોમેન્ટ કરી"],
+  [/^on (.+)$/, t => tr(t) + " પર"],
+  [/^Sent\. Open the link in the email to (.+) on this device\.$/, a => "મોકલી દીધી. " + a + " પર આવેલા ઇમેઇલની લિંક આ જ ડિવાઇસ પર ખોલો."],
+  [/^Couldn't send the link: (.*)$/, e => "લિંક મોકલી શકાઈ નહીં: " + e],
+  [/^You're signed in as (.+), but this email hasn't been added to the board yet\.$/, e => "તમે " + e + " થી સાઇન ઇન છો, પણ આ ઇમેઇલ હજી બોર્ડમાં ઉમેરાયો નથી."],
+  [/^■ Stop (\d+:\d\d)$/, t => "■ બંધ કરો " + t],
+  [/^Uploading voice note…$/, () => "વોઇસ નોટ અપલોડ થાય છે…"],
+  [/^· (.+)$/, t => "· " + tr(t)],
+  [/^(.+?) · (.+)$/, (a, b) => tr(a) + " · " + tr(b)],
+];
+function tr(s) {
+  if (LANG !== "gu" || !s) return s;
+  const m = String(s).match(/^(\s*)([\s\S]*?)(\s*)$/), core = m[2];
+  if (!core) return s;
+  let t = GU[core];
+  if (t == null) for (const [re, f] of GU_RX) { const x = core.match(re); if (x) { t = f(...x.slice(1)); break; } }
+  return t == null || t === core ? s : m[1] + t + m[3];
+}
+/* Places whose text people typed: never translated. */
+const TR_SKIP = "textarea,script,style,.c-body,.note-body,.d-why,.cwhy,.notr";
+const TR_ATTRS = ["placeholder", "title", "aria-label", "alt"];
+function trAttrs(e) { for (const a of TR_ATTRS) { const v = e.getAttribute(a); if (v) { const t = tr(v); if (t !== v) e.setAttribute(a, t); } } }
+function trNode(root) {
+  if (root.nodeType === 3) { const p = root.parentElement; if (p && !p.closest(TR_SKIP)) { const t = tr(root.nodeValue); if (t !== root.nodeValue) root.nodeValue = t; } return; }
+  if (root.nodeType !== 1 || root.closest(TR_SKIP)) return;
+  trAttrs(root); root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach(trAttrs);
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT,
+    { acceptNode: n => (n.parentElement && n.parentElement.closest(TR_SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT) });
+  const list = []; while (w.nextNode()) list.push(w.currentNode);
+  for (const n of list) { const t = tr(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; }
+}
+if (LANG === "gu") {
+  document.documentElement.lang = "gu";
+  new MutationObserver(muts => {
+    for (const m of muts) {
+      if (m.type === "attributes") { const v = m.target.getAttribute(m.attributeName); if (v) { const t = tr(v); if (t !== v) m.target.setAttribute(m.attributeName, t); } }
+      else m.addedNodes.forEach(trNode);
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: TR_ATTRS });
+}
+function langBtn(extra = "") {
+  return el("button", { type: "button", class: "btn ghost notr " + extra, lang: LANG === "gu" ? "en" : "gu",
+    title: LANG === "gu" ? "Switch to English" : "ગુજરાતીમાં જુઓ (Gujarati)",
+    onclick: () => { lsSet("mb-lang", LANG === "gu" ? "en" : "gu"); location.reload(); } }, LANG === "gu" ? "English" : "ગુજરાતી");
+}
+
 /* ===================== SCREENS ===================== */
 function field(label, control, hint) {
   const id = control.id || (control.id = "f-" + uid().slice(0, 8));
@@ -818,7 +993,8 @@ function renderSignIn() {
     btn.disabled = false;
   } }, field("Email", email), btn, msg);
   $("#app").replaceChildren(el("main", { class: "signin" }, el("div", { class: "signin-card" },
-    el("h1", {}, CONFIG.BOARD_TITLE), el("p", { class: "sub" }, CONFIG.BOARD_SUBTITLE), form)));
+    el("h1", {}, CONFIG.BOARD_TITLE), el("p", { class: "sub" }, CONFIG.BOARD_SUBTITLE), form,
+    el("div", { class: "form-actions" }, langBtn("small")))));
   setTimeout(() => email.focus(), 30);
 }
 
@@ -854,6 +1030,7 @@ function renderShell() {
         el("button", { type: "button", class: "nav-btn", id: "n-docs", onclick: () => setSection("docs") }, "Documents", el("span", { class: "n", id: "n-docs-n" }))),
       el("button", { type: "button", class: "btn ghost", id: "fy-btn", onclick: openForYou, title: "Comments that tag you, replies to you, and comments on your posts" },
         "For you", el("span", { class: "badge", id: "fy-badge", hidden: true })),
+      langBtn(),
       el("button", { type: "button", class: "btn ghost", onclick: openSettings }, "Rooms & people"),
       el("button", { type: "button", class: "btn primary", id: "add-btn", onclick: () => (S.section === "docs" ? uploadDocs() : openEditor()) }, "+ Add")),
     el("div", { class: "wrap filters", id: "filters" },
@@ -864,7 +1041,7 @@ function renderShell() {
         prioSeg,
         el("button", { type: "button", class: "chip new-chip", id: "f-new", "aria-pressed": "false", hidden: true, title: "Items other people added since your last visit",
           onclick: () => { S.filter.newOnly = !S.filter.newOnly; applyFilters(); } }, "New", el("span", { class: "n", id: "f-new-n" })),
-        el("button", { type: "button", class: "btn small ai", id: "brief-btn", hidden: true, title: "An AI-written summary of this room for the studio",
+        el("button", { type: "button", class: "btn small ai", id: "brief-btn", hidden: true, title: "An AI-written summary of this room for " + CONFIG.STUDIO,
           onclick: () => openBrief(S.filter.room === "none" ? null : S.filter.room) }, "✨ Room brief"),
         el("input", { id: "f-q", type: "search", placeholder: "Search titles, notes, comments", "aria-label": "Search",
           oninput: debounce(e => { S.filter.q = e.target.value.trim().toLowerCase(); applyFilters(); }, 150) }),
@@ -893,7 +1070,7 @@ function renderShell() {
 function renderBanner() {
   const b = $("#banner"); if (!b) return;
   if (!LIVE) b.replaceChildren(el("div", { class: "banner" },
-    el("strong", {}, "Demo mode. "), "Everything is saved only in this browser. Add your Supabase details at the top of index.html to share the board with the studio."));
+    el("strong", {}, "Demo mode. "), "Everything is saved only in this browser. Add your Supabase details at the top of index.html to share the board with " + CONFIG.STUDIO + "."));
   else if (S.missing.size) {
     const files = [...S.missing];
     b.replaceChildren(el("div", { class: "banner warn" },
@@ -1232,7 +1409,8 @@ function renderDetail(force) {
       el("button", { type: "button", class: "btn", onclick: () => drawOn(it),
         title: url || it.kind === "note" || it.kind === "sketch" ? "Scribble on a copy. It's saved with this post." : "You'll be asked for a screenshot to draw on" }, "Draw on this"),
       confirmBtn("Delete", "Delete for everyone?", async () => {
-        await S.store.deleteItem(it); closeOverlay("detail"); toast("Deleted"); await refresh();
+        const clips = S.comments.filter(c => c.item_id === it.id && c.audio_path).map(c => c.audio_path);
+        await S.store.deleteItem(it); clips.forEach(p => S.store.removeFile(p)); closeOverlay("detail"); toast("Deleted"); await refresh();
       }, "ghost")),
     el("section", { class: "comments", "aria-label": "Comments" }, el("h3", {}, "Comments"), el("div", { id: "c-list", class: "list" }),
       composer({ it, placeholder: "Add a comment for the team. Type @ to tag someone.", label: "New comment" })));
@@ -1254,8 +1432,16 @@ function richBody(text) {
   return out;
 }
 
+function audioNode(path) {
+  const url = S.urls.get(path);
+  return url ? el("audio", { class: "c-audio", controls: true, preload: "metadata", src: url, "aria-label": "Voice note" })
+    : el("p", { class: "hint" }, "Loading voice note…");
+}
+
 function renderComments(it) {
   const list = $("#c-list"); if (!list) return;
+  // Don't wipe a voice note that is being recorded or waiting to be posted.
+  if (list.querySelector("form[data-busy]")) return;
   // Don't wipe a reply someone is typing when a live update arrives; redraw once they leave the box.
   if (list.contains(document.activeElement) && document.activeElement.tagName === "TEXTAREA") {
     if (!S.cDirty) {
@@ -1285,8 +1471,10 @@ function renderComments(it) {
       el("span", { class: "acts" },
         el("button", { type: "button", class: "c-act", onclick: () => openReply(root, c) }, "Reply"),
         (c.author || "").toLowerCase() === me ? miniConfirm("Delete", c === root && kids.get(c.id)?.length ? "Delete with replies?" : "Delete?", async () => {
-          await S.store.deleteComment(c.id); await refresh(); }) : null)),
-    el("div", { class: "c-body" }, ...richBody(c.body || "")));
+          const clips = [c, ...(c === root ? kids.get(c.id) || [] : [])].map(x => x.audio_path).filter(Boolean);
+          await S.store.deleteComment(c.id); clips.forEach(p => S.store.removeFile(p)); await refresh(); }) : null)),
+    c.body ? el("div", { class: "c-body" }, ...richBody(c.body)) : null,
+    c.audio_path ? audioNode(c.audio_path) : null);
   const threads = roots.map(r => {
     const reps = kids.get(r.id) || [];
     const replying = S.replyOpen?.root === r.id;
@@ -1339,6 +1527,47 @@ function composer({ it, parentId = null, text = "", placeholder, label, onText, 
     hide(); ta.focus(); onText?.(ta.value);
   }
   ta.addEventListener("input", () => { sel = 0; scan(); onText?.(ta.value); });
+
+  /* Voice note: tap to record, tap again to stop, listen, then post. Works alongside typed text. */
+  let rec = null, clip = null, timer = 0;
+  const canVoice = !S.missing.has("update-4.sql") && !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
+  const mic = canVoice ? el("button", { type: "button", class: "btn small mic", title: "Record a voice note", onclick: () => (rec ? rec.stop() : record()) }, "🎤 Voice note") : null;
+  const clipBox = el("div", { class: "clip", hidden: true });
+  const busy = () => { if (rec || clip) form.dataset.busy = "1"; else delete form.dataset.busy; };
+  function setClip(blob) {
+    clip = blob; busy();
+    if (!blob) { clipBox.hidden = true; clipBox.replaceChildren(); if (mic) mic.hidden = false; return; }
+    mic.hidden = true; clipBox.hidden = false;
+    clipBox.replaceChildren(el("audio", { controls: true, src: URL.createObjectURL(blob), "aria-label": "Voice note" }),
+      el("button", { type: "button", class: "c-act", onclick: () => setClip(null) }, "Remove recording"));
+    toast("Recorded. Listen, then post it.");
+  }
+  async function record() {
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch { toast("Allow the microphone to record a voice note.", "err"); return; }
+    const type = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"].find(t => MediaRecorder.isTypeSupported?.(t)) || "";
+    let r;
+    try { r = new MediaRecorder(stream, type ? { mimeType: type } : undefined); }
+    catch { stream.getTracks().forEach(t => t.stop()); toast("This browser can't record audio. Try Chrome or Safari.", "err"); return; }
+    const chunks = [], t0 = Date.now();
+    r.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    r.onstop = () => {
+      clearInterval(timer); stream.getTracks().forEach(t => t.stop());
+      rec = null; mic.classList.remove("rec"); mic.textContent = "🎤 Voice note"; busy();
+      const blob = new Blob(chunks, { type: (r.mimeType || type || "audio/webm").split(";")[0] });
+      if (form.isConnected && blob.size > 500 && Date.now() - t0 > 700) setClip(blob);
+    };
+    rec = r; busy(); r.start(1000);
+    mic.classList.add("rec");
+    const tick = () => {
+      if (!form.isConnected) { r.stop(); return; } // the box was closed while recording
+      const sec = Math.floor((Date.now() - t0) / 1000);
+      mic.textContent = `■ Stop ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+      if (sec >= 300) r.stop(); // five minutes at most
+    };
+    tick(); timer = setInterval(tick, 500);
+  }
   ta.addEventListener("click", scan);
   ta.addEventListener("blur", () => setTimeout(hide, 150));
   ta.addEventListener("keydown", e => {
@@ -1351,21 +1580,30 @@ function composer({ it, parentId = null, text = "", placeholder, label, onText, 
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); form.requestSubmit(); }
   });
   const form = el("form", { class: "c-form" + (parentId ? " reply-form" : ""), onsubmit: async e => {
-    e.preventDefault(); const body = ta.value.trim(); if (!body) return;
+    e.preventDefault(); const body = ta.value.trim(); if (!body && !clip) return;
+    if (rec) { toast("Stop the recording first."); return; }
     btn.disabled = true;
     const low = body.toLowerCase();
     const mentions = people().filter(m => low.includes("@" + nameOf(m.email).toLowerCase()) || low.includes("@" + m.email)).map(m => m.email);
     try {
-      await S.store.addComment(it.id, body, extras({ parent_id: parentId, mentions }));
-      ta.value = ""; onText?.(""); onDone?.();
+      let audio = null;
+      if (clip) {
+        btn.textContent = "Uploading voice note…";
+        const t = clip.type || "";
+        audio = await S.store.upload(clip, t.includes("mp4") || t.includes("m4a") || t.includes("aac") ? "m4a" : t.includes("ogg") ? "ogg" : "webm");
+      }
+      await S.store.addComment(it.id, body, { ...extras({ parent_id: parentId, mentions }), ...(audio ? { audio_path: audio } : {}) });
+      ta.value = ""; onText?.(""); setClip(null); onDone?.();
       if (parentId) ta.blur(); // lets the thread redraw with the new reply
       await refresh();
       if (mentions.length) toast(`Tagged ${mentions.map(nameOf).join(", ")}. They'll see it under “For you”.`);
     } catch (err) { toast(errMsg(err), "err"); }
-    btn.disabled = false;
+    btn.disabled = false; btn.textContent = parentId ? "Reply" : "Post comment";
   } },
     el("div", { class: "composer" }, ta, pop),
-    el("div", { class: "form-actions" }, onCancel ? el("button", { type: "button", class: "btn small ghost", onclick: onCancel }, "Cancel") : null, btn));
+    clipBox,
+    el("div", { class: "form-actions" }, mic,
+      onCancel ? el("button", { type: "button", class: "btn small ghost", onclick: () => { if (rec) rec.stop(); setClip(null); onCancel(); } }, "Cancel") : null, btn));
   return form;
 }
 
@@ -2056,7 +2294,7 @@ function openSettings() {
       const link = location.origin + location.pathname;
       people = el("section", { class: "set" },
         el("h3", {}, "People who can edit"),
-        el("p", { class: "hint" }, "Everyone listed can sign in with an email link, and add, edit, delete and comment. Add each person at the studio, and give them a name so they can be @tagged in comments."),
+        el("p", { class: "hint" }, "Everyone listed can sign in with an email link, and add, edit, delete and comment. Add each person at " + CONFIG.STUDIO + ", and give them a name so they can be @tagged in comments."),
         S.missing.has("update-3.sql") ? null : el("p", { class: "hint" }, S.access.admin
           ? "Tick “AI” for the people who may use the AI features. Each use is charged to your Anthropic account."
           : "Only people marked ✨ AI can use the AI features. The board owner decides who."),
@@ -2077,7 +2315,7 @@ function openSettings() {
             try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch { toast("Copy this link: " + link); } } }, "Copy link")));
     } else {
       people = el("section", { class: "set" }, el("h3", {}, "People"),
-        el("p", { class: "hint" }, "In demo mode the board lives only in this browser. Connect Supabase (see the README) to invite the studio here."),
+        el("p", { class: "hint" }, "In demo mode the board lives only in this browser. Connect Supabase (see the README) to invite " + CONFIG.STUDIO + " here."),
         el("div", {}, confirmBtn("Reset demo board", "Erase everything and reset?", async () => {
           S.store.reset(); S.nodes.forEach(n => n.remove()); S.nodes.clear(); await refresh(); await draw(); toast("Demo board reset");
         }, "small ghost")));
@@ -2285,7 +2523,7 @@ function openBrief(id) {
     }
     if (!b) {
       body.replaceChildren(
-        el("p", {}, n ? `The AI reads the ${n} item${n === 1 ? "" : "s"} in ${name} (pictures, notes and comments) and writes a one-page brief for the studio: style, materials, must-haves, things to avoid, and open questions.`
+        el("p", {}, n ? `The AI reads the ${n} item${n === 1 ? "" : "s"} in ${name} (pictures, notes and comments) and writes a one-page brief for ${CONFIG.STUDIO}: style, materials, must-haves, things to avoid, and open questions.`
           : `There's nothing in ${name} yet.`),
         el("p", { class: "hint" }, "The brief is saved here so everyone can read it. Rewrite it when the room changes. The AI can't see inside Instagram posts, so it uses their screenshots and notes."),
         el("div", { class: "form-actions" }, gen));
@@ -2359,7 +2597,8 @@ function openForYou() {
         onclick: () => { closeOverlay("foryou"); openDetail(c.item_id); } },
         el("div", { class: "c-head" }, el("strong", {}, `${nameOf(c.author)} ${why}`), el("span", {}, fmtWhen(c.created_at))),
         el("div", { class: "hint" }, "on " + titleOf(S.byId.get(c.item_id))),
-        el("div", { class: "c-body" }, ...richBody(c.body || "")))))
+        c.body ? el("div", { class: "c-body" }, ...richBody(c.body)) : null,
+        c.audio_path ? el("div", { class: "hint" }, "🎤 Voice note") : null)))
         : el("p", {}, "Nothing yet. When someone tags you with @ or replies to you, it shows up here."))));
 }
 
