@@ -303,6 +303,37 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tile .tv{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;flex:none}
 .ai-tag{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 7px;border-radius:999px}
 
+/* Colour palette tool */
+.pal{position:fixed;inset:0;z-index:70;background:var(--sunk);display:flex;flex-direction:column;padding:env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)}
+.pal-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 340px}
+.pal-stage{display:grid;place-items:center;padding:16px;min-height:0;overflow:hidden}
+.pal-stage svg{display:block;width:100%;height:auto;max-width:1100px;max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);border-radius:10px;box-shadow:var(--shadow);background:#fff}
+.pal-side{background:var(--surface);border-left:1px solid var(--line);overflow:auto;padding:14px;display:grid;gap:16px;align-content:start}
+.pal-side h3{font:600 12px/1.3 var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px}
+@media (max-width:820px){
+  .pal-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;overflow:auto}
+  .pal-stage{padding:10px;overflow:visible}
+  .pal-stage svg{max-height:42vh}
+  .pal-side{border-left:0;border-top:1px solid var(--line);overflow:visible}
+}
+.pp-list{display:grid;gap:2px}
+.pp{display:flex;gap:10px;align-items:center;border:1px solid transparent;background:none;border-radius:8px;padding:6px 8px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;text-align:left;width:100%}
+.pp:hover{background:var(--sunk)}
+.pp[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.pp i{width:26px;height:26px;border-radius:6px;border:1px solid rgb(0 0 0 / .15);flex:none}
+.pp small{color:var(--muted);margin-left:auto;font-size:12px;white-space:nowrap}
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:6px}
+.sw-grid button{aspect-ratio:1;border-radius:8px;border:1px solid rgb(0 0 0 / .15);cursor:pointer;padding:0;min-width:0}
+.sw-grid button[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
+.pal-custom{display:flex;gap:8px;align-items:center;font-size:14px}
+.pal-custom input[type=color]{width:44px;height:34px;padding:2px;border-radius:8px}
+.pal-thumbs{display:flex;gap:6px;flex-wrap:wrap}
+.pal-thumbs button{width:52px;height:52px;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;background:var(--sunk)}
+.pal-thumbs button[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
+.pal-thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.pal-stage [data-part]{cursor:pointer}
+.pal-stage .sel{stroke:#e0473a;stroke-width:4;stroke-dasharray:10 6}
+
 /* AI: room briefs and suggestions */
 .ai-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn.ai{border-color:var(--accent);color:var(--accent)}
@@ -350,8 +381,10 @@ const DEFAULT_ROOMS = ["Living Room", "Dining", "Kitchen", "Pooja Room", "Master
                        "Bedroom 3", "Bathrooms", "Entry / Foyer", "Balcony"];
 const PRIO = { must: "Must-have", nice: "Nice-to-have", avoid: "Avoid" };
 const PRIO_ORDER = { must: 0, nice: 1, avoid: 2 };
-const KINDS = [["instagram", "Instagram"], ["image", "Photo"], ["sketch", "Sketch"], ["link", "Link"], ["note", "Note"]];
+const KINDS = [["instagram", "Instagram"], ["image", "Photo"], ["sketch", "Sketch"], ["palette", "Palette"], ["link", "Link"], ["note", "Note"]];
 const KIND_LABEL = Object.fromEntries(KINDS);
+/* A colour palette is stored as a sketch card (its image) with the chosen colours in meta.palette. */
+const kindOf = it => (it.kind === "sketch" && metaOf(it).palette ? "palette" : it.kind);
 
 /* ---------- small helpers ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -398,7 +431,8 @@ function titleOf(it) {
   if (it.kind === "instagram") return "Instagram post";
   if (it.kind === "link") return metaOf(it).preview?.title || hostOf(it.url) || "Link";
   if (it.kind === "note") return (it.note || "").split("\n")[0].slice(0, 80) || "Note";
-  return it.kind === "sketch" ? "Sketch" : "Photo";
+  if (it.kind === "sketch") return metaOf(it).palette ? "Colour palette" : "Sketch";
+  return "Photo";
 }
 function roomName(id) { return (id && S.rooms.find(r => r.id === id)?.name) || "Whole home"; }
 function typesList() { return [...new Set([...CONFIG.TYPES, ...S.items.map(i => i.type).filter(Boolean)])]; }
@@ -1049,7 +1083,7 @@ function cardNode(it) {
       showTitle ? el("div", { class: "ctitle" }, titleOf(it)) : null,
       it.kind !== "note" && it.note ? el("div", { class: "cwhy" }, it.note) : null,
       el("div", { class: "cfoot" }, el("span", { class: "cf-left" }, voteBtn(it), el("span", { class: "c-comments" })),
-        el("span", {}, el("span", { class: "c-mk" }), KIND_LABEL[it.kind] || ""))));
+        el("span", {}, el("span", { class: "c-mk" }), KIND_LABEL[kindOf(it)] || ""))));
 }
 
 function mediaNode(it, captioned) {
@@ -1152,7 +1186,7 @@ function closeOverlay(name) {
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape" || !S.stack.length) return;
   const top = S.stack[S.stack.length - 1];
-  if (top !== "sketch" && top !== "plan-editor") closeOverlay(top);
+  if (!["sketch", "plan-editor", "palette"].includes(top)) closeOverlay(top);
 });
 
 /* Two-step button: first click arms, second click runs. Replaces confirm() dialogs. */
@@ -1203,7 +1237,7 @@ function renderDetail(force) {
     el("section", { class: "comments", "aria-label": "Comments" }, el("h3", {}, "Comments"), el("div", { id: "c-list", class: "list" }),
       composer({ it, placeholder: "Add a comment for the team. Type @ to tag someone.", label: "New comment" })));
   openOverlay("detail", el("div", { class: "panel wide", role: "dialog", "aria-modal": "true", "aria-label": titleOf(it) },
-    panelHead(KIND_LABEL[it.kind] + " · " + roomName(it.room_id), () => closeOverlay("detail")),
+    panelHead(KIND_LABEL[kindOf(it)] + " · " + roomName(it.room_id), () => closeOverlay("detail")),
     el("div", { class: "panel-body detail" }, left, right)));
   renderComments(it);
   processIG();
@@ -1375,7 +1409,7 @@ function dropzone({ multiple, label, onFiles }) {
 
 function openEditor({ item = null, kind = null, files = null, text = "" } = {}) {
   const isEdit = !!item;
-  const ed = { kind: item?.kind || kind || "instagram", files: [], shot: null, sketch: null, removeImage: false, onFiles: null };
+  const ed = { kind: (item && kindOf(item)) || kind || "instagram", files: [], shot: null, sketch: null, palette: null, removeImage: false, onFiles: null };
   S.ed = ed;
 
   const fTitle = el("input", { id: "e-title", value: item?.title || "", placeholder: 'Optional, e.g. "Cane-back dining chair"' });
@@ -1407,10 +1441,10 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     panelHead(isEdit ? "Edit " + KIND_LABEL[ed.kind].toLowerCase() : "Add to the board", () => closeOverlay("editor")), form), { backdropCloses: false });
 
   function setKind(k) {
-    ed.kind = k; ed.files = []; ed.shot = null; ed.sketch = null; ed.removeImage = false; ed.onFiles = null;
+    ed.kind = k; ed.files = []; ed.shot = null; ed.sketch = null; ed.palette = null; ed.removeImage = false; ed.onFiles = null;
     tabs?.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.k === k)));
     whyField.hidden = k === "note";
-    aiRow.hidden = !LIVE || !S.access.ai || k === "note";
+    aiRow.hidden = !LIVE || !S.access.ai || k === "note" || k === "palette";
     kindBox.replaceChildren(kindSection(k));
   }
 
@@ -1500,6 +1534,19 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
       show();
       return el("div", { class: "stack" }, el("div", {}, btn), prev, el("p", { class: "hint" }, "Draw freehand, or load a photo inside the pad and mark it up."));
     }
+    if (k === "palette") {
+      const prev = el("div", { class: "thumbs" });
+      const current = () => ed.palette ? ed.palette.preview : (isEdit ? S.urls.get(item.image_path) : null);
+      const btn = el("button", { type: "button", class: "btn" });
+      const show = () => { const src = current(); prev.replaceChildren(src ? el("img", { src, alt: "Palette preview", class: "sketch-prev" }) : el("p", { class: "hint" }, "No palette yet.")); btn.textContent = src ? "Edit palette" : "Open palette tool"; };
+      btn.addEventListener("click", async () => {
+        const res = await openPalette(ed.palette?.data || (isEdit ? metaOf(item).palette : null));
+        if (res) { ed.palette = res; show(); if (!fTitle.value.trim()) fTitle.value = "Colour palette"; }
+      });
+      show();
+      return el("div", { class: "stack" }, el("div", {}, btn), prev,
+        el("p", { class: "hint" }, "Try colours for walls, floor, furniture and fabrics on an illustrated room. You can pull colours from photos on the board. The palette is saved as a card that people can upvote and comment on."));
+    }
     if (k === "link") {
       const u = el("input", { id: "e-url", type: "url", inputmode: "url", value: item?.url || "", placeholder: "https://…" });
       ed.urlInput = u;
@@ -1576,7 +1623,8 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
           if (u !== item.url && !x.meta.preview) delete meta.preview;
         }
         if (ed.kind === "note" && !patch.note) throw new Error("The note is empty.");
-        const newImg = ed.kind === "sketch" ? ed.sketch : (ed.shot || fetchedImg);
+        if (ed.kind === "palette" && ed.palette) meta.palette = ed.palette.data;
+        const newImg = ed.kind === "sketch" ? ed.sketch : ed.kind === "palette" ? ed.palette : (ed.shot || fetchedImg);
         if (newImg) patch.image_path = await up(newImg);
         else if (ed.removeImage) { if (ed.kind === "image") throw new Error("A photo card needs an image. Add one, or delete the card."); patch.image_path = null; }
         Object.assign(patch, extras({ meta }));
@@ -1606,6 +1654,9 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
         } else if (ed.kind === "sketch") {
           if (!ed.sketch) throw new Error("Open the sketch pad and draw something first.");
           rows.push(mk({ kind: "sketch", image_path: await up(ed.sketch) }, 0));
+        } else if (ed.kind === "palette") {
+          if (!ed.palette) throw new Error("Open the palette tool and choose some colours first.");
+          rows.push(mk({ kind: "sketch", title: base.title || "Colour palette", image_path: await up(ed.palette), ...extras({ meta: { palette: ed.palette.data } }) }, 0));
         } else if (ed.kind === "link") {
           const u = normUrl(ed.urlInput.value); if (!u) throw new Error("Add a valid web address.");
           const x = await linkExtras(u, false);
@@ -1735,6 +1786,194 @@ function openSketch({ bgUrl = null } = {}) {
     window.addEventListener("resize", fit);
     sync(); setSize(W, H);
     if (bgUrl) loadBg(bgUrl, false);
+  });
+}
+
+/* ---------- Colour palette tool ---------- */
+const PAL_PARTS = [["wall", "Main wall"], ["side", "Side walls"], ["ceiling", "Ceiling"], ["floor", "Floor"], ["rug", "Rug"], ["sofa", "Sofa"],
+  ["cushions", "Cushions"], ["wood", "Wood: table, frames"], ["curtains", "Curtains"], ["art", "Artwork"], ["metal", "Metal: lamp"], ["pot", "Planter"]];
+const PAL_COLOURS = [["#f7f4ee", "Chalk white"], ["#efe6d6", "Ivory"], ["#e9e1d3", "Lime plaster"], ["#d8cbb5", "Sandstone"], ["#9fa49b", "Kota grey"],
+  ["#5f6662", "Charcoal Kota"], ["#3a3a38", "Charcoal"], ["#f2efea", "Makrana marble"], ["#c8714f", "Terracotta"], ["#a4452c", "Rust"], ["#b5653a", "Clay"],
+  ["#d9a066", "Camel"], ["#e0b13a", "Haldi"], ["#c9a14a", "Brass"], ["#b8862b", "Mustard"], ["#d98c8c", "Dusty rose"], ["#c2185b", "Rani pink"],
+  ["#7a2e3a", "Maroon"], ["#2e3d8c", "Indigo"], ["#24316e", "Ink blue"], ["#1f5f6b", "Peacock"], ["#5c8a8a", "Teal grey"], ["#a8b5a0", "Sage"],
+  ["#6f7f5f", "Mehendi green"], ["#2f5d50", "Bottle green"], ["#8c8a4b", "Olive"], ["#c49a6c", "Cane"], ["#a87b4f", "Light teak"], ["#7a5230", "Teak"],
+  ["#5a3a22", "Sheesham"], ["#3d2a1c", "Walnut"], ["#ffffff", "White"]];
+const PAL_NAME = Object.fromEntries(PAL_COLOURS.map(([h, n]) => [h, n]));
+const PAL_PRESETS = [
+  ["Kota and teak", "tiles", { wall: "#e9e1d3", side: "#efe9df", ceiling: "#f7f4ee", floor: "#9fa49b", rug: "#7a2e3a", sofa: "#d8cbb5", cushions: "#2e3d8c", wood: "#7a5230", curtains: "#efe6d6", art: "#c9a14a", metal: "#c9a14a", pot: "#b5653a" }],
+  ["Indigo and white", "planks", { wall: "#f7f4ee", side: "#f7f4ee", ceiling: "#ffffff", floor: "#d8cbb5", rug: "#2e3d8c", sofa: "#efe6d6", cushions: "#24316e", wood: "#a87b4f", curtains: "#ffffff", art: "#2e3d8c", metal: "#5f6662", pot: "#f2efea" }],
+  ["Sage and cane", "planks", { wall: "#a8b5a0", side: "#e9e1d3", ceiling: "#f7f4ee", floor: "#c49a6c", rug: "#efe6d6", sofa: "#e9e1d3", cushions: "#6f7f5f", wood: "#c49a6c", curtains: "#f2efea", art: "#d9a066", metal: "#c9a14a", pot: "#7a5230" }],
+  ["Terracotta and brass", "tiles", { wall: "#c8714f", side: "#efe6d6", ceiling: "#f7f4ee", floor: "#e9e1d3", rug: "#a4452c", sofa: "#e9e1d3", cushions: "#b8862b", wood: "#5a3a22", curtains: "#efe6d6", art: "#2f5d50", metal: "#c9a14a", pot: "#a4452c" }],
+  ["Peacock and walnut", "planks", { wall: "#1f5f6b", side: "#e9e1d3", ceiling: "#f7f4ee", floor: "#5a3a22", rug: "#c9a14a", sofa: "#efe6d6", cushions: "#1f5f6b", wood: "#3d2a1c", curtains: "#efe6d6", art: "#c9a14a", metal: "#c9a14a", pot: "#2f5d50" }],
+];
+const okHex = h => (/^#[0-9a-f]{6}$/i.test(h || "") ? h.toLowerCase() : "#cccccc");
+
+/* The illustrated room, as SVG. With swatches=true it adds a labelled colour strip for the saved image. */
+function paletteSVG(p, floorStyle, { swatches = false, selected = null } = {}) {
+  const c = k => okHex(p[k]);
+  const part = (k, svg) => svg.replace(/^<(\w+)/, `<$1 data-part="${k}"${k === selected ? ' class="sel"' : ""}`);
+  let floorLines = "";
+  if (floorStyle === "planks" || floorStyle === "tiles") {
+    for (let x = 300; x <= 900; x += floorStyle === "planks" ? 40 : 75) floorLines += `<line x1="${x}" y1="500" x2="${600 + (x - 600) * 2}" y2="800"/>`;
+  }
+  if (floorStyle === "tiles") for (const y of [522, 552, 592, 646, 716]) floorLines += `<line x1="${300 - (y - 500)}" y1="${y}" x2="${900 + (y - 500)}" y2="${y}"/>`;
+  const H = swatches ? 990 : 800;
+  let strip = "";
+  if (swatches) {
+    strip = `<rect x="0" y="800" width="1200" height="190" fill="#ffffff"/>` + PAL_PARTS.map(([k, label], i) => {
+      const x = 28 + (i % 6) * 196, y = 822 + Math.floor(i / 6) * 82, hex = c(k);
+      return `<rect x="${x}" y="${y}" width="58" height="58" rx="8" fill="${hex}" stroke="rgba(0,0,0,.18)"/>` +
+        `<text x="${x + 68}" y="${y + 24}" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1c2321">${label.split(":")[0]}</text>` +
+        `<text x="${x + 68}" y="${y + 45}" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#59645f">${PAL_NAME[hex] || hex.toUpperCase()}</text>`;
+    }).join("");
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 ${H}" width="1200" height="${H}" role="img" aria-label="Illustrated room in the chosen colours">
+<defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".16"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient></defs>
+${part("ceiling", `<polygon points="0,0 1200,0 900,110 300,110" fill="${c("ceiling")}"/>`)}
+${part("side", `<polygon points="0,0 300,110 300,500 0,800" fill="${c("side")}"/>`)}
+${part("side", `<polygon points="1200,0 900,110 900,500 1200,800" fill="${c("side")}"/>`)}
+${part("wall", `<rect x="300" y="110" width="600" height="390" fill="${c("wall")}"/>`)}
+${part("floor", `<polygon points="0,800 300,500 900,500 1200,800" fill="${c("floor")}"/>`)}
+<g pointer-events="none">
+<g stroke="#000" stroke-opacity=".13" stroke-width="2">${floorLines}</g>
+<polygon points="0,800 300,500 900,500 1200,800" fill="url(#fg)"/>
+<polygon points="0,0 300,110 300,500 0,800" fill="#000" fill-opacity=".07"/>
+<polygon points="1200,0 900,110 900,500 1200,800" fill="#000" fill-opacity=".04"/>
+<polygon points="0,0 1200,0 900,110 300,110" fill="#fff" fill-opacity=".12"/>
+<line x1="300" y1="500" x2="900" y2="500" stroke="#000" stroke-opacity=".18" stroke-width="3"/>
+<polygon points="960,159 1100,136 1100,435 960,371" fill="#dcebf2" stroke="${c("wood")}" stroke-width="6"/>
+<line x1="1030" y1="148" x2="1030" y2="403" stroke="${c("wood")}" stroke-width="4"/>
+</g>
+${part("curtains", `<polygon points="935,150 978,141 978,563 935,522" fill="${c("curtains")}"/>`)}
+${part("curtains", `<polygon points="1085,119 1135,109 1135,714 1085,666" fill="${c("curtains")}"/>`)}
+<g pointer-events="none" stroke="#000" stroke-opacity=".08" stroke-width="3"><line x1="950" y1="148" x2="950" y2="536"/><line x1="964" y1="145" x2="964" y2="549"/><line x1="1102" y1="116" x2="1102" y2="682"/><line x1="1119" y1="112" x2="1119" y2="699"/></g>
+${part("art", `<rect x="520" y="170" width="160" height="110" fill="${c("art")}" stroke="${c("wood")}" stroke-width="9"/>`)}
+<circle cx="585" cy="215" r="28" fill="#fff" fill-opacity=".3" pointer-events="none"/><rect x="600" y="230" width="55" height="30" fill="#000" fill-opacity=".12" pointer-events="none"/>
+${part("rug", `<polygon points="360,590 840,590 940,720 260,720" fill="${c("rug")}"/>`)}
+<polygon points="385,603 815,603 895,707 305,707" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="4" pointer-events="none"/>
+<ellipse cx="600" cy="480" rx="250" ry="16" fill="#000" fill-opacity=".16" pointer-events="none"/>
+${part("wood", `<rect x="388" y="462" width="10" height="20" fill="${c("wood")}"/>`)}
+${part("wood", `<rect x="802" y="462" width="10" height="20" fill="${c("wood")}"/>`)}
+${part("sofa", `<rect x="390" y="325" width="420" height="95" rx="14" fill="${c("sofa")}"/>`)}
+${part("sofa", `<rect x="378" y="398" width="444" height="70" rx="10" fill="${c("sofa")}"/>`)}
+${part("sofa", `<rect x="356" y="365" width="52" height="104" rx="14" fill="${c("sofa")}"/>`)}
+${part("sofa", `<rect x="792" y="365" width="52" height="104" rx="14" fill="${c("sofa")}"/>`)}
+<rect x="378" y="444" width="444" height="24" rx="6" fill="#000" fill-opacity=".08" pointer-events="none"/>
+${part("cushions", `<rect x="420" y="343" width="92" height="72" rx="14" fill="${c("cushions")}"/>`)}
+${part("cushions", `<rect x="688" y="343" width="92" height="72" rx="14" fill="${c("cushions")}"/>`)}
+${part("cushions", `<rect x="560" y="356" width="80" height="58" rx="12" fill="${c("cushions")}" fill-opacity=".8"/>`)}
+<ellipse cx="600" cy="676" rx="112" ry="10" fill="#000" fill-opacity=".18" pointer-events="none"/>
+${part("wood", `<rect x="522" y="622" width="10" height="52" fill="${c("wood")}"/>`)}
+${part("wood", `<rect x="668" y="622" width="10" height="52" fill="${c("wood")}"/>`)}
+${part("wood", `<ellipse cx="600" cy="620" rx="122" ry="26" fill="${c("wood")}"/>`)}
+<ellipse cx="590" cy="614" rx="80" ry="12" fill="#fff" fill-opacity=".12" pointer-events="none"/>
+${part("metal", `<ellipse cx="320" cy="566" rx="32" ry="9" fill="${c("metal")}"/>`)}
+${part("metal", `<rect x="317" y="290" width="6" height="276" fill="${c("metal")}"/>`)}
+${part("metal", `<polygon points="282,298 358,298 343,246 297,246" fill="${c("metal")}"/>`)}
+<ellipse cx="320" cy="300" rx="38" ry="6" fill="#fff6d8" fill-opacity=".7" pointer-events="none"/>
+<g pointer-events="none" fill="#5d7a4f"><ellipse cx="870" cy="392" rx="16" ry="40" transform="rotate(-20 870 392)"/><ellipse cx="892" cy="388" rx="15" ry="44" transform="rotate(18 892 388)"/><ellipse cx="880" cy="378" rx="12" ry="46"/></g>
+${part("pot", `<polygon points="852,428 908,428 899,492 861,492" fill="${c("pot")}"/>`)}
+${strip}
+</svg>`;
+}
+
+async function svgToPng(svg) {
+  const img = new Image();
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  await img.decode();
+  const cv = document.createElement("canvas"); cv.width = img.naturalWidth || 1200; cv.height = img.naturalHeight || 990;
+  const x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(img, 0, 0, cv.width, cv.height);
+  return new Promise(r => cv.toBlob(r, "image/png"));
+}
+
+/* The main colours in a photo: shrink it, group similar pixels, keep the most common distinct ones. */
+async function photoColours(url, n = 8) {
+  const img = new Image();
+  if (!url.startsWith("data:") && !url.startsWith("blob:")) img.crossOrigin = "anonymous";
+  img.src = url; await img.decode();
+  const cv = document.createElement("canvas"); cv.width = 64; cv.height = 64;
+  const x = cv.getContext("2d", { willReadFrequently: true }); x.drawImage(img, 0, 0, 64, 64);
+  const d = x.getImageData(0, 0, 64, 64).data, buckets = new Map();
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3] < 200) continue;
+    const k = (d[i] >> 4) << 8 | (d[i + 1] >> 4) << 4 | (d[i + 2] >> 4);
+    const b = buckets.get(k) || { n: 0, r: 0, g: 0, b: 0 }; b.n++; b.r += d[i]; b.g += d[i + 1]; b.b += d[i + 2]; buckets.set(k, b);
+  }
+  const out = [];
+  for (const b of [...buckets.values()].sort((p, q) => q.n - p.n)) {
+    const rgb = [b.r / b.n, b.g / b.n, b.b / b.n].map(Math.round);
+    if (out.some(o => Math.hypot(o[0] - rgb[0], o[1] - rgb[1], o[2] - rgb[2]) < 42)) continue;
+    out.push(rgb); if (out.length >= n) break;
+  }
+  return out.map(rgb => "#" + rgb.map(v => v.toString(16).padStart(2, "0")).join(""));
+}
+
+/* Opens the palette tool. Resolves to { data, blob, ext, preview } or null if cancelled. */
+function openPalette(initial) {
+  return new Promise(resolve => {
+    S.stack.push("palette"); document.body.classList.add("locked");
+    const start = initial?.parts ? initial : { parts: PAL_PRESETS[0][2], floor: PAL_PRESETS[0][1] };
+    const parts = { ...PAL_PRESETS[0][2], ...start.parts };
+    let floor = start.floor || "plain", sel = "wall", photoIx = -1, photoCols = [];
+    const stage = el("div", { class: "pal-stage" });
+    const side = el("div", { class: "pal-side" });
+    const preset = el("select", { "aria-label": "Start from a ready-made palette", onchange: e => {
+      const p = PAL_PRESETS[+e.target.value]; if (p) { Object.assign(parts, p[2]); floor = p[1]; draw(); } e.target.value = ""; } },
+      el("option", { value: "" }, "Start from…"), ...PAL_PRESETS.map(([n], i) => el("option", { value: String(i) }, n)));
+    const floorSeg = el("div", { class: "seg", role: "group", "aria-label": "Floor finish" },
+      ...[["plain", "Plain floor"], ["planks", "Planks"], ["tiles", "Tiles"]].map(([v, l]) =>
+        el("button", { type: "button", class: "seg-btn", "data-f": v, onclick: () => { floor = v; draw(); } }, l)));
+    const finish = v => {
+      ov.remove(); S.stack = S.stack.filter(n => n !== "palette");
+      if (!S.stack.length) document.body.classList.remove("locked");
+      resolve(v);
+    };
+    const cancel = el("button", { type: "button", class: "btn ghost", onclick: () => finish(null) }, "Cancel");
+    const use = el("button", { type: "button", class: "btn primary", onclick: async () => {
+      use.disabled = true;
+      try {
+        const blob = await svgToPng(paletteSVG(parts, floor, { swatches: true }));
+        finish({ data: { parts: { ...parts }, floor }, blob, ext: "png", preview: URL.createObjectURL(blob) });
+      } catch { toast("Couldn't create the palette image.", "err"); use.disabled = false; }
+    } }, "Use palette");
+    const ov = el("div", { class: "pal", role: "dialog", "aria-modal": "true", "aria-label": "Colour palette" },
+      el("div", { class: "sk-bar" }, el("strong", {}, "Colour palette"), preset, floorSeg, el("span", { class: "spacer" }), cancel, use),
+      el("div", { class: "pal-body" }, stage, side));
+    stage.addEventListener("click", e => { const k = e.target.closest("[data-part]")?.dataset.part; if (k) { sel = k; draw(); } });
+
+    const boardPhotos = () => {
+      const pool = S.boardItems.filter(i => i.image_path && S.urls.get(i.image_path) && !metaOf(i).palette &&
+        (S.filter.room === "all" || (S.filter.room === "none" ? !i.room_id : i.room_id === S.filter.room)));
+      return pool.slice(0, 12);
+    };
+    function setColour(hex) { parts[sel] = okHex(hex); draw(); }
+    function draw() {
+      stage.innerHTML = paletteSVG(parts, floor, { selected: sel });
+      floorSeg.querySelectorAll(".seg-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.f === floor)));
+      const cur = okHex(parts[sel]);
+      const swatch = hex => el("button", { type: "button", style: `background:${hex}`, title: PAL_NAME[hex] || hex.toUpperCase(),
+        "aria-label": PAL_NAME[hex] || hex, "aria-pressed": String(hex === cur), onclick: () => setColour(hex) });
+      const custom = el("input", { type: "color", value: cur, "aria-label": "Any colour", oninput: e => { parts[sel] = okHex(e.target.value); stage.innerHTML = paletteSVG(parts, floor, { selected: sel }); }, onchange: () => draw() });
+      const photos = boardPhotos();
+      side.replaceChildren(
+        el("section", {}, el("h3", {}, "Parts of the room"), el("p", { class: "hint", style: "margin-bottom:6px" }, "Pick a part here or tap it in the picture."),
+          el("div", { class: "pp-list" }, ...PAL_PARTS.map(([k, l]) => el("button", { type: "button", class: "pp", "aria-pressed": String(k === sel), onclick: () => { sel = k; draw(); } },
+            el("i", { style: `background:${okHex(parts[k])}` }), l, el("small", {}, PAL_NAME[okHex(parts[k])] || okHex(parts[k]).toUpperCase()))))),
+        el("section", {}, el("h3", {}, "Colour for " + PAL_PARTS.find(p => p[0] === sel)[1].split(":")[0].toLowerCase()),
+          el("div", { class: "sw-grid" }, ...PAL_COLOURS.map(([h]) => swatch(h))),
+          el("label", { class: "pal-custom", style: "margin-top:10px" }, custom, "Any other colour")),
+        el("section", {}, el("h3", {}, "Colours from the board"),
+          photos.length ? el("p", { class: "hint", style: "margin-bottom:6px" }, "Pick a photo to use its colours" + (S.filter.room !== "all" ? " (from the room you're filtering)." : ".")) : el("p", { class: "hint" }, "Add photos to the board to pull colours from them."),
+          el("div", { class: "pal-thumbs" }, ...photos.map((it, i) => el("button", { type: "button", "aria-label": "Colours from " + titleOf(it), "aria-pressed": String(i === photoIx),
+            onclick: async () => {
+              photoIx = i;
+              try { photoCols = await photoColours(S.urls.get(it.image_path)); } catch { photoCols = []; toast("Couldn't read colours from that picture.", "err"); }
+              draw();
+            } }, el("img", { src: S.urls.get(it.image_path), alt: "" })))),
+          photoCols.length ? el("div", { class: "sw-grid", style: "margin-top:8px" }, ...photoCols.map(swatch)) : null));
+    }
+    document.body.append(ov);
+    draw();
   });
 }
 

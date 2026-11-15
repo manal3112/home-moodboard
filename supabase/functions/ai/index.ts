@@ -37,7 +37,11 @@ Deno.serve(async (req) => {
     });
     // Only people on the AI access list (public.ai_users, managed by the board owner) may use the AI.
     const { data: allowed, error: accessErr } = await sb.rpc("can_use_ai");
-    if (accessErr) return json({ error: "AI access isn't set up yet. Run update-3.sql in Supabase, then try again." }, 403);
+    if (accessErr) {
+      const notInstalled = accessErr.code === "PGRST202"; // can_use_ai() doesn't exist yet
+      return json({ error: notInstalled ? "AI access isn't set up yet. Run update-3.sql in Supabase, then try again."
+        : "Your account doesn't have AI access. Sign in, or ask the board owner to turn it on." }, 403);
+    }
     if (!allowed) return json({ error: "Your account doesn't have AI access. Ask the board owner to turn it on under Rooms & people." }, 403);
     if (!Deno.env.get("ANTHROPIC_API_KEY")) {
       return json({ error: "The AI key hasn't been added yet. In Supabase open Edge Functions → Secrets and add ANTHROPIC_API_KEY." }, 503);
