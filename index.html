@@ -6,25 +6,28 @@
 <title>Riviera Majestica 1302</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;500;600&family=Noto+Serif+Gujarati:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&family=Noto+Sans+Gujarati:wght@300;400;500;600&display=swap">
 <style>
 /* Layout: a calm Kota-stone ground, masonry board of cards, indigo (ajrakh) as the single accent, brass for must-haves. */
 :root{
-  --bg:#eceee9; --surface:#fafbf8; --sunk:#e2e6df; --ink:#1c2321; --muted:#59645f; --line:#d2d8cf;
-  --accent:#2e3d8c; --accent-ink:#ffffff; --accent-soft:#dde2f4;
-  --must:#8a5d12; --must-soft:#f1e3c4; --nice:#3f6453; --nice-soft:#d9e6dd; --avoid:#9c3426; --avoid-soft:#f4dad4;
-  --shadow:0 1px 2px rgb(20 30 25 / .05), 0 8px 28px rgb(20 30 25 / .10);
-  --display:"Fraunces", "Noto Serif Gujarati", Georgia, "Times New Roman", serif;
+  /* Warm ivory ground, copper accent and hairline rules, in the spirit of the building's own finishes. */
+  --bg:#f5f2ed; --surface:#ffffff; --sunk:#efebe4; --ink:#26211e; --muted:#7b716a; --line:#e5dfd6; --line-strong:#d3cbc0;
+  --accent:#8f5e4b; --accent-ink:#ffffff; --accent-soft:#f3e8e2;
+  --must:#8a6420; --must-soft:#f6eddb; --nice:#4d6a59; --nice-soft:#e6eee8; --avoid:#a3463a; --avoid-soft:#f7e3df;
+  --shadow:0 1px 2px rgb(38 33 30 / .04), 0 12px 32px -8px rgb(38 33 30 / .14);
+  --shadow-sm:0 1px 2px rgb(38 33 30 / .05), 0 2px 8px -2px rgb(38 33 30 / .06);
+  --display:"Jost", "Noto Sans Gujarati", "Avenir Next", "Century Gothic", system-ui, sans-serif;
   --body:"Inter", "Noto Sans Gujarati", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --r:10px;
+  --r:12px;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#121615; --surface:#1a1f1d; --sunk:#232a27; --ink:#e3e8e3; --muted:#9aa49f; --line:#2d3532;
-    --accent:#9fabf2; --accent-ink:#11152c; --accent-soft:#262d52;
-    --must:#e2b462; --must-soft:#3a2f19; --nice:#93c4ac; --nice-soft:#1e3128; --avoid:#ef8c7c; --avoid-soft:#3e221d;
-    --shadow:0 1px 2px rgb(0 0 0 / .3), 0 8px 28px rgb(0 0 0 / .4);
+    --bg:#151312; --surface:#1d1a18; --sunk:#25211f; --ink:#ece6e0; --muted:#a39890; --line:#302b28; --line-strong:#423b37;
+    --accent:#d39d86; --accent-ink:#1d1512; --accent-soft:#3a2a23;
+    --must:#e0b96a; --must-soft:#372c18; --nice:#97c2a8; --nice-soft:#1f2d25; --avoid:#ec8f80; --avoid-soft:#3d231f;
+    --shadow:0 1px 2px rgb(0 0 0 / .3), 0 12px 32px -8px rgb(0 0 0 / .5);
+    --shadow-sm:0 1px 2px rgb(0 0 0 / .3);
     color-scheme:dark;
   }
 }
@@ -164,7 +167,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .c-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
 .c-form{display:grid;gap:8px;justify-items:end}
 .c-form .form-actions{width:100%}
-.c-form .mic{margin-right:auto}
+.c-form .c-tools{margin-right:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .mic.rec{background:var(--avoid);border-color:var(--avoid);color:var(--surface);font-variant-numeric:tabular-nums}
 .clip{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%}
 .clip audio,.c-audio{width:100%;max-width:340px;height:40px}
@@ -360,6 +363,90 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.err{background:var(--avoid);color:var(--surface)}
 @media (prefers-reduced-motion: reduce){ #toast{transition:none} }
+
+/* ===== Finish: a calmer, more refined surface ===== */
+body{font-size:14.5px;letter-spacing:-.003em}
+::selection{background:var(--accent-soft)}
+.btn{font:500 13.5px/1 var(--body);border-radius:8px;padding:9px 14px;border-color:var(--line-strong);transition:border-color .15s,background .15s,color .15s,box-shadow .15s}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+.btn.primary:hover{filter:none;background:color-mix(in srgb,var(--accent) 88%,#000)}
+.btn.ghost{border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink);background:var(--sunk);border-color:transparent}
+.btn.small{padding:7px 11px;font-size:12.5px}
+.btn.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+input,select,textarea{border-color:var(--line-strong);border-radius:8px;background:var(--surface)}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.seg{border-color:var(--line);background:var(--sunk);border-radius:9px;padding:3px}
+.seg-btn{font-size:12.5px;padding:7px 12px}
+.seg-btn[aria-pressed="true"],.seg-btn[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+
+header.top{background:color-mix(in srgb,var(--surface) 92%,transparent);border-bottom-color:var(--line)}
+.top-row{padding-block:18px 12px;gap:6px 8px}
+.brand h1{font:400 clamp(19px,2.1vw,24px)/1.1 var(--display);letter-spacing:.16em;text-transform:uppercase}
+.brand h1 .no{color:var(--accent);font-weight:500}
+.brand p{font:500 10.5px/1.4 var(--body);letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+.nav{background:var(--sunk);border-radius:9px;padding:3px;margin-right:6px}
+.nav-btn{font:500 13px/1 var(--body);padding:8px 13px;border-radius:7px}
+.nav-btn[aria-current="page"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+.chip{border-color:var(--line);font-size:12.5px;padding:6px 13px;transition:border-color .15s}
+.chip:hover{border-color:var(--line-strong)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.count{font-size:12px;letter-spacing:.04em}
+.banner{border-radius:10px;border:1px solid var(--line)}
+
+.grid{column-gap:22px;padding-block:26px 48px}
+.card{margin-bottom:22px;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm);transition:box-shadow .2s,transform .2s,border-color .2s}
+.card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.card.pinned{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.cbody{padding:14px 16px 14px;gap:8px;border-top-color:var(--line)}
+.ctitle{font:500 16px/1.3 var(--display);letter-spacing:.005em}
+.cbody:hover .ctitle{color:var(--ink)}
+.cwhy{font-size:13.5px;line-height:1.5}
+.note-body{font:400 17px/1.55 var(--display);padding:20px 20px 8px}
+.grid:not(.feed) .note-body{-webkit-line-clamp:9}
+.filter-row select,.filter-row input{font-size:13.5px;padding:7px 10px;height:36px}
+.d-actions .btn.ghost{color:var(--avoid)}
+@media (max-width:720px){ .brand{flex-basis:100%} }
+.prio{font-size:10px;letter-spacing:.1em;padding:3px 8px;border-radius:4px}
+.new-pill,.pin-pill,.ai-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-radius:4px;padding:3px 7px}
+.pin-pill{display:inline-flex;gap:4px;align-items:center;font-weight:600;color:var(--accent);background:var(--accent-soft)}
+.pin-ic{display:inline-flex}
+.pin-ic svg{display:block}
+.pin-pill .pin-ic svg{width:11px;height:11px}
+.cfoot{border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.cf-right{display:inline-flex;gap:8px;align-items:center}
+.pin-btn{border:0;background:none;color:var(--line-strong);cursor:pointer;padding:3px;border-radius:6px;display:inline-flex}
+.pin-btn:hover{color:var(--accent);background:var(--accent-soft)}
+.pin-btn[aria-pressed="true"]{color:var(--accent)}
+.vote{border-color:var(--line);padding:3px 10px}
+.vote.big{border-radius:8px;border-color:var(--line-strong)}
+
+.overlay{background:rgb(24 20 18 / .5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.panel{border-radius:16px;border:1px solid var(--line)}
+.panel-head{padding:16px 18px 16px 24px}
+.panel-head h2{font:500 17px/1.25 var(--display);letter-spacing:.02em}
+.panel-body{padding:22px 24px 24px;gap:18px}
+.lbl{font-size:10.5px;letter-spacing:.12em;font-weight:600}
+.d-title{font:500 26px/1.2 var(--display)}
+.comments h3,.set h3{font:600 11px/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.c-item{background:var(--sunk);border-radius:10px;padding:10px 14px}
+.tab{border-color:var(--line-strong);font-size:13px}
+
+.signin-card{border-radius:16px;padding:36px 32px;box-shadow:var(--shadow);gap:16px}
+.signin-card h1{font:400 24px/1.2 var(--display);letter-spacing:.16em;text-transform:uppercase}
+.signin-card .sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.empty h2,.rv-head h2,.plan-head h2{font-family:var(--display);font-weight:500;letter-spacing:.02em}
+.tile{box-shadow:var(--shadow-sm)}
+.doc{box-shadow:var(--shadow-sm)}
+.foot{font-size:12px}
+
+.dict-group{display:inline-flex;gap:0;align-items:stretch}
+.dict-group .btn{border-top-right-radius:0;border-bottom-right-radius:0}
+.dict-lang{font-size:12px;padding:5px 6px;border-top-left-radius:0;border-bottom-left-radius:0;border-left:0;max-width:96px}
+.dict-row{display:flex;gap:8px}
+.mic.rec,.dict.rec{background:var(--avoid);border-color:var(--avoid);color:#fff;font-variant-numeric:tabular-nums}
+@media (max-width:720px){ .nav{margin-right:0} .top-row{padding-block:14px 10px} }
 </style>
 </head>
 <body>
@@ -865,7 +952,14 @@ const GU = {
   "Allow the microphone to record a voice note.": "વોઇસ નોટ માટે માઇક્રોફોનની મંજૂરી આપો.",
   "This browser can't record audio. Try Chrome or Safari.": "આ બ્રાઉઝર ઑડિયો રેકોર્ડ કરી શકતું નથી. Chrome કે Safari વાપરો.",
   "Recorded. Listen, then post it.": "રેકોર્ડ થઈ ગયું. સાંભળો, પછી મોકલો.",
-  "Stop the recording first.": "પહેલાં રેકોર્ડિંગ બંધ કરો.", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
+  "Stop the recording first.": "પહેલાં રેકોર્ડિંગ બંધ કરો.",
+  "Speak to type": "બોલીને લખો", "■ Stop": "■ બંધ કરો", "Speak and the words are typed into the box": "બોલો, અને શબ્દો આપમેળે લખાઈ જશે",
+  "Language you'll speak in": "તમે કઈ ભાષામાં બોલશો", "Speech language": "બોલવાની ભાષા",
+  "Allow the microphone to use speak to type.": "બોલીને લખવા માટે માઇક્રોફોનની મંજૂરી આપો.",
+  "This browser can't type that language from speech. Try Chrome.": "આ બ્રાઉઝર આ ભાષા સાંભળીને લખી શકતું નથી. Chrome વાપરો.",
+  "Speak to type needs an internet connection.": "બોલીને લખવા માટે ઇન્ટરનેટ જરૂરી છે.",
+  "Speak to type couldn't start. Try again.": "બોલીને લખવાનું શરૂ ન થયું. ફરી પ્રયાસ કરો.",
+  "Pin to top": "ઉપર પિન કરો", "Unpin": "પિન કાઢો", "Pinned": "પિન કરેલું", "Pinned to the top of the board": "બોર્ડમાં સૌથી ઉપર પિન કર્યું", "Unpinned": "પિન કાઢ્યું", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
   "Comments that tag you, replies to your comments, and comments on things you added.": "તમને ટેગ કરતી કોમેન્ટ, તમારી કોમેન્ટના જવાબ, અને તમે ઉમેરેલી વસ્તુઓ પરની કોમેન્ટ.",
   "Nothing yet. When someone tags you with @ or replies to you, it shows up here.": "હજી કંઈ નથી. કોઈ તમને @ થી ટેગ કરે કે જવાબ આપે ત્યારે અહીં દેખાશે.",
   // Adding and editing
@@ -976,6 +1070,8 @@ function langBtn(extra = "") {
 }
 
 /* ===================== SCREENS ===================== */
+/* "Riviera Majestica 1302": the flat number is set in the accent colour. */
+function brandTitle() { const m = CONFIG.BOARD_TITLE.match(/^(.*?)(\s+\d+)$/); return m ? [m[1], el("span", { class: "no" }, m[2])] : [CONFIG.BOARD_TITLE]; }
 function field(label, control, hint) {
   const id = control.id || (control.id = "f-" + uid().slice(0, 8));
   return el("div", { class: "field" }, el("label", { class: "lbl", for: id }, label), control, hint ? el("p", { class: "hint" }, hint) : null);
@@ -993,7 +1089,7 @@ function renderSignIn() {
     btn.disabled = false;
   } }, field("Email", email), btn, msg);
   $("#app").replaceChildren(el("main", { class: "signin" }, el("div", { class: "signin-card" },
-    el("h1", {}, CONFIG.BOARD_TITLE), el("p", { class: "sub" }, CONFIG.BOARD_SUBTITLE), form,
+    el("h1", {}, ...brandTitle()), el("p", { class: "sub" }, CONFIG.BOARD_SUBTITLE), form,
     el("div", { class: "form-actions" }, langBtn("small")))));
   setTimeout(() => email.focus(), 30);
 }
@@ -1024,7 +1120,7 @@ function renderShell() {
   const viewBtn = (v, label) => el("button", { type: "button", class: "seg-btn", id: "v-" + v, "aria-pressed": String(S.view === v), onclick: () => setView(v) }, label);
   const header = el("header", { class: "top" },
     el("div", { class: "wrap top-row" },
-      el("div", { class: "brand" }, el("h1", {}, CONFIG.BOARD_TITLE), el("p", {}, CONFIG.BOARD_SUBTITLE)),
+      el("div", { class: "brand" }, el("h1", {}, ...brandTitle()), el("p", {}, CONFIG.BOARD_SUBTITLE)),
       el("nav", { class: "nav", "aria-label": "Sections" },
         el("button", { type: "button", class: "nav-btn", id: "n-board", onclick: () => setSection("board") }, "Moodboard"),
         el("button", { type: "button", class: "nav-btn", id: "n-docs", onclick: () => setSection("docs") }, "Documents", el("span", { class: "n", id: "n-docs-n" }))),
@@ -1173,9 +1269,30 @@ function sortedItems() {
     const pos = id => (id ? S.rooms.find(r => r.id === id)?.position ?? 9999 : -1);
     a.sort((x, y) => (pos(x.room_id) - pos(y.room_id)) || newest(x, y));
   } else a.sort(newest);
-  return a;
+  // Pinned cards stay at the top whatever the sort, most recently pinned first.
+  const pinAt = it => Date.parse(metaOf(it).pinned?.at) || 0;
+  return [...a.filter(isPinned).sort((x, y) => pinAt(y) - pinAt(x)), ...a.filter(x => !isPinned(x))];
 }
-const itemVer = it => `${it.updated_at}|${it.image_path ? (S.urls.has(it.image_path) ? "u" : "n") : "-"}`;
+const isPinned = it => !!metaOf(it).pinned;
+const itemVer = it => `${it.updated_at}|${isPinned(it) ? "p" : ""}|${it.image_path ? (S.urls.has(it.image_path) ? "u" : "n") : "-"}`;
+const PIN_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M15.6 2.6a1 1 0 0 1 1.4 0l4.4 4.4a1 1 0 0 1 0 1.4l-1.2 1.2a1 1 0 0 1-1.1.2l-3.4 3.4.4 3.9a1 1 0 0 1-.3.8l-1.1 1.1a1 1 0 0 1-1.4 0L9.9 15.6l-5.2 5.2a1 1 0 0 1-1.4-1.4l5.2-5.2-3.4-3.4a1 1 0 0 1 0-1.4l1.1-1.1a1 1 0 0 1 .8-.3l3.9.4 3.4-3.4a1 1 0 0 1 .2-1.1z"/></svg>';
+function pinIcon() { const s = el("span", { class: "pin-ic" }); s.innerHTML = PIN_SVG; return s; }
+async function togglePin(it) {
+  if (S.needsUpdate) { toast("Run update-2.sql in Supabase first (see the banner at the top).", "err"); return; }
+  const meta = { ...metaOf(it) }, was = !!meta.pinned;
+  if (was) delete meta.pinned; else meta.pinned = { by: myEmail(), at: new Date().toISOString() };
+  try {
+    await S.store.updateItem(it.id, { meta });
+    S.lastOrder = null; S.orderStale = false;
+    toast(was ? "Unpinned" : "Pinned to the top of the board");
+    await refresh();
+  } catch (e) { toast(errMsg(e), "err"); }
+}
+function pinBtn(it) {
+  const on = isPinned(it);
+  return el("button", { type: "button", class: "pin-btn", "aria-pressed": String(on), title: on ? "Unpin" : "Pin to top",
+    "aria-label": on ? "Unpin" : "Pin to top", onclick: e => { e.stopPropagation(); togglePin(it); }, onkeydown: e => e.stopPropagation() }, pinIcon());
+}
 
 /* ---------- Upvotes ---------- */
 const voteCount = it => S.votes.get(it.id)?.length || 0;
@@ -1251,16 +1368,16 @@ function renderGrid() {
 function cardNode(it) {
   const open = () => openDetail(it.id);
   const showTitle = it.kind !== "note" || (it.title && it.title.trim());
-  return el("article", { class: "card", "data-prio": it.priority, "data-kind": it.kind },
+  return el("article", { class: "card" + (isPinned(it) ? " pinned" : ""), "data-prio": it.priority, "data-kind": it.kind },
     mediaNode(it, false),
     el("div", { class: "cbody", role: "button", tabindex: "0", "aria-label": "Open " + titleOf(it), onclick: open,
       onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } } },
-      el("div", { class: "cmeta" }, prioBadge(it.priority), isNew(it) ? el("span", { class: "new-pill" }, "New") : null,
+      el("div", { class: "cmeta" }, isPinned(it) ? el("span", { class: "pin-pill" }, pinIcon(), "Pinned") : null, prioBadge(it.priority), isNew(it) ? el("span", { class: "new-pill" }, "New") : null,
         el("span", { class: "c-room" }), it.type ? el("span", {}, "· " + it.type) : null),
       showTitle ? el("div", { class: "ctitle" }, titleOf(it)) : null,
       it.kind !== "note" && it.note ? el("div", { class: "cwhy" }, it.note) : null,
       el("div", { class: "cfoot" }, el("span", { class: "cf-left" }, voteBtn(it), el("span", { class: "c-comments" })),
-        el("span", {}, el("span", { class: "c-mk" }), KIND_LABEL[kindOf(it)] || ""))));
+        el("span", { class: "cf-right" }, el("span", { class: "c-mk" }), el("span", {}, KIND_LABEL[kindOf(it)] || ""), pinBtn(it)))));
 }
 
 function mediaNode(it, captioned) {
@@ -1404,6 +1521,7 @@ function renderDetail(force) {
     el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}` + (metaOf(it).source ? ` · From: ${metaOf(it).source}` : "")),
     el("div", { class: "d-actions" },
       voteBtn(it, true),
+      el("button", { type: "button", class: "btn" + (isPinned(it) ? " on" : ""), onclick: () => togglePin(it) }, pinIcon(), isPinned(it) ? "Unpin" : "Pin to top"),
       it.url ? el("a", { class: "btn", href: it.url, target: "_blank", rel: "noopener" }, it.kind === "instagram" ? "Open on Instagram ↗" : "Open link ↗") : null,
       el("button", { type: "button", class: "btn", onclick: () => openEditor({ item: it }) }, "Edit"),
       el("button", { type: "button", class: "btn", onclick: () => drawOn(it),
@@ -1497,6 +1615,43 @@ function miniConfirm(label, armedLabel, fn) {
     try { await fn(); } catch (e) { toast(errMsg(e), "err"); }
   });
   return b;
+}
+
+/* Speak to type: the browser turns speech into text in the box (Gujarati, English or Hindi).
+   Uses the browser's own speech recognition (Chrome, Edge, Safari). Hidden where it isn't available. */
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const DICT_LANGS = [["gu-IN", "ગુજરાતી"], ["en-IN", "English"], ["hi-IN", "हिन्दी"]];
+function dictLang() { const v = lsGet("mb-dict"); return DICT_LANGS.some(([k]) => k === v) ? v : (LANG === "gu" ? "gu-IN" : "en-IN"); }
+function dictateControls(ta) {
+  if (!SpeechRec) return null;
+  let rec = null;
+  const lang = el("select", { class: "dict-lang notr", "aria-label": "Speech language", title: "Language you'll speak in",
+    onchange: e => lsSet("mb-dict", e.target.value) }, ...DICT_LANGS.map(([k, l]) => el("option", { value: k }, l)));
+  lang.value = dictLang();
+  const b = el("button", { type: "button", class: "btn small mic dict", title: "Speak and the words are typed into the box" }, "Speak to type");
+  b.addEventListener("click", () => {
+    if (rec) { rec.stop(); return; }
+    const r = new SpeechRec();
+    r.lang = lang.value; r.continuous = true; r.interimResults = true;
+    const base = ta.value.trim() ? ta.value.replace(/\s*$/, " ") : "";
+    r.onresult = e => {
+      let text = "";
+      for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript + (e.results[i].isFinal ? " " : "");
+      ta.value = base + text;
+      ta.dispatchEvent(new Event("input"));
+    };
+    r.onerror = e => {
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") toast("Allow the microphone to use speak to type.", "err");
+      else if (e.error === "language-not-supported") toast("This browser can't type that language from speech. Try Chrome.", "err");
+      else if (e.error === "network") toast("Speak to type needs an internet connection.", "err");
+    };
+    r.onend = () => { rec = null; b.classList.remove("rec"); b.textContent = "Speak to type"; lang.disabled = false; ta.value = ta.value.replace(/\s+$/, ""); ta.dispatchEvent(new Event("input")); };
+    try { r.start(); } catch { toast("Speak to type couldn't start. Try again.", "err"); return; }
+    rec = r; b.classList.add("rec"); b.textContent = "■ Stop"; lang.disabled = true;
+  });
+  // Stop listening if the box goes away (dialog closed).
+  const watch = setInterval(() => { if (!ta.isConnected) { clearInterval(watch); rec?.stop(); } }, 1000);
+  return el("span", { class: "dict-group" }, b, lang);
 }
 
 /* Comment box with @mention suggestions from the member list. */
@@ -1602,7 +1757,7 @@ function composer({ it, parentId = null, text = "", placeholder, label, onText, 
   } },
     el("div", { class: "composer" }, ta, pop),
     clipBox,
-    el("div", { class: "form-actions" }, mic,
+    el("div", { class: "form-actions" }, el("span", { class: "c-tools" }, dictateControls(ta), mic),
       onCancel ? el("button", { type: "button", class: "btn small ghost", onclick: () => { if (rec) rec.stop(); setClip(null); onCancel(); } }, "Cancel") : null, btn));
   return form;
 }
@@ -1662,6 +1817,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
   const fWhy = el("textarea", { id: "e-why", rows: 3, placeholder: "What do you like about it? Colour, proportions, the carving, the fabric…" });
   fWhy.value = item && item.kind !== "note" ? item.note || "" : "";
   const whyField = field("Why I like it", fWhy);
+  { const d = dictateControls(fWhy); if (d) whyField.append(el("div", { class: "dict-row" }, d)); }
   const kindBox = el("div", { class: "stack" });
   const tabs = isEdit ? null : el("div", { class: "tabs", role: "tablist", "aria-label": "What are you adding?" },
     ...KINDS.map(([k, l]) => el("button", { type: "button", role: "tab", class: "tab", "data-k": k, "aria-selected": String(ed.kind === k), onclick: () => setKind(k) }, l)));
@@ -1818,7 +1974,9 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     const n = el("textarea", { id: "e-note", rows: 6, placeholder: "Write the idea down…" });
     n.value = item?.kind === "note" ? item.note || "" : "";
     ed.noteInput = n;
-    return field("Note", n);
+    const nf = field("Note", n), d = dictateControls(n);
+    if (d) nf.append(el("div", { class: "dict-row" }, d));
+    return nf;
   }
 
   async function save() {
@@ -2223,16 +2381,21 @@ async function importBundle() {
   if (b?.format !== "home-moodboard-import" || !Array.isArray(b.items)) { toast("That file isn't a board import file.", "err"); return; }
   const done = new Set(S.items.map(i => metaOf(i).import_id).filter(Boolean));
   const todo = b.items.filter(x => !done.has(x.id));
+  // Documents in the file go to the Documents section; one with the same name is already there is skipped.
+  const haveDocs = new Set(S.docs.map(d => d.name));
+  const docs = (Array.isArray(b.documents) ? b.documents : []).filter(d => d && d.name && d.data && !haveDocs.has(d.name));
   const roomByName = n => S.rooms.find(r => r.name.trim().toLowerCase() === String(n).trim().toLowerCase());
   const newRooms = [...new Set(todo.map(x => x.room).filter(n => n && !roomByName(n)))];
   const perRoom = new Map(); todo.forEach(x => perRoom.set(x.room || "Whole home", (perRoom.get(x.room || "Whole home") || 0) + 1));
-  const go = el("button", { type: "button", class: "btn primary", disabled: !todo.length || null }, `Import ${todo.length} item${todo.length === 1 ? "" : "s"}`);
+  const go = el("button", { type: "button", class: "btn primary", disabled: !(todo.length || docs.length) || null },
+    `Import ${todo.length} item${todo.length === 1 ? "" : "s"}` + (docs.length ? ` and ${docs.length} document${docs.length === 1 ? "" : "s"}` : ""));
   const status = el("p", { class: "hint", "aria-live": "polite" });
   openOverlay("import", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "Import" },
     panelHead("Import: " + (b.source || f.name), () => closeOverlay("import")),
     el("div", { class: "panel-body" },
+      docs.length ? el("p", {}, "Documents: " + docs.map(d => d.name).join(", ")) : null,
       todo.length ? el("p", {}, `This adds ${todo.length} card${todo.length === 1 ? "" : "s"} to the board${done.size && todo.length < b.items.length ? ` (${b.items.length - todo.length} were imported before and are skipped)` : ""}:`)
-        : el("p", {}, "Everything in this file is already on the board."),
+        : docs.length ? null : el("p", {}, "Everything in this file is already on the board."),
       el("ul", {}, ...[...perRoom].map(([r, n]) => el("li", {}, `${r}: ${n}`))),
       newRooms.length ? el("p", {}, "New rooms will be created: " + newRooms.join(", ") + ".") : null,
       el("p", { class: "hint" }, "Imported cards are normal cards: edit, move or delete them afterwards. Running the same file again won't add duplicates."),
@@ -2243,6 +2406,14 @@ async function importBundle() {
     try {
       for (const n of newRooms) await S.store.addRoom(n);
       S.rooms = await S.store.rooms();
+      for (const d of docs) {
+        status.textContent = `Uploading ${d.name}…`;
+        const blob = await (await fetch(d.data)).blob();
+        const file = new File([blob], d.name, { type: d.mime || blob.type || "application/octet-stream" });
+        const path = await S.store.uploadFile(file);
+        await S.store.addDocument({ name: d.name, path, size: file.size, mime: file.type || null, note: d.note || "",
+          room_id: d.room ? roomByName(d.room)?.id || null : null });
+      }
       let k = 0;
       for (const x of todo) {
         status.textContent = `Adding ${++k} of ${todo.length}: ${x.title || x.kind}…`;
@@ -2259,7 +2430,7 @@ async function importBundle() {
           ...extras({ meta: { import_id: x.id, source: b.source || null } }),
         }]);
       }
-      closeOverlay("import"); toast(`Imported ${todo.length} card${todo.length === 1 ? "" : "s"}`); await refresh(); S.redrawSettings?.();
+      closeOverlay("import"); toast(`Imported ${todo.length} card${todo.length === 1 ? "" : "s"}` + (docs.length ? ` and ${docs.length} document${docs.length === 1 ? "" : "s"}` : "")); await refresh(); S.redrawSettings?.();
     } catch (e) { status.textContent = "Stopped: " + errMsg(e) + " Run the import again to add the rest."; toast(errMsg(e), "err"); go.disabled = false; }
   });
 }
@@ -2471,7 +2642,7 @@ function renderRoomsView() {
   const groups = [...S.rooms.map(r => ({ id: r.id, name: r.name })), { id: null, name: "Whole home" }];
   box.replaceChildren(...groups.map(g => {
     const list = vis.filter(i => ((i.room_id && roomIds.has(i.room_id)) ? i.room_id : null) === g.id)
-      .sort((a, b) => (voteCount(b) - voteCount(a)) || (PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority]) || (tsOf(b) - tsOf(a)));
+      .sort((a, b) => (isPinned(b) - isPinned(a)) || (voteCount(b) - voteCount(a)) || (PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority]) || (tsOf(b) - tsOf(a)));
     if (!list.length) return null;
     const hasBrief = !!S.settings[briefKey(g.id)];
     const n = p => list.filter(i => i.priority === p).length;
