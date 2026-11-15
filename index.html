@@ -1224,7 +1224,7 @@ function renderDetail(force) {
     el("h2", { class: "d-title" }, titleOf(it)),
     parent ? el("p", { class: "d-by" }, "Markup on ", el("a", { href: "#", onclick: e => { e.preventDefault(); openDetail(parent.id); } }, titleOf(parent))) : null,
     it.kind !== "note" && it.note ? el("p", { class: "d-why" }, it.note) : null,
-    el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}`),
+    el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}` + (metaOf(it).source ? ` · From: ${metaOf(it).source}` : "")),
     el("div", { class: "d-actions" },
       voteBtn(it, true),
       it.url ? el("a", { class: "btn", href: it.url, target: "_blank", rel: "noopener" }, it.kind === "instagram" ? "Open on Instagram ↗" : "Open link ↗") : null,
@@ -1977,6 +1977,55 @@ function openPalette(initial) {
   });
 }
 
+/* ---------- Import a prepared bundle (JSON with items and embedded images) ---------- */
+async function importBundle() {
+  const [f] = await pickFile(".json,application/json"); if (!f) return;
+  let b;
+  try { b = JSON.parse(await f.text()); } catch { toast("That file isn't a board import file.", "err"); return; }
+  if (b?.format !== "home-moodboard-import" || !Array.isArray(b.items)) { toast("That file isn't a board import file.", "err"); return; }
+  const done = new Set(S.items.map(i => metaOf(i).import_id).filter(Boolean));
+  const todo = b.items.filter(x => !done.has(x.id));
+  const roomByName = n => S.rooms.find(r => r.name.trim().toLowerCase() === String(n).trim().toLowerCase());
+  const newRooms = [...new Set(todo.map(x => x.room).filter(n => n && !roomByName(n)))];
+  const perRoom = new Map(); todo.forEach(x => perRoom.set(x.room || "Whole home", (perRoom.get(x.room || "Whole home") || 0) + 1));
+  const go = el("button", { type: "button", class: "btn primary", disabled: !todo.length || null }, `Import ${todo.length} item${todo.length === 1 ? "" : "s"}`);
+  const status = el("p", { class: "hint", "aria-live": "polite" });
+  openOverlay("import", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "Import" },
+    panelHead("Import: " + (b.source || f.name), () => closeOverlay("import")),
+    el("div", { class: "panel-body" },
+      todo.length ? el("p", {}, `This adds ${todo.length} card${todo.length === 1 ? "" : "s"} to the board${done.size && todo.length < b.items.length ? ` (${b.items.length - todo.length} were imported before and are skipped)` : ""}:`)
+        : el("p", {}, "Everything in this file is already on the board."),
+      el("ul", {}, ...[...perRoom].map(([r, n]) => el("li", {}, `${r}: ${n}`))),
+      newRooms.length ? el("p", {}, "New rooms will be created: " + newRooms.join(", ") + ".") : null,
+      el("p", { class: "hint" }, "Imported cards are normal cards: edit, move or delete them afterwards. Running the same file again won't add duplicates."),
+      status,
+      el("div", { class: "form-actions" }, el("button", { type: "button", class: "btn ghost", onclick: () => closeOverlay("import") }, "Cancel"), go))));
+  go.addEventListener("click", async () => {
+    go.disabled = true;
+    try {
+      for (const n of newRooms) await S.store.addRoom(n);
+      S.rooms = await S.store.rooms();
+      let k = 0;
+      for (const x of todo) {
+        status.textContent = `Adding ${++k} of ${todo.length}: ${x.title || x.kind}…`;
+        let image_path = null;
+        if (x.image) {
+          const blob = await (await fetch(x.image)).blob();
+          const p = await prepareImage(blob);
+          image_path = await S.store.upload(p.blob, p.ext);
+        }
+        await S.store.insertItems([{
+          kind: x.kind, title: x.title || "", note: x.note || "", url: x.url || null, room_id: x.room ? roomByName(x.room)?.id || null : null,
+          type: x.type || null, priority: ["must", "nice", "avoid"].includes(x.priority) ? x.priority : "nice", image_path,
+          created_at: new Date(Date.now() - k * 1000).toISOString(),
+          ...extras({ meta: { import_id: x.id, source: b.source || null } }),
+        }]);
+      }
+      closeOverlay("import"); toast(`Imported ${todo.length} card${todo.length === 1 ? "" : "s"}`); await refresh(); S.redrawSettings?.();
+    } catch (e) { status.textContent = "Stopped: " + errMsg(e) + " Run the import again to add the rest."; toast(errMsg(e), "err"); go.disabled = false; }
+  });
+}
+
 /* ---------- Rooms & people ---------- */
 function openSettings() {
   const body = el("div", { class: "panel-body" });
@@ -2057,6 +2106,9 @@ function openSettings() {
     body.replaceChildren(
       el("section", { class: "set" }, el("h3", {}, "Rooms"), el("p", { class: "hint" }, "Rename a room by editing its name. Removing a room moves its items to “Whole home”."), rooms, addRoom),
       planSec,
+      el("section", { class: "set" }, el("h3", {}, "Import"),
+        el("p", { class: "hint" }, "Add many cards at once from a prepared import file (.json), for example one made from a questionnaire or a PDF."),
+        el("div", {}, el("button", { type: "button", class: "btn small", onclick: importBundle }, "Import from file…"))),
       people);
   }
   S.redrawSettings = draw;
