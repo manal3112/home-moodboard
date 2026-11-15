@@ -293,6 +293,23 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
 .dot.must{background:var(--must)} .dot.nice{background:var(--nice)} .dot.avoid{background:var(--avoid)}
 
+/* AI: room briefs and suggestions */
+.ai-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn.ai{border-color:var(--accent);color:var(--accent)}
+.btn.ai:disabled{cursor:progress}
+.brief{display:grid;gap:16px}
+.brief-ov{font:500 17px/1.5 var(--display);margin:0}
+.brief h3{font:600 13px/1.3 var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px}
+.brief ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.brief .b-must h3{color:var(--must)}
+.brief .b-avoid h3{color:var(--avoid)}
+.brief-meta{font-size:12px;color:var(--muted);margin:0}
+.stale{background:var(--must-soft);border-radius:8px;padding:8px 12px;font-size:13px}
+.working{display:grid;gap:8px;justify-items:center;text-align:center;padding:30px 10px;color:var(--muted)}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){ .spin{animation-duration:3s} }
+
 #toast{position:fixed;left:50%;bottom:max(20px, env(safe-area-inset-bottom, 0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:9px;font-size:14px;z-index:90;transition:opacity .2s, transform .2s;max-width:calc(100vw - 32px)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.err{background:var(--avoid);color:var(--surface)}
@@ -413,6 +430,17 @@ function pickFile(accept, multiple) {
   });
 }
 function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("Timed out")), ms))]); }
+/* Shrink a picture to at most 1280px JPEG before sending it to the AI. */
+async function aiImage(src) {
+  const blob = src instanceof Blob ? src : await (await fetch(src)).blob();
+  const bmp = await createImageBitmap(blob);
+  const s = Math.min(1, 1280 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0, c.width, c.height);
+  const out = await new Promise(r => c.toBlob(r, "image/jpeg", 0.85));
+  const data = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = rej; fr.readAsDataURL(out); });
+  return { media_type: "image/jpeg", data };
+}
 /* Columns added by update-2.sql are left out until that update has been run, so older databases keep working. */
 function extras(obj) { return S.needsUpdate ? {} : obj; }
 
@@ -507,6 +535,18 @@ class SupaStore {
   }
   async settings() { const rows = await this.q(this.sb.from("settings").select("*")); return Object.fromEntries(rows.map(r => [r.key, r.value])); }
   setSetting(key, value) { return this.q(this.sb.from("settings").upsert({ key, value, updated_at: new Date().toISOString() })); }
+  /* Calls the "ai" Edge Function (supabase/functions/ai), which holds the Anthropic key. */
+  async ai(body) {
+    const { data, error } = await this.sb.functions.invoke("ai", { body });
+    if (!error) return data;
+    const res = error.context;
+    if (res && typeof res.status === "number") {
+      if (res.status === 404) throw new Error("The AI features aren't set up yet. See “AI features” in the README.");
+      let msg = null; try { msg = (await res.json()).error; } catch {}
+      throw new Error(msg || `The AI request failed (${res.status}).`);
+    }
+    throw new Error("Couldn't reach the AI service. Check your connection and try again.");
+  }
   subscribe(cb, withUpdate) {
     const ch = this.sb.channel("board");
     const tables = ["items", "comments", "rooms", ...(withUpdate ? ["documents", "settings"] : [])];
@@ -593,6 +633,7 @@ class LocalStore {
   }
   async settings() { return JSON.parse(JSON.stringify(this.db.settings)); }
   async setSetting(key, value) { this.db.settings[key] = value; this.save(); }
+  async ai() { throw new Error("The AI features need the live board (Supabase), not demo mode."); }
   subscribe() {}
 }
 
@@ -752,6 +793,8 @@ function renderShell() {
         prioSeg,
         el("button", { type: "button", class: "chip new-chip", id: "f-new", "aria-pressed": "false", hidden: true, title: "Items other people added since your last visit",
           onclick: () => { S.filter.newOnly = !S.filter.newOnly; applyFilters(); } }, "New", el("span", { class: "n", id: "f-new-n" })),
+        el("button", { type: "button", class: "btn small ai", id: "brief-btn", hidden: true, title: "An AI-written summary of this room for the studio",
+          onclick: () => openBrief(S.filter.room === "none" ? null : S.filter.room) }, "✨ Room brief"),
         el("input", { id: "f-q", type: "search", placeholder: "Search titles, notes, comments", "aria-label": "Search",
           oninput: debounce(e => { S.filter.q = e.target.value.trim().toLowerCase(); applyFilters(); }, 150) }),
         el("select", { id: "f-sort", "aria-label": "Sort", onchange: e => { S.sort = e.target.value; renderGrid(); } },
@@ -850,6 +893,7 @@ function applyFilters() {
   nb.hidden = !nNew && !S.filter.newOnly;
   nb.setAttribute("aria-pressed", String(S.filter.newOnly));
   $("#f-new-n").textContent = String(nNew);
+  $("#brief-btn").hidden = S.filter.room === "all";
   updatePlanZones();
   if (S.view === "rooms") renderRoomsView();
   const empty = $("#empty");
@@ -1262,8 +1306,10 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     ...KINDS.map(([k, l]) => el("button", { type: "button", role: "tab", class: "tab", "data-k": k, "aria-selected": String(ed.kind === k), onclick: () => setKind(k) }, l)));
   const saveLabel = isEdit ? "Save changes" : "Add to board";
   const saveBtn = el("button", { class: "btn primary", type: "submit" }, saveLabel);
+  const aiBtn = el("button", { type: "button", class: "btn small ai", onclick: () => suggest() }, "✨ Suggest details");
+  const aiRow = el("div", { class: "ai-row" }, aiBtn, el("span", { class: "hint" }, "AI fills in the empty fields below from the picture."));
   const form = el("form", { class: "panel-body", onsubmit: e => { e.preventDefault(); save(); } },
-    tabs, kindBox, field("Title", fTitle),
+    tabs, kindBox, aiRow, field("Title", fTitle),
     el("div", { class: "row2" }, field("Room", fRoom), field("Type", fType)),
     el("div", { class: "field" }, el("span", { class: "lbl" }, "Priority"), prioSeg),
     whyField,
@@ -1275,7 +1321,45 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     ed.kind = k; ed.files = []; ed.shot = null; ed.sketch = null; ed.removeImage = false; ed.onFiles = null;
     tabs?.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.k === k)));
     whyField.hidden = k === "note";
+    aiRow.hidden = !LIVE || k === "note";
     kindBox.replaceChildren(kindSection(k));
+  }
+
+  /* Ask the AI for a title, room, type and "why I like it", filling only the fields that are still empty. */
+  async function suggest() {
+    aiBtn.disabled = true; aiBtn.textContent = "Looking…";
+    try {
+      const existing = isEdit && !ed.removeImage && item.image_path ? S.urls.get(item.image_path) : null;
+      let src = ed.kind === "image" ? (ed.files[0]?.blob || existing)
+        : ed.kind === "sketch" ? (ed.sketch?.blob || existing)
+        : (ed.shot?.blob || existing);
+      if (!src && ed.kind === "link") {
+        if (ed.previewFor !== normUrl(ed.urlInput.value)) await ed.loadPv();
+        src = await ed.previewImg.catch(() => null);
+      }
+      if (!src && ed.kind === "instagram") throw new Error("The AI can't see inside Instagram posts. Add a screenshot of the post first, then try again.");
+      if (!src && ed.kind !== "link") throw new Error("Add the picture first, then try again.");
+      const image = src ? await aiImage(src).catch(() => null) : null;
+      const context = [
+        `Kind: ${KIND_LABEL[ed.kind]}`,
+        ed.kind === "instagram" ? `Instagram link: ${ed.igInput.value.trim().split(/\s+/)[0]}` : null,
+        ed.kind === "link" ? `Link: ${ed.urlInput.value.trim()}` : null,
+        ed.kind === "link" && ed.preview ? `Page title: ${ed.preview.title}\nPage description: ${ed.preview.description}` : null,
+        fTitle.value.trim() ? `Title we gave it: ${fTitle.value.trim()}` : null,
+        fWhy.value.trim() ? `Our note: ${fWhy.value.trim()}` : null,
+      ].filter(Boolean).join("\n");
+      const r = await S.store.ai({ action: "autofill", image, context, rooms: S.rooms.map(x => x.name), types: typesList() });
+      if (!S.ed || S.ed !== ed) return; // the form was closed meanwhile
+      const filled = [];
+      if (r.title && !fTitle.value.trim()) { fTitle.value = r.title; filled.push("title"); }
+      const room = S.rooms.find(x => x.name.toLowerCase() === String(r.room || "").toLowerCase());
+      if (room && !fRoom.value) { fRoom.value = room.id; filled.push("room"); }
+      const type = typesList().find(t => t.toLowerCase() === String(r.type || "").toLowerCase());
+      if (type && !fType.value) { fType.value = type; filled.push("type"); }
+      if (r.why && !fWhy.value.trim()) { fWhy.value = r.why; filled.push("why I like it"); }
+      toast(filled.length ? `Filled in ${filled.join(", ")}. Check it before saving.` : `Every field already had something, so nothing changed. Suggested title: “${r.title}”.`);
+    } catch (e) { toast(errMsg(e), "err"); }
+    aiBtn.disabled = false; aiBtn.textContent = "✨ Suggest details";
   }
 
   function singleImage(label, existingPath) {
@@ -1767,10 +1851,83 @@ function renderRoomsView() {
       el("div", { class: "rv-head" }, el("h2", {}, g.name),
         el("div", { class: "rv-stats" }, ...["must", "nice", "avoid"].filter(n).map(p => el("span", { class: "prio " + p }, `${n(p)} ${PRIO[p]}`))),
         el("span", { class: "spacer" }),
+        el("button", { type: "button", class: "btn small ai", onclick: () => openBrief(g.id) }, S.settings[briefKey(g.id)] ? "Brief ✓" : "✨ Brief"),
         el("button", { type: "button", class: "btn small ghost", onclick: () => { S.filter.room = g.id ?? "none"; setView("board"); window.scrollTo(0, 0); } },
           `See all ${list.length} →`)),
       el("div", { class: "rv-row" }, ...list.map(tileNode)));
   }).filter(Boolean));
+}
+
+/* ===================== AI ROOM BRIEF ===================== */
+const briefKey = id => "brief:" + (id || "home");
+S.briefWorking = new Set();
+function roomItems(id) {
+  const roomIds = new Set(S.rooms.map(r => r.id));
+  return S.items.filter(i => (id ? i.room_id === id : !(i.room_id && roomIds.has(i.room_id))));
+}
+function briefText(b) {
+  const sec = (title, list) => (list?.length ? `\n${title}\n${list.map(t => "- " + t).join("\n")}\n` : "");
+  return `${b.room}: brief\n\n${b.overview || ""}\n` + sec("Style and mood", b.style) + sec("Colours, materials and finishes", b.materials) +
+    sec("Must-haves", b.must_haves) + sec("Avoid", b.avoid) + sec("Open questions", b.open_questions);
+}
+function openBrief(id) {
+  id = id || null;
+  const name = id ? (S.rooms.find(r => r.id === id)?.name || "Room") : "Whole home";
+  const key = briefKey(id);
+  const body = el("div", { class: "panel-body" });
+  openOverlay("brief", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "Brief for " + name },
+    panelHead("Brief · " + name, () => closeOverlay("brief")), body));
+  S.briefOpen = key;
+  const draw = () => {
+    if (!S.overlays.brief || S.briefOpen !== key) return;
+    const b = S.settings[key], items = roomItems(id), n = items.length;
+    const working = S.briefWorking.has(key);
+    if (working) {
+      body.replaceChildren(el("div", { class: "working", role: "status" }, el("div", { class: "spin", "aria-hidden": "true" }),
+        el("strong", {}, `Reading ${n} item${n === 1 ? "" : "s"} in ${name}…`),
+        el("span", {}, "This usually takes under a minute. You can close this window: the brief is saved for everyone when it's ready.")));
+      return;
+    }
+    const gen = el("button", { type: "button", class: "btn primary", disabled: !n || null, onclick: generate }, b ? "Rewrite brief" : "Write brief");
+    if (!b) {
+      body.replaceChildren(
+        el("p", {}, n ? `The AI reads the ${n} item${n === 1 ? "" : "s"} in ${name} (pictures, notes and comments) and writes a one-page brief for the studio: style, materials, must-haves, things to avoid, and open questions.`
+          : `There's nothing in ${name} yet.`),
+        el("p", { class: "hint" }, "The brief is saved here so everyone can read it. Rewrite it when the room changes. The AI can't see inside Instagram posts, so it uses their screenshots and notes."),
+        el("div", { class: "form-actions" }, gen));
+      return;
+    }
+    const latest = items.reduce((m, i) => (i.updated_at > m ? i.updated_at : m), "");
+    const stale = n !== b.item_count || latest > (b.latest || "");
+    const sec = (cls, title, list) => (list?.length ? el("section", { class: cls }, el("h3", {}, title), el("ul", {}, ...list.map(t => el("li", {}, t)))) : null);
+    body.replaceChildren(el("div", { class: "brief" },
+      stale ? el("div", { class: "stale" }, "The room has changed since this brief was written. Rewrite it to include the latest items.") : null,
+      el("p", { class: "brief-ov" }, b.overview || ""),
+      sec("", "Style and mood", b.style),
+      sec("", "Colours, materials and finishes", b.materials),
+      sec("b-must", "Must-haves", b.must_haves),
+      sec("b-avoid", "Avoid", b.avoid),
+      sec("", "Open questions", b.open_questions),
+      el("p", { class: "brief-meta" }, `Written by AI from ${b.item_count} item${b.item_count === 1 ? "" : "s"}, requested by ${nameOf(b.by)} on ${fmtDate(b.generated_at)}. Read it through before sending it on.`),
+      el("div", { class: "form-actions" },
+        el("button", { type: "button", class: "btn", onclick: async () => {
+          const t = briefText(b);
+          try { await navigator.clipboard.writeText(t); toast("Brief copied. Paste it into WhatsApp or an email."); } catch { toast("Couldn't copy. Select the text and copy it instead.", "err"); }
+        } }, "Copy as text"),
+        gen)));
+  };
+  async function generate() {
+    if (S.needsUpdate) { toast("Run update-2.sql in Supabase first (see the banner at the top).", "err"); return; }
+    S.briefWorking.add(key); draw();
+    try {
+      const v = await S.store.ai({ action: "brief", room_id: id });
+      S.settings[key] = v;
+      toast(`The brief for ${name} is ready`);
+      if (S.view === "rooms") renderRoomsView();
+    } catch (e) { toast(errMsg(e), "err"); }
+    S.briefWorking.delete(key); draw();
+  }
+  draw();
 }
 
 /* ===================== FOR YOU: mentions and replies ===================== */

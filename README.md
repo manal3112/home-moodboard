@@ -6,6 +6,7 @@ Files:
 
 - `index.html`: the whole app (one file, no build step)
 - `schema.sql`: the database, file storage and access rules for Supabase (for a new setup)
+- `supabase/functions/ai/index.ts`: the AI helper (room briefs and "Suggest details"), run by Supabase so the AI key stays private
 - `update-2.sql`: a one-time update for boards set up before documents, the floor plan and replies were added
 
 ## Try it first (2 minutes)
@@ -57,6 +58,27 @@ In **Authentication → URL Configuration**:
 ## Updating a board that's already set up
 
 If your board was set up before November 2026, run the update once: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, and click **Run**. Until then the board shows a yellow banner, and documents, the floor plan, replies and @mentions stay switched off. Everything else keeps working.
+
+## AI features (optional)
+
+Two buttons use Claude (Anthropic's AI):
+
+- **✨ Room brief**: pick a room (or open **By room**) and click it. The AI reads that room's pictures, notes and comments and writes a one-page brief for the studio: style and mood, colours and materials, must-haves, things to avoid, and open questions. It's saved for everyone; click **Rewrite brief** when the room changes, and **Copy as text** to paste it into WhatsApp or an email.
+- **✨ Suggest details**: in the add or edit form, it fills the empty title, room, type and "why I like it" fields from the picture.
+
+The AI can't see inside Instagram posts (they're Instagram's own frame), so it uses their screenshots and your notes. Attach screenshots to the posts that matter.
+
+Setup, once:
+
+1. At **console.anthropic.com**, create an account, add some credit under **Billing**, and create an API key under **API keys**. Keep the key private: don't paste it into chats, emails or `index.html`.
+2. In Supabase, open **Edge Functions → Secrets**, add a secret named `ANTHROPIC_API_KEY`, and paste the key as its value.
+3. Deploy the helper from this folder (needs the Supabase CLI and a one-time `supabase login`):
+   ```
+   supabase functions deploy ai --no-verify-jwt --project-ref bbbxjegctpvyxozgoxab
+   ```
+   `--no-verify-jwt` is intended: the helper checks that the caller is on the member list itself.
+
+Cost: you pay Anthropic per use. Each brief or suggestion is a single request, and nothing runs unless someone clicks a button. To spend less, change `MODEL` at the top of `supabase/functions/ai/index.ts` to a smaller model and deploy again.
 
 ## Day-to-day use
 
