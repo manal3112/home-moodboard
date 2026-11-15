@@ -1,0 +1,1148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home Moodboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a calm Kota-stone ground, masonry board of cards, indigo (ajrakh) as the single accent, brass for must-haves. */
+:root{
+  --bg:#eceee9; --surface:#fafbf8; --sunk:#e2e6df; --ink:#1c2321; --muted:#59645f; --line:#d2d8cf;
+  --accent:#2e3d8c; --accent-ink:#ffffff; --accent-soft:#dde2f4;
+  --must:#8a5d12; --must-soft:#f1e3c4; --nice:#3f6453; --nice-soft:#d9e6dd; --avoid:#9c3426; --avoid-soft:#f4dad4;
+  --shadow:0 1px 2px rgb(20 30 25 / .05), 0 8px 28px rgb(20 30 25 / .10);
+  --display:"Fraunces", Georgia, "Times New Roman", serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121615; --surface:#1a1f1d; --sunk:#232a27; --ink:#e3e8e3; --muted:#9aa49f; --line:#2d3532;
+    --accent:#9fabf2; --accent-ink:#11152c; --accent-soft:#262d52;
+    --must:#e2b462; --must-soft:#3a2f19; --nice:#93c4ac; --nice-soft:#1e3128; --avoid:#ef8c7c; --avoid-soft:#3e221d;
+    --shadow:0 1px 2px rgb(0 0 0 / .3), 0 8px 28px rgb(0 0 0 / .4);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+body.locked{overflow:hidden}
+[hidden]{display:none!important}
+img{max-width:100%}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1440px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.hint{color:var(--muted);font-size:13px;margin:0}
+.grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.spacer{flex:1}
+
+/* Buttons and inputs */
+.btn{font:500 14px/1 var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn.danger,.btn.armed{background:var(--avoid);border-color:var(--avoid);color:var(--surface)}
+.btn:disabled{opacity:.6;cursor:progress}
+.icon-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:16px;flex:none}
+.icon-btn:disabled{opacity:.35;cursor:default}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;max-width:100%}
+textarea{resize:vertical;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:2px;background:var(--surface);flex-wrap:wrap}
+.seg-btn{border:0;background:transparent;color:var(--muted);font:500 13px/1 var(--body);padding:7px 11px;border-radius:7px;cursor:pointer}
+.seg-btn[aria-pressed="true"],.seg-btn[aria-checked="true"]{background:var(--ink);color:var(--bg)}
+.seg-btn.prio-must[aria-checked="true"]{background:var(--must);color:var(--surface)}
+.seg-btn.prio-nice[aria-checked="true"]{background:var(--nice);color:var(--surface)}
+.seg-btn.prio-avoid[aria-checked="true"]{background:var(--avoid);color:var(--surface)}
+
+/* Header */
+header.top{position:sticky;top:env(safe-area-inset-top, 0px);z-index:20;background:color-mix(in srgb, var(--bg) 90%, transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:21;background:var(--bg)}
+.top-row{display:flex;align-items:center;gap:10px;padding-block:14px 10px;flex-wrap:wrap}
+.brand{min-width:0;margin-right:auto}
+.brand h1{font:600 clamp(22px,2.6vw,30px)/1.1 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.filters{display:grid;gap:10px;padding-block:0 12px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font:500 13px/1.4 var(--body);white-space:nowrap;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .n{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filter-row input[type=search]{flex:1 1 220px}
+.count{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;margin-left:auto}
+.banner{margin-top:14px;padding:10px 14px;border-radius:8px;background:var(--accent-soft);color:var(--ink);font-size:14px}
+@media (max-width:720px){ header.top{position:static} .top-row .btn.ghost{padding:9px 10px} }
+
+/* Board */
+.grid{columns:330px;column-gap:18px;padding-block:20px 40px}
+.grid.feed{columns:auto;max-width:560px;margin-inline:auto}
+.card{break-inside:avoid;margin:0 0 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:block}
+.grid.feed .card{margin-bottom:28px}
+.card[data-prio="avoid"] .media img{filter:grayscale(.65) opacity(.85)}
+.media{display:block}
+.media.img img{display:block;width:100%;height:auto;background:var(--sunk)}
+.media.paper{background:#fff}
+.img-missing{aspect-ratio:4/3;display:grid;place-items:center;color:var(--muted);background:var(--sunk);font-size:13px}
+.ig{background:var(--surface);overflow:hidden}
+.ig iframe{min-width:0!important;max-width:100%!important;border-radius:0!important;border:0!important;margin:0!important;box-shadow:none!important}
+.ig .ig-loading{display:grid;place-items:center;aspect-ratio:4/5;color:var(--muted);font-size:13px;text-decoration:none;background:var(--sunk)}
+.linkcard{display:grid;text-decoration:none;color:var(--ink);background:var(--sunk)}
+.linkcard img{display:block;width:100%;height:auto}
+.lc-host{padding:10px 14px;font-size:13px;color:var(--accent);font-weight:500;overflow-wrap:anywhere}
+.lc-title{padding:0 14px 12px;font-size:14px}
+.note-body{padding:18px 18px 6px;font:500 18px/1.45 var(--display);white-space:pre-wrap;overflow-wrap:anywhere}
+.grid:not(.feed) .note-body{display:-webkit-box;-webkit-line-clamp:12;-webkit-box-orient:vertical;overflow:hidden}
+.cbody{padding:12px 14px 14px;display:grid;gap:6px;cursor:pointer;border-top:1px solid var(--line)}
+.card[data-kind="note"] .cbody{border-top:0}
+.cbody:hover .ctitle{color:var(--accent)}
+.cmeta{display:flex;gap:6px 8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.prio{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+.prio.must{background:var(--must-soft);color:var(--must)}
+.prio.nice{background:var(--nice-soft);color:var(--nice)}
+.prio.avoid{background:var(--avoid-soft);color:var(--avoid)}
+.ctitle{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.cwhy{color:var(--muted);font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.grid.feed .cwhy{display:block;-webkit-line-clamp:unset}
+.cfoot{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.empty{text-align:center;padding:60px 16px;color:var(--muted);display:grid;gap:14px;justify-items:center}
+.empty h2{font:600 22px/1.2 var(--display);color:var(--ink);margin:0}
+.foot{padding-block:10px 40px;color:var(--muted);font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;z-index:50;background:rgb(10 14 12 / .55);overflow-y:auto;padding:max(16px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 40px max(12px, env(safe-area-inset-left, 0px));display:flex;justify-content:center;align-items:flex-start}
+.panel{background:var(--surface);border-radius:14px;width:min(640px,100%);margin-top:3vh;box-shadow:var(--shadow);min-width:0}
+.panel.wide{width:min(1060px,100%)}
+.panel-head{display:flex;align-items:center;gap:10px;padding:14px 16px 14px 20px;border-bottom:1px solid var(--line)}
+.panel-head h2{font:600 19px/1.2 var(--display);margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.panel-body{padding:18px 20px 20px;display:grid;gap:16px}
+.field{display:grid;gap:6px;min-width:0}
+.lbl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.stack{display:grid;gap:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:7px 14px;font:500 14px/1 var(--body);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:20px;text-align:center;color:var(--muted);cursor:pointer;display:grid;gap:4px}
+.drop strong{color:var(--ink);font-weight:500}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumb{position:relative}
+.thumb img{width:92px;height:92px;object-fit:cover;border-radius:8px;display:block;border:1px solid var(--line)}
+.thumb .x{position:absolute;top:-7px;right:-7px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1}
+.sketch-prev{max-height:220px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+
+/* Detail */
+.detail{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:780px){ .detail{grid-template-columns:minmax(0,1fr)} }
+.d-media{display:grid;gap:12px;min-width:0}
+.d-media .media.img img,.d-media .linkcard img{border-radius:8px}
+.d-media .ig{border:1px solid var(--line);border-radius:8px}
+.d-media .note-body{background:var(--sunk);border-radius:8px;padding:20px;font-size:20px}
+.shot summary{cursor:pointer;color:var(--muted);font-size:13px}
+.shot img{margin-top:8px;border-radius:8px;border:1px solid var(--line)}
+.d-info{display:grid;gap:12px;min-width:0}
+.d-title{font:600 24px/1.2 var(--display);margin:0;text-wrap:balance;overflow-wrap:anywhere}
+.d-why{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.d-by{margin:0;color:var(--muted);font-size:13px}
+.d-actions{display:flex;gap:8px;flex-wrap:wrap}
+.comments{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.comments h3,.set h3{font:600 15px/1.3 var(--body);margin:0}
+.c-item{background:var(--sunk);border-radius:8px;padding:9px 12px;display:grid;gap:3px}
+.c-head{display:flex;gap:8px;align-items:baseline;font-size:12px;color:var(--muted)}
+.c-head strong{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.c-del{margin-left:auto;border:0;background:none;color:var(--muted);cursor:pointer;font-size:12px;text-decoration:underline}
+.c-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.c-form{display:grid;gap:8px;justify-items:end}
+
+/* Settings */
+.set{display:grid;gap:10px}
+.list{display:grid;gap:6px}
+.list-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.list-row input{flex:1 1 160px}
+
+/* Sketch pad */
+.sketch{position:fixed;inset:0;z-index:70;background:var(--sunk);display:flex;flex-direction:column;padding:env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)}
+.sk-bar{display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+.sk-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sk-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 10px;font:500 13px/1 var(--body);cursor:pointer}
+.sk-btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sw{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--c);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
+.sz{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center;padding:0}
+.sz span{display:block;border-radius:50%;background:var(--ink)}
+.sz[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.sk-stage{flex:1;min-height:0;display:grid;place-items:center;overflow:hidden}
+.sk-frame{position:relative;box-shadow:var(--shadow);background:#fff}
+.sk-frame canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sk-frame canvas.ink{touch-action:none;cursor:crosshair}
+
+/* Sign-in */
+.signin{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.signin-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px;display:grid;gap:14px}
+.signin-card h1{font:600 28px/1.15 var(--display);margin:0}
+.signin-card .sub{margin:0;color:var(--muted)}
+.signin-form{display:grid;gap:12px}
+
+#toast{position:fixed;left:50%;bottom:max(20px, env(safe-area-inset-bottom, 0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:9px;font-size:14px;z-index:90;transition:opacity .2s, transform .2s;max-width:calc(100vw - 32px)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.err{background:var(--avoid);color:var(--surface)}
+@media (prefers-reduced-motion: reduce){ #toast{transition:none} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script>
+"use strict";
+
+/* ===================== SETTINGS: edit these ===================== */
+const CONFIG = {
+  // Leave both empty to try the board in demo mode (saved in this browser only).
+  SUPABASE_URL: "",       // e.g. "https://abcdxyz.supabase.co"
+  SUPABASE_KEY: "",       // the "publishable" (or legacy "anon public") key
+  BOARD_TITLE: "Our Ahmedabad Home",
+  BOARD_SUBTITLE: "Inspiration board for the design studio",
+  TYPES: ["Furniture", "Embroidery / Textile", "Artwork", "Lighting", "Material / Finish",
+          "Hardware / Fixture", "Layout idea", "Decor", "Other"],
+};
+/* ================================================================ */
+
+const LIVE = Boolean(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
+const DEFAULT_ROOMS = ["Living Room", "Dining", "Kitchen", "Pooja Room", "Master Bedroom", "Bedroom 2",
+                       "Bedroom 3", "Bathrooms", "Entry / Foyer", "Balcony"];
+const PRIO = { must: "Must-have", nice: "Nice-to-have", avoid: "Avoid" };
+const PRIO_ORDER = { must: 0, nice: 1, avoid: 2 };
+const KINDS = [["instagram", "Instagram"], ["image", "Photo"], ["sketch", "Sketch"], ["link", "Link"], ["note", "Note"]];
+const KIND_LABEL = Object.fromEntries(KINDS);
+
+/* ---------- small helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+function el(tag, props = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k === "value") n.value = v;
+    else if (k === "style") n.style.cssText = v;
+    else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false && c !== "") n.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return n;
+}
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : "id-" + Date.now().toString(36) + Math.random().toString(36).slice(2));
+const errMsg = e => (e && (e.message || e.error_description)) || String(e);
+const tsOf = i => Date.parse(i.created_at) || 0;
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
+function toast(msg, kind = "") {
+  let t = $("#toast");
+  if (!t) { t = el("div", { id: "toast", role: "status", "aria-live": "polite" }); document.body.append(t); }
+  t.textContent = msg; t.className = "show " + kind;
+  clearTimeout(toast._t); toast._t = setTimeout(() => (t.className = ""), kind === "err" ? 5000 : 3000);
+}
+function fmtDate(s) { const d = new Date(s); return isNaN(d) ? "" : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }); }
+function normUrl(u) {
+  u = (u || "").trim(); if (!u) return null;
+  if (!/^https?:\/\//i.test(u)) u = "https://" + u;
+  try { return new URL(u).href; } catch { return null; }
+}
+function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } }
+function igPermalink(u) {
+  const m = String(u || "").match(/instagram\.com\/(?:[\w.]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/i);
+  if (!m) return null;
+  const kind = m[1].toLowerCase() === "reels" ? "reel" : m[1].toLowerCase();
+  return `https://www.instagram.com/${kind}/${m[2]}/`;
+}
+function titleOf(it) {
+  if (it.title && it.title.trim()) return it.title.trim();
+  if (it.kind === "instagram") return "Instagram post";
+  if (it.kind === "link") return hostOf(it.url) || "Link";
+  if (it.kind === "note") return (it.note || "").split("\n")[0].slice(0, 80) || "Note";
+  return it.kind === "sketch" ? "Sketch" : "Photo";
+}
+function roomName(id) { return (id && S.rooms.find(r => r.id === id)?.name) || "Whole home"; }
+function typesList() { return [...new Set([...CONFIG.TYPES, ...S.items.map(i => i.type).filter(Boolean)])]; }
+function prioBadge(p) { return el("span", { class: "prio " + p }, PRIO[p] || p); }
+function imgUrl(it) { return it.image_path ? S.urls.get(it.image_path) || null : null; }
+
+async function prepareImage(file) {
+  const type = file.type || "image/jpeg";
+  const ext = ({ "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif", "image/heic": "heic", "image/heif": "heif" })[type] || "jpg";
+  let out = { blob: file, ext };
+  if (file.size > 1_500_000 && type !== "image/gif") {
+    try {
+      const bmp = await createImageBitmap(file);
+      const s = Math.min(1, 2200 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+      c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise(r => c.toBlob(r, "image/jpeg", 0.86));
+      if (blob) out = { blob, ext: "jpg" };
+    } catch { /* keep the original file */ }
+  }
+  out.preview = URL.createObjectURL(out.blob);
+  return out;
+}
+
+/* ===================== DATA: Supabase ===================== */
+class SupaStore {
+  constructor() {
+    this.sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+    this.bucket = "moodboard";
+  }
+  async q(p) { const { data, error } = await p; if (error) throw error; return data; }
+  async user() { const { data } = await this.sb.auth.getSession(); return data.session?.user || null; }
+  onAuth(cb) { this.sb.auth.onAuthStateChange((_e, s) => cb(s?.user || null)); }
+  async signIn(email) { await this.q(this.sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } })); }
+  async signOut() { await this.sb.auth.signOut(); }
+  async isMember() { return !!(await this.q(this.sb.rpc("is_member"))); }
+  rooms() { return this.q(this.sb.from("rooms").select("*").order("position").order("created_at")); }
+  addRoom(name) { const max = Math.max(0, ...S.rooms.map(r => r.position || 0)); return this.q(this.sb.from("rooms").insert({ name, position: max + 1 })); }
+  updateRoom(id, patch) { return this.q(this.sb.from("rooms").update(patch).eq("id", id)); }
+  deleteRoom(id) { return this.q(this.sb.from("rooms").delete().eq("id", id)); }
+  items() { return this.q(this.sb.from("items").select("*").order("created_at", { ascending: false })); }
+  insertItems(rows) { return this.q(this.sb.from("items").insert(rows)); }
+  updateItem(id, patch) { return this.q(this.sb.from("items").update(patch).eq("id", id)); }
+  async deleteItem(it) { await this.q(this.sb.from("items").delete().eq("id", it.id)); if (it.image_path) this.removeFile(it.image_path); }
+  async upload(blob, ext) {
+    const path = `${new Date().toISOString().slice(0, 7)}/${uid()}.${ext}`;
+    await this.q(this.sb.storage.from(this.bucket).upload(path, blob, { contentType: blob.type || undefined, cacheControl: "31536000" }));
+    return path;
+  }
+  async urls(paths) {
+    const data = await this.q(this.sb.storage.from(this.bucket).createSignedUrls(paths, 60 * 60 * 24 * 7));
+    const m = new Map(); for (const d of data) if (d.signedUrl) m.set(d.path, d.signedUrl); return m;
+  }
+  async removeFile(path) { try { await this.sb.storage.from(this.bucket).remove([path]); } catch {} }
+  comments() { return this.q(this.sb.from("comments").select("*").order("created_at")); }
+  addComment(item_id, body) { return this.q(this.sb.from("comments").insert({ item_id, body })); }
+  deleteComment(id) { return this.q(this.sb.from("comments").delete().eq("id", id)); }
+  members() { return this.q(this.sb.from("members").select("*").order("added_at")); }
+  addMember(email) { return this.q(this.sb.from("members").insert({ email })); }
+  removeMember(email) { return this.q(this.sb.from("members").delete().eq("email", email)); }
+  subscribe(cb) {
+    const ch = this.sb.channel("board");
+    for (const table of ["items", "comments", "rooms"]) ch.on("postgres_changes", { event: "*", schema: "public", table }, cb);
+    ch.subscribe();
+  }
+}
+
+/* ===================== DATA: demo (this browser only) ===================== */
+function seedDemo() {
+  const now = Date.now(), iso = k => new Date(now - k * 60000).toISOString();
+  const rooms = DEFAULT_ROOMS.map((name, i) => ({ id: uid(), name, position: i + 1 }));
+  const base = { url: null, image_path: null, created_by: "you (demo)" };
+  return {
+    rooms, files: {}, comments: [],
+    items: [
+      { ...base, id: uid(), kind: "instagram", title: "Sample: saved Instagram post", url: "https://www.instagram.com/p/DfHiEMmip0q/", note: "Sample entry. Replace it with your own saved posts.", room_id: rooms[0].id, type: "Decor", priority: "must", created_at: iso(1), updated_at: iso(1) },
+      { ...base, id: uid(), kind: "note", title: "Overall feel", note: "Calm, light-filled rooms. Warm wood, Kota stone floors, brass kept to small accents. Nothing glossy.\n\n(Sample note)", room_id: null, type: "Other", priority: "must", created_at: iso(2), updated_at: iso(2) },
+      { ...base, id: uid(), kind: "link", title: "Sample: Ajrakh block print", url: "https://en.wikipedia.org/wiki/Ajrakh", note: "Sample link. Indigo block print for cushion covers or a headboard panel.", room_id: rooms[4].id, type: "Embroidery / Textile", priority: "nice", created_at: iso(3), updated_at: iso(3) },
+      { ...base, id: uid(), kind: "note", title: "", note: "No high-gloss laminates or mirror cladding anywhere. (Sample)", room_id: null, type: "Material / Finish", priority: "avoid", created_at: iso(4), updated_at: iso(4) },
+    ],
+  };
+}
+class LocalStore {
+  constructor() {
+    this.key = "home-moodboard-demo-v1";
+    try { const raw = localStorage.getItem(this.key); if (raw) this.db = JSON.parse(raw); } catch {}
+    if (!this.db) this.db = seedDemo();
+  }
+  save() { try { localStorage.setItem(this.key, JSON.stringify(this.db)); } catch { toast("This browser ran out of demo storage. Connect Supabase to store images properly.", "err"); } }
+  reset() { this.db = seedDemo(); this.save(); }
+  async user() { return { id: "demo", email: "you (demo)" }; }
+  onAuth() {} async signIn() {} async signOut() {}
+  async isMember() { return true; }
+  async rooms() { return [...this.db.rooms].sort((a, b) => a.position - b.position).map(r => ({ ...r })); }
+  async addRoom(name) { const max = Math.max(0, ...this.db.rooms.map(r => r.position)); this.db.rooms.push({ id: uid(), name, position: max + 1 }); this.save(); }
+  async updateRoom(id, patch) { const r = this.db.rooms.find(r => r.id === id); if (r) Object.assign(r, patch); this.save(); }
+  async deleteRoom(id) { this.db.rooms = this.db.rooms.filter(r => r.id !== id); this.db.items.forEach(i => { if (i.room_id === id) i.room_id = null; }); this.save(); }
+  async items() { return this.db.items.map(i => ({ ...i })); }
+  async insertItems(rows) {
+    for (const r of rows) {
+      const t = r.created_at || new Date().toISOString();
+      this.db.items.push({ id: uid(), url: null, image_path: null, note: "", title: "", type: null, room_id: null, priority: "nice", ...r, created_by: "you (demo)", created_at: t, updated_at: t });
+    }
+    this.save();
+  }
+  async updateItem(id, patch) { const it = this.db.items.find(i => i.id === id); if (it) Object.assign(it, patch, { updated_at: new Date().toISOString() }); this.save(); }
+  async deleteItem(it) {
+    this.db.items = this.db.items.filter(i => i.id !== it.id);
+    this.db.comments = this.db.comments.filter(c => c.item_id !== it.id);
+    if (it.image_path) delete this.db.files[it.image_path];
+    this.save();
+  }
+  async upload(blob, ext) {
+    const data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+    const path = `local/${uid()}.${ext}`; this.db.files[path] = data; this.save(); return path;
+  }
+  async urls(paths) { return new Map(paths.filter(p => this.db.files[p]).map(p => [p, this.db.files[p]])); }
+  async removeFile(p) { delete this.db.files[p]; this.save(); }
+  async comments() { return this.db.comments.map(c => ({ ...c })); }
+  async addComment(item_id, body) { this.db.comments.push({ id: uid(), item_id, body, author: "you (demo)", created_at: new Date().toISOString() }); this.save(); }
+  async deleteComment(id) { this.db.comments = this.db.comments.filter(c => c.id !== id); this.save(); }
+  async members() { return [{ email: "you (demo)" }]; }
+  async addMember() { throw new Error("Inviting people needs Supabase. Follow the README to connect it."); }
+  async removeMember() {}
+  subscribe() {}
+}
+
+/* ===================== APP STATE ===================== */
+const S = {
+  store: null, user: null, ready: false, subscribed: false,
+  rooms: [], items: [], comments: [], byId: new Map(), ccount: new Map(), urls: new Map(),
+  nodes: new Map(), pendingIG: new Set(),
+  filter: { room: "all", type: "all", prio: "all", q: "" },
+  sort: "newest", view: lsGet("mb-view") === "feed" ? "feed" : "board",
+  stack: [], overlays: {}, detailId: null, detailVer: null, ed: null,
+};
+
+async function boot() {
+  if (LIVE && !window.supabase) return renderError(new Error("The Supabase library didn't load. Check your internet connection and reload."));
+  try { S.store = LIVE ? new SupaStore() : new LocalStore(); } catch (e) { return renderError(e); }
+  try { S.user = await S.store.user(); } catch (e) { return renderError(e); }
+  S.store.onAuth(u => { if ((u?.id || null) !== (S.user?.id || null)) { S.user = u; gate(); } });
+  gate();
+}
+
+async function gate() {
+  S.ready = false;
+  if (!S.user) return renderSignIn();
+  let ok;
+  try { ok = await S.store.isMember(); } catch (e) { return renderError(e); }
+  if (!ok) return renderNotMember();
+  renderShell();
+  S.ready = true;
+  await refresh();
+  if (!S.subscribed) { S.store.subscribe(debounce(() => S.ready && refresh(), 400)); S.subscribed = true; }
+}
+
+async function refresh() {
+  try {
+    const st = S.store;
+    const [rooms, items, comments] = await Promise.all([st.rooms(), st.items(), st.comments()]);
+    S.rooms = rooms; S.items = items; S.comments = comments;
+    S.byId = new Map(items.map(i => [i.id, i]));
+    S.ccount = new Map(); comments.forEach(c => S.ccount.set(c.item_id, (S.ccount.get(c.item_id) || 0) + 1));
+    const need = [...new Set(items.map(i => i.image_path).filter(p => p && !S.urls.has(p)))];
+    if (need.length) (await st.urls(need)).forEach((u, p) => S.urls.set(p, u));
+    renderFilters();
+    renderGrid();
+    if (S.detailId) renderDetail(false);
+  } catch (e) { toast("Couldn't load the board: " + errMsg(e), "err"); }
+}
+
+/* ===================== SCREENS ===================== */
+function field(label, control, hint) {
+  const id = control.id || (control.id = "f-" + uid().slice(0, 8));
+  return el("div", { class: "field" }, el("label", { class: "lbl", for: id }, label), control, hint ? el("p", { class: "hint" }, hint) : null);
+}
+
+function renderSignIn() {
+  const email = el("input", { id: "si-email", type: "email", required: true, autocomplete: "email", placeholder: "you@example.com" });
+  const msg = el("p", { class: "hint", "aria-live": "polite" });
+  const btn = el("button", { class: "btn primary", type: "submit" }, "Email me a sign-in link");
+  const form = el("form", { class: "signin-form", onsubmit: async e => {
+    e.preventDefault(); btn.disabled = true; msg.textContent = "Sending…";
+    const addr = email.value.trim().toLowerCase();
+    try { await S.store.signIn(addr); msg.textContent = `Sent. Open the link in the email to ${addr} on this device.`; }
+    catch (err) { msg.textContent = "Couldn't send the link: " + errMsg(err); }
+    btn.disabled = false;
+  } }, field("Email", email), btn, msg);
+  $("#app").replaceChildren(el("main", { class: "signin" }, el("div", { class: "signin-card" },
+    el("h1", {}, CONFIG.BOARD_TITLE), el("p", { class: "sub" }, CONFIG.BOARD_SUBTITLE), form)));
+  setTimeout(() => email.focus(), 30);
+}
+
+function renderNotMember() {
+  $("#app").replaceChildren(el("main", { class: "signin" }, el("div", { class: "signin-card" },
+    el("h1", {}, CONFIG.BOARD_TITLE),
+    el("p", {}, `You're signed in as ${S.user.email}, but this email hasn't been added to the board yet.`),
+    el("p", { class: "hint" }, "Ask the board owner to add it under Rooms & people, then reload this page."),
+    el("div", { class: "form-actions" },
+      el("button", { class: "btn ghost", onclick: () => location.reload() }, "Reload"),
+      el("button", { class: "btn", onclick: () => S.store.signOut() }, "Use another email")))));
+}
+
+function renderError(e) {
+  $("#app").replaceChildren(el("main", { class: "signin" }, el("div", { class: "signin-card" },
+    el("h1", {}, "Board unavailable"),
+    el("p", {}, errMsg(e)),
+    el("p", { class: "hint" }, "If this is a new setup, check SUPABASE_URL and SUPABASE_KEY at the top of index.html, and that schema.sql ran without errors."),
+    el("div", { class: "form-actions" }, el("button", { class: "btn", onclick: () => location.reload() }, "Try again")))));
+}
+
+function renderShell() {
+  S.nodes = new Map();
+  const prioSeg = el("div", { class: "seg", id: "f-prio", role: "group", "aria-label": "Filter by priority" },
+    ...["all", "must", "nice", "avoid"].map(p => el("button", { type: "button", class: "seg-btn", "data-p": p, "aria-pressed": String(S.filter.prio === p),
+      onclick: () => { S.filter.prio = p; applyFilters(); } }, p === "all" ? "All" : PRIO[p])));
+  const header = el("header", { class: "top" },
+    el("div", { class: "wrap top-row" },
+      el("div", { class: "brand" }, el("h1", {}, CONFIG.BOARD_TITLE), el("p", {}, CONFIG.BOARD_SUBTITLE)),
+      el("div", { class: "seg", role: "group", "aria-label": "Layout" },
+        el("button", { type: "button", class: "seg-btn", id: "v-board", "aria-pressed": String(S.view === "board"), onclick: () => setView("board") }, "Board"),
+        el("button", { type: "button", class: "seg-btn", id: "v-feed", "aria-pressed": String(S.view === "feed"), onclick: () => setView("feed") }, "Feed")),
+      el("button", { type: "button", class: "btn ghost", onclick: openSettings }, "Rooms & people"),
+      el("button", { type: "button", class: "btn primary", onclick: () => openEditor() }, "+ Add")),
+    el("div", { class: "wrap filters" },
+      el("div", { class: "chips", id: "room-chips", role: "group", "aria-label": "Filter by room" }),
+      el("div", { class: "filter-row" },
+        el("select", { id: "f-type", "aria-label": "Filter by type", onchange: e => { S.filter.type = e.target.value; applyFilters(); } }),
+        prioSeg,
+        el("input", { id: "f-q", type: "search", placeholder: "Search titles, notes, comments", "aria-label": "Search",
+          oninput: debounce(e => { S.filter.q = e.target.value.trim().toLowerCase(); applyFilters(); }, 150) }),
+        el("select", { id: "f-sort", "aria-label": "Sort", onchange: e => { S.sort = e.target.value; renderGrid(); } },
+          ...[["newest", "Newest first"], ["oldest", "Oldest first"], ["priority", "Must-haves first"], ["room", "By room"]].map(([v, l]) => el("option", { value: v }, l))),
+        el("span", { class: "count", id: "count" }))));
+  const banner = LIVE ? null : el("div", { class: "wrap" }, el("div", { class: "banner" },
+    el("strong", {}, "Demo mode. "), "Everything is saved only in this browser. Add your Supabase details at the top of index.html to share the board with the studio."));
+  const main = el("main", { class: "wrap" },
+    el("div", { id: "grid", class: "grid" + (S.view === "feed" ? " feed" : "") }),
+    el("div", { id: "empty", class: "empty", hidden: true }));
+  const foot = el("footer", { class: "wrap foot" },
+    el("span", {}, "Signed in as " + (S.user.email || "")),
+    LIVE ? el("button", { class: "btn small ghost", onclick: () => S.store.signOut() }, "Sign out") : null,
+    el("span", { class: "spacer" }),
+    el("span", {}, "Tip: paste an Instagram link or an image anywhere on this page to add it."));
+  $("#app").replaceChildren(header, ...(banner ? [banner] : []), main, foot);
+  $("#f-sort").value = S.sort;
+}
+
+function setView(v) {
+  S.view = v; lsSet("mb-view", v);
+  $("#grid").classList.toggle("feed", v === "feed");
+  $("#v-board").setAttribute("aria-pressed", String(v === "board"));
+  $("#v-feed").setAttribute("aria-pressed", String(v === "feed"));
+}
+
+function renderFilters() {
+  const counts = new Map(); let none = 0;
+  const roomIds = new Set(S.rooms.map(r => r.id));
+  S.items.forEach(i => { if (i.room_id && roomIds.has(i.room_id)) counts.set(i.room_id, (counts.get(i.room_id) || 0) + 1); else none++; });
+  if (!["all", "none"].includes(S.filter.room) && !roomIds.has(S.filter.room)) S.filter.room = "all";
+  const chip = (id, label, n) => el("button", { type: "button", class: "chip", "data-id": id, "aria-pressed": String(S.filter.room === id),
+    onclick: () => { S.filter.room = id; applyFilters(); } }, label, el("span", { class: "n" }, String(n)));
+  $("#room-chips").replaceChildren(chip("all", "All rooms", S.items.length), ...S.rooms.map(r => chip(r.id, r.name, counts.get(r.id) || 0)), chip("none", "Whole home", none));
+  const ft = $("#f-type"), cur = S.filter.type;
+  ft.replaceChildren(el("option", { value: "all" }, "All types"), ...typesList().map(t => el("option", { value: t }, t)));
+  ft.value = cur; if (ft.value !== cur) { S.filter.type = "all"; ft.value = "all"; }
+}
+
+function matches(it) {
+  const f = S.filter;
+  if (f.room === "none") { if (it.room_id && S.rooms.some(r => r.id === it.room_id)) return false; }
+  else if (f.room !== "all" && it.room_id !== f.room) return false;
+  if (f.type !== "all" && it.type !== f.type) return false;
+  if (f.prio !== "all" && it.priority !== f.prio) return false;
+  if (f.q) {
+    const hay = [it.title, it.note, it.url, it.type, roomName(it.room_id), ...S.comments.filter(c => c.item_id === it.id).map(c => c.body)].join(" ").toLowerCase();
+    if (!hay.includes(f.q)) return false;
+  }
+  return true;
+}
+
+function applyFilters() {
+  document.querySelectorAll("#room-chips .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === S.filter.room)));
+  document.querySelectorAll("#f-prio .seg-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === S.filter.prio)));
+  let shown = 0;
+  for (const it of S.items) { const n = S.nodes.get(it.id); if (!n) continue; const m = matches(it); n.hidden = !m; if (m) shown++; }
+  const total = S.items.length;
+  $("#count").textContent = shown === total ? `${total} item${total === 1 ? "" : "s"}` : `${shown} of ${total}`;
+  const empty = $("#empty");
+  empty.hidden = shown > 0;
+  if (!shown) {
+    empty.replaceChildren(...(total
+      ? [el("h2", {}, "Nothing matches these filters"), el("button", { class: "btn", onclick: clearFilters }, "Show everything")]
+      : [el("h2", {}, "The board is empty"), el("p", { class: "hint" }, "Add an Instagram post, a photo, a sketch, a link or a note."), el("button", { class: "btn primary", onclick: () => openEditor() }, "+ Add the first item")]));
+  }
+}
+function clearFilters() {
+  S.filter = { room: "all", type: "all", prio: "all", q: "" };
+  $("#f-q").value = ""; $("#f-type").value = "all"; applyFilters();
+}
+
+function sortedItems() {
+  const a = [...S.items];
+  const newest = (x, y) => tsOf(y) - tsOf(x);
+  if (S.sort === "oldest") a.sort((x, y) => tsOf(x) - tsOf(y));
+  else if (S.sort === "priority") a.sort((x, y) => (PRIO_ORDER[x.priority] - PRIO_ORDER[y.priority]) || newest(x, y));
+  else if (S.sort === "room") {
+    const pos = id => (id ? S.rooms.find(r => r.id === id)?.position ?? 9999 : -1);
+    a.sort((x, y) => (pos(x.room_id) - pos(y.room_id)) || newest(x, y));
+  } else a.sort(newest);
+  return a;
+}
+const itemVer = it => `${it.updated_at}|${it.image_path ? (S.urls.has(it.image_path) ? "u" : "n") : "-"}`;
+
+/* Re-render without moving cards that are already in place, so playing Instagram embeds don't reload. */
+function renderGrid() {
+  const grid = $("#grid"); if (!grid) return;
+  const order = sortedItems();
+  const ids = new Set(order.map(i => i.id));
+  for (const [id, node] of S.nodes) if (!ids.has(id)) { node.remove(); S.nodes.delete(id); }
+  let cursor = grid.firstElementChild;
+  for (const it of order) {
+    const ver = itemVer(it);
+    let node = S.nodes.get(it.id);
+    if (node && node.dataset.ver !== ver) {
+      const fresh = cardNode(it); fresh.dataset.ver = ver;
+      if (cursor === node) cursor = fresh;
+      node.replaceWith(fresh); node = fresh; S.nodes.set(it.id, fresh);
+    }
+    if (!node) { node = cardNode(it); node.dataset.ver = ver; S.nodes.set(it.id, node); }
+    if (node === cursor) cursor = cursor.nextElementSibling;
+    else grid.insertBefore(node, cursor);
+    const n = S.ccount.get(it.id) || 0;
+    node.querySelector(".c-room").textContent = roomName(it.room_id);
+    node.querySelector(".c-comments").textContent = n ? `${n} comment${n === 1 ? "" : "s"}` : "No comments";
+  }
+  applyFilters();
+  processIG();
+}
+
+function cardNode(it) {
+  const open = () => openDetail(it.id);
+  const showTitle = it.kind !== "note" || (it.title && it.title.trim());
+  return el("article", { class: "card", "data-prio": it.priority, "data-kind": it.kind },
+    mediaNode(it, false),
+    el("div", { class: "cbody", role: "button", tabindex: "0", "aria-label": "Open " + titleOf(it), onclick: open,
+      onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } } },
+      el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", { class: "c-room" }), it.type ? el("span", {}, "· " + it.type) : null),
+      showTitle ? el("div", { class: "ctitle" }, titleOf(it)) : null,
+      it.kind !== "note" && it.note ? el("div", { class: "cwhy" }, it.note) : null,
+      el("div", { class: "cfoot" }, el("span", { class: "c-comments" }), el("span", {}, KIND_LABEL[it.kind] || ""))));
+}
+
+function mediaNode(it, captioned) {
+  const url = imgUrl(it);
+  switch (it.kind) {
+    case "instagram": return igNode(it.url, captioned, url);
+    case "image": case "sketch":
+      return el("div", { class: "media img" + (it.kind === "sketch" ? " paper" : "") },
+        url ? el("img", { src: url, alt: titleOf(it), loading: "lazy", decoding: "async" })
+            : el("div", { class: "img-missing" }, it.image_path ? "Loading image…" : "No image"));
+    case "link":
+      return el("a", { class: "media linkcard", href: it.url, target: "_blank", rel: "noopener" },
+        url ? el("img", { src: url, alt: "", loading: "lazy" }) : null,
+        el("span", { class: "lc-host" }, (hostOf(it.url) || "Open link") + " ↗"));
+    case "note": return el("div", { class: "media note-body" }, it.note || "");
+  }
+  return null;
+}
+
+/* ---------- Instagram embeds ---------- */
+function igNode(url, captioned, shotUrl) {
+  const perma = igPermalink(url);
+  const wrap = el("div", { class: "media ig" });
+  wrap.dataset.href = perma || url || "";
+  if (shotUrl) wrap.dataset.shot = shotUrl;
+  if (!perma || S.igFailed) { igFallback(wrap); return wrap; }
+  const bq = el("blockquote", { class: "instagram-media", "data-instgrm-permalink": perma + "?utm_source=ig_embed&utm_campaign=loading",
+    "data-instgrm-version": "14", style: "background:transparent;border:0;margin:0;max-width:540px;min-width:280px;width:100%;padding:0" },
+    el("a", { href: perma, target: "_blank", rel: "noopener", class: "ig-loading" }, "Loading Instagram post…"));
+  if (captioned) bq.setAttribute("data-instgrm-captioned", "");
+  wrap.append(bq);
+  S.pendingIG.add(wrap);
+  return wrap;
+}
+function igFallback(w) {
+  const shot = w.dataset.shot;
+  w.replaceChildren(
+    ...(shot ? [el("img", { src: shot, alt: "Screenshot of the Instagram post", style: "display:block;width:100%" })] : []),
+    el("a", { class: "linkcard", href: w.dataset.href, target: "_blank", rel: "noopener" },
+      el("span", { class: "lc-host" }, "instagram.com ↗"),
+      el("span", { class: "lc-title" }, shot ? "Showing the saved screenshot. Open the post on Instagram." : "This post couldn't be shown here. It may be private or deleted, or blocked by a browser extension. Open it on Instagram.")));
+}
+function processIG() {
+  if (!S.pendingIG.size) return;
+  if (S.igFailed) { S.pendingIG.forEach(igFallback); S.pendingIG.clear(); return; }
+  if (!window.instgrm) {
+    if (!S.igLoading) {
+      S.igLoading = true;
+      const s = el("script", { src: "https://www.instagram.com/embed.js", async: true });
+      s.onload = () => processIG();
+      s.onerror = () => { S.igFailed = true; processIG(); };
+      document.body.append(s);
+    }
+    return;
+  }
+  const list = [...S.pendingIG]; S.pendingIG.clear();
+  try { window.instgrm.Embeds.process(); } catch {}
+  list.forEach(w => setTimeout(() => { if (w.isConnected && !w.querySelector("iframe")) igFallback(w); }, 15000));
+}
+
+/* ===================== OVERLAYS ===================== */
+function panelHead(title, onClose) {
+  return el("div", { class: "panel-head" }, el("h2", {}, title),
+    el("button", { type: "button", class: "icon-btn", "aria-label": "Close", onclick: onClose }, "×"));
+}
+function openOverlay(name, panel, { backdropCloses = true } = {}) {
+  let ov = S.overlays[name];
+  if (ov) { ov.replaceChildren(panel); return ov; }
+  ov = el("div", { class: "overlay", "data-name": name });
+  if (backdropCloses) ov.addEventListener("mousedown", e => { if (e.target === ov) closeOverlay(name); });
+  ov.append(panel); document.body.append(ov);
+  S.overlays[name] = ov; S.stack.push(name);
+  document.body.classList.add("locked");
+  return ov;
+}
+function closeOverlay(name) {
+  const ov = S.overlays[name]; if (!ov) return;
+  ov.remove(); delete S.overlays[name];
+  S.stack = S.stack.filter(n => n !== name);
+  if (name === "detail") S.detailId = null;
+  if (name === "editor") S.ed = null;
+  if (!S.stack.length) document.body.classList.remove("locked");
+}
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape" || !S.stack.length) return;
+  const top = S.stack[S.stack.length - 1];
+  if (top !== "sketch") closeOverlay(top);
+});
+
+/* Two-step button: first click arms, second click runs. Replaces confirm() dialogs. */
+function confirmBtn(label, armedLabel, fn, extra = "") {
+  const b = el("button", { type: "button", class: "btn " + extra }, label);
+  let armed = false, t;
+  b.addEventListener("click", async () => {
+    if (!armed) { armed = true; b.textContent = armedLabel; b.classList.add("armed"); t = setTimeout(() => { armed = false; b.textContent = label; b.classList.remove("armed"); }, 4000); return; }
+    clearTimeout(t); b.disabled = true;
+    try { await fn(); } catch (e) { toast(errMsg(e), "err"); b.disabled = false; }
+  });
+  return b;
+}
+
+/* ---------- Item detail ---------- */
+function openDetail(id) { S.detailId = id; renderDetail(true); }
+function renderDetail(force) {
+  const it = S.byId.get(S.detailId);
+  if (!it) { closeOverlay("detail"); return; }
+  const ver = itemVer(it);
+  if (!force && ver === S.detailVer && S.overlays.detail) { renderComments(it); return; }
+  S.detailVer = ver;
+  const url = imgUrl(it);
+  const left = el("div", { class: "d-media" },
+    mediaNode(it, true),
+    it.kind === "instagram" && url ? el("details", { class: "shot" }, el("summary", {}, "Saved screenshot"), el("img", { src: url, alt: "Screenshot of the Instagram post" })) : null);
+  const drawable = url;
+  const right = el("div", { class: "d-info" },
+    el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", {}, roomName(it.room_id)), it.type ? el("span", {}, "· " + it.type) : null),
+    el("h2", { class: "d-title" }, titleOf(it)),
+    it.kind !== "note" && it.note ? el("p", { class: "d-why" }, it.note) : null,
+    el("p", { class: "d-by" }, `Added by ${it.created_by || "someone"} · ${fmtDate(it.created_at)}`),
+    el("div", { class: "d-actions" },
+      it.url ? el("a", { class: "btn", href: it.url, target: "_blank", rel: "noopener" }, it.kind === "instagram" ? "Open on Instagram ↗" : "Open link ↗") : null,
+      el("button", { type: "button", class: "btn", onclick: () => openEditor({ item: it }) }, "Edit"),
+      drawable ? el("button", { type: "button", class: "btn", onclick: () => drawOn(it, drawable) }, "Draw on this") : null,
+      confirmBtn("Delete", "Delete for everyone?", async () => {
+        await S.store.deleteItem(it); closeOverlay("detail"); toast("Deleted"); await refresh();
+      }, "ghost")),
+    el("section", { class: "comments", "aria-label": "Comments" }, el("h3", {}, "Comments"), el("div", { id: "c-list", class: "list" }), commentForm(it)));
+  openOverlay("detail", el("div", { class: "panel wide", role: "dialog", "aria-modal": "true", "aria-label": titleOf(it) },
+    panelHead(KIND_LABEL[it.kind] + " · " + roomName(it.room_id), () => closeOverlay("detail")),
+    el("div", { class: "panel-body detail" }, left, right)));
+  renderComments(it);
+  processIG();
+}
+function renderComments(it) {
+  const list = $("#c-list"); if (!list) return;
+  const cs = S.comments.filter(c => c.item_id === it.id);
+  const me = (S.user?.email || "").toLowerCase();
+  list.replaceChildren(...(cs.length ? cs.map(c => el("div", { class: "c-item" },
+    el("div", { class: "c-head" }, el("strong", {}, c.author || "someone"), el("span", {}, fmtDate(c.created_at)),
+      (c.author || "").toLowerCase() === me ? el("button", { type: "button", class: "c-del", onclick: async () => {
+        try { await S.store.deleteComment(c.id); await refresh(); } catch (e) { toast(errMsg(e), "err"); } } }, "Delete") : null),
+    el("div", { class: "c-body" }, c.body))) : [el("p", { class: "hint" }, "No comments yet.")]));
+}
+function commentForm(it) {
+  const ta = el("textarea", { id: "c-new", rows: 2, placeholder: "Add a comment for the team", "aria-label": "New comment" });
+  const btn = el("button", { class: "btn small primary", type: "submit" }, "Post comment");
+  return el("form", { class: "c-form", onsubmit: async e => {
+    e.preventDefault(); const body = ta.value.trim(); if (!body) return;
+    btn.disabled = true;
+    try { await S.store.addComment(it.id, body); ta.value = ""; await refresh(); } catch (err) { toast(errMsg(err), "err"); }
+    btn.disabled = false;
+  } }, ta, btn);
+}
+async function drawOn(it, url) {
+  const blob = await openSketch({ bgUrl: url });
+  if (!blob) return;
+  try {
+    const path = await S.store.upload(blob, blob.type === "image/png" ? "png" : "jpg");
+    await S.store.insertItems([{ kind: "sketch", title: "Markup: " + titleOf(it), note: "", room_id: it.room_id, type: it.type, priority: it.priority, image_path: path, created_at: new Date().toISOString() }]);
+    toast("Markup added as a new card"); await refresh();
+  } catch (e) { toast(errMsg(e), "err"); }
+}
+
+/* ---------- Add / edit ---------- */
+function dropzone({ multiple, label, onFiles }) {
+  const input = el("input", { type: "file", accept: "image/*", multiple: multiple || null, hidden: true,
+    onchange: () => { const fs = [...input.files]; input.value = ""; if (fs.length) onFiles(fs); } });
+  const dz = el("div", { class: "drop", tabindex: "0", role: "button",
+    onclick: () => input.click(),
+    onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } },
+    ondragover: e => { e.preventDefault(); dz.classList.add("over"); },
+    ondragleave: () => dz.classList.remove("over"),
+    ondrop: e => { e.preventDefault(); e.stopPropagation(); dz.classList.remove("over");
+      const fs = [...e.dataTransfer.files].filter(f => f.type.startsWith("image/")); if (fs.length) onFiles(fs); } },
+    el("strong", {}, label), el("span", { class: "hint" }, "Click to choose, drag files here, or paste (Ctrl/⌘ + V)"), input);
+  return dz;
+}
+
+function openEditor({ item = null, kind = null, files = null, text = "" } = {}) {
+  const isEdit = !!item;
+  const ed = { kind: item?.kind || kind || "instagram", files: [], shot: null, sketch: null, removeImage: false, onFiles: null };
+  S.ed = ed;
+
+  const fTitle = el("input", { id: "e-title", value: item?.title || "", placeholder: 'Optional, e.g. "Cane-back dining chair"' });
+  const fRoom = el("select", { id: "e-room" }, el("option", { value: "" }, "Whole home"), ...S.rooms.map(r => el("option", { value: r.id }, r.name)));
+  fRoom.value = item ? (item.room_id || "") : (!["all", "none"].includes(S.filter.room) ? S.filter.room : "");
+  const fType = el("select", { id: "e-type" }, el("option", { value: "" }, "No type"), ...typesList().map(t => el("option", { value: t }, t)));
+  fType.value = item?.type || "";
+  let prio = item?.priority || "nice";
+  const prioSeg = el("div", { class: "seg", role: "radiogroup", "aria-label": "Priority" },
+    ...Object.entries(PRIO).map(([k, l]) => el("button", { type: "button", class: "seg-btn prio-" + k, role: "radio", "data-p": k, "aria-checked": String(prio === k),
+      onclick: () => { prio = k; prioSeg.querySelectorAll(".seg-btn").forEach(b => b.setAttribute("aria-checked", String(b.dataset.p === k))); } }, l)));
+  const fWhy = el("textarea", { id: "e-why", rows: 3, placeholder: "What do you like about it? Colour, proportions, the carving, the fabric…" });
+  fWhy.value = item && item.kind !== "note" ? item.note || "" : "";
+  const whyField = field("Why I like it", fWhy);
+  const kindBox = el("div", { class: "stack" });
+  const tabs = isEdit ? null : el("div", { class: "tabs", role: "tablist", "aria-label": "What are you adding?" },
+    ...KINDS.map(([k, l]) => el("button", { type: "button", role: "tab", class: "tab", "data-k": k, "aria-selected": String(ed.kind === k), onclick: () => setKind(k) }, l)));
+  const saveLabel = isEdit ? "Save changes" : "Add to board";
+  const saveBtn = el("button", { class: "btn primary", type: "submit" }, saveLabel);
+  const form = el("form", { class: "panel-body", onsubmit: e => { e.preventDefault(); save(); } },
+    tabs, kindBox, field("Title", fTitle),
+    el("div", { class: "row2" }, field("Room", fRoom), field("Type", fType)),
+    el("div", { class: "field" }, el("span", { class: "lbl" }, "Priority"), prioSeg),
+    whyField,
+    el("div", { class: "form-actions" }, el("button", { type: "button", class: "btn ghost", onclick: () => closeOverlay("editor") }, "Cancel"), saveBtn));
+  openOverlay("editor", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": isEdit ? "Edit item" : "Add to the board" },
+    panelHead(isEdit ? "Edit " + KIND_LABEL[ed.kind].toLowerCase() : "Add to the board", () => closeOverlay("editor")), form), { backdropCloses: false });
+
+  function setKind(k) {
+    ed.kind = k; ed.files = []; ed.shot = null; ed.sketch = null; ed.removeImage = false; ed.onFiles = null;
+    tabs?.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.k === k)));
+    whyField.hidden = k === "note";
+    kindBox.replaceChildren(kindSection(k));
+  }
+
+  function singleImage(label, existingPath) {
+    const prev = el("div", { class: "thumbs" });
+    const show = () => {
+      const src = ed.shot ? ed.shot.preview : (!ed.removeImage && existingPath ? S.urls.get(existingPath) : null);
+      prev.replaceChildren(...(src ? [el("div", { class: "thumb" }, el("img", { src, alt: "" }),
+        el("button", { type: "button", class: "x", "aria-label": "Remove image", onclick: () => { ed.shot = null; ed.removeImage = true; show(); } }, "×"))] : []));
+    };
+    ed.onFiles = async fs => { ed.shot = await prepareImage(fs[0]); ed.removeImage = false; show(); };
+    show();
+    return el("div", { class: "field" }, el("span", { class: "lbl" }, label), dropzone({ multiple: false, label: "Add an image", onFiles: ed.onFiles }), prev);
+  }
+
+  function kindSection(k) {
+    if (k === "instagram") {
+      const inp = isEdit
+        ? el("input", { id: "e-ig", value: item.url || "", placeholder: "https://www.instagram.com/p/…" })
+        : el("textarea", { id: "e-ig", rows: 3, placeholder: "https://www.instagram.com/p/DfHiEMmip0q/" });
+      ed.igInput = inp;
+      return el("div", { class: "stack" },
+        field(isEdit ? "Instagram link" : "Instagram link(s)", inp, isEdit ? null : "Paste one link, or several (one per line) to add them all at once. Only posts from public accounts can be shown."),
+        singleImage("Backup screenshot (optional)", isEdit ? item.image_path : null),
+        el("p", { class: "hint" }, "The screenshot shows up if the post is ever deleted or made private."));
+    }
+    if (k === "image") {
+      if (isEdit) return singleImage("Image", item.image_path);
+      const thumbs = el("div", { class: "thumbs" });
+      const draw = () => thumbs.replaceChildren(...ed.files.map((f, i) => el("div", { class: "thumb" }, el("img", { src: f.preview, alt: "" }),
+        el("button", { type: "button", class: "x", "aria-label": "Remove image", onclick: () => { ed.files.splice(i, 1); draw(); } }, "×"))));
+      ed.onFiles = async fs => { for (const f of fs) ed.files.push(await prepareImage(f)); draw(); };
+      return el("div", { class: "stack" },
+        dropzone({ multiple: true, label: "Add photos or screenshots", onFiles: ed.onFiles }), thumbs,
+        el("p", { class: "hint" }, "Furniture you spotted, embroidery, artwork, a screenshot from anywhere. Each image becomes its own card."));
+    }
+    if (k === "sketch") {
+      const prev = el("div", { class: "thumbs" });
+      const current = () => ed.sketch ? ed.sketch.preview : (isEdit ? S.urls.get(item.image_path) : null);
+      const btn = el("button", { type: "button", class: "btn" }, current() ? "Edit sketch" : "Open sketch pad");
+      const show = () => { const src = current(); prev.replaceChildren(src ? el("img", { src, alt: "Sketch preview", class: "sketch-prev" }) : el("p", { class: "hint" }, "No sketch yet.")); btn.textContent = src ? "Edit sketch" : "Open sketch pad"; };
+      btn.addEventListener("click", async () => {
+        const blob = await openSketch({ bgUrl: current() });
+        if (blob) { ed.sketch = { blob, ext: blob.type === "image/png" ? "png" : "jpg", preview: URL.createObjectURL(blob) }; show(); }
+      });
+      show();
+      return el("div", { class: "stack" }, el("div", {}, btn), prev, el("p", { class: "hint" }, "Draw freehand, or load a photo inside the pad and mark it up."));
+    }
+    if (k === "link") {
+      const u = el("input", { id: "e-url", type: "url", inputmode: "url", value: item?.url || "", placeholder: "https://…" });
+      ed.urlInput = u;
+      return el("div", { class: "stack" },
+        field("Link", u, "A shop, a maker, a Pinterest pin, a YouTube video: anything with a web address."),
+        singleImage("Picture for the card (optional)", isEdit ? item.image_path : null));
+    }
+    const n = el("textarea", { id: "e-note", rows: 6, placeholder: "Write the idea down…" });
+    n.value = item?.kind === "note" ? item.note || "" : "";
+    ed.noteInput = n;
+    return field("Note", n);
+  }
+
+  async function save() {
+    const base = { title: fTitle.value.trim(), room_id: fRoom.value || null, type: fType.value || null, priority: prio };
+    const why = fWhy.value.trim();
+    const st = S.store;
+    const up = async p => (p ? await st.upload(p.blob, p.ext) : null);
+    saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+    try {
+      if (isEdit) {
+        const patch = { ...base, note: ed.kind === "note" ? ed.noteInput.value.trim() : why };
+        if (ed.kind === "instagram") { const p = igPermalink(ed.igInput.value); if (!p) throw new Error("That doesn't look like an Instagram post link. It should contain /p/ or /reel/."); patch.url = p; }
+        if (ed.kind === "link") { const u = normUrl(ed.urlInput.value); if (!u) throw new Error("Add a valid web address."); patch.url = u; }
+        if (ed.kind === "note" && !patch.note) throw new Error("The note is empty.");
+        const newImg = ed.kind === "sketch" ? ed.sketch : ed.shot;
+        if (newImg) patch.image_path = await up(newImg);
+        else if (ed.removeImage) { if (ed.kind === "image") throw new Error("A photo card needs an image. Add one, or delete the card."); patch.image_path = null; }
+        await st.updateItem(item.id, patch);
+        if ("image_path" in patch && item.image_path && patch.image_path !== item.image_path) st.removeFile(item.image_path);
+        toast("Saved");
+      } else {
+        const now = Date.now(), rows = [];
+        const mk = (extra, k) => ({ ...base, note: why, ...extra, created_at: new Date(now - k).toISOString() });
+        if (ed.kind === "instagram") {
+          const raw = ed.igInput.value.split(/[\s,]+/).filter(Boolean);
+          const links = [...new Set(raw.map(igPermalink).filter(Boolean))];
+          if (!links.length) throw new Error("Paste an Instagram post link. It should contain /p/ or /reel/.");
+          const skipped = raw.filter(r => !igPermalink(r)).length;
+          const shotPath = links.length === 1 ? await up(ed.shot) : null;
+          links.forEach((u, k) => rows.push(mk({ kind: "instagram", url: u, image_path: shotPath }, k)));
+          if (skipped) setTimeout(() => toast(`Skipped ${skipped} link${skipped === 1 ? "" : "s"} that weren't Instagram posts`), 1200);
+        } else if (ed.kind === "image") {
+          if (!ed.files.length) throw new Error("Add at least one image.");
+          let k = 0; for (const f of ed.files) rows.push(mk({ kind: "image", image_path: await up(f) }, k++));
+        } else if (ed.kind === "sketch") {
+          if (!ed.sketch) throw new Error("Open the sketch pad and draw something first.");
+          rows.push(mk({ kind: "sketch", image_path: await up(ed.sketch) }, 0));
+        } else if (ed.kind === "link") {
+          const u = normUrl(ed.urlInput.value); if (!u) throw new Error("Add a valid web address.");
+          rows.push(mk({ kind: "link", url: u, image_path: await up(ed.shot) }, 0));
+        } else {
+          const n = ed.noteInput.value.trim(); if (!n) throw new Error("The note is empty.");
+          rows.push(mk({ kind: "note", note: n }, 0));
+        }
+        await st.insertItems(rows);
+        toast(rows.length === 1 ? "Added to the board" : `Added ${rows.length} items`);
+      }
+      closeOverlay("editor");
+      await refresh();
+    } catch (e) {
+      toast(errMsg(e), "err");
+      saveBtn.disabled = false; saveBtn.textContent = saveLabel;
+    }
+  }
+
+  setKind(ed.kind);
+  if (files?.length && ed.onFiles) ed.onFiles(ed.kind === "image" ? files : files.slice(0, 1));
+  if (text) { if (ed.kind === "instagram") ed.igInput.value = text.trim(); else if (ed.kind === "link") ed.urlInput.value = text.trim(); }
+  setTimeout(() => (kindBox.querySelector("textarea, input:not([type=file])") || fTitle).focus(), 40);
+}
+
+/* ---------- Sketch pad ---------- */
+const INKS = ["#1c2321", "#2e3d8c", "#c0392b", "#b8862b", "#2f7d5b", "#ffffff"];
+function openSketch({ bgUrl = null } = {}) {
+  return new Promise(resolve => {
+    S.stack.push("sketch");
+    const SIZES = [3, 7, 14];
+    let W = 1600, H = 1200, strokes = [], cur = null, tool = "pen", color = INKS[0], sizeIx = 1, bgImg = null;
+    const bg = el("canvas"), ink = el("canvas", { class: "ink", "aria-label": "Drawing area" }), done = document.createElement("canvas");
+    const frame = el("div", { class: "sk-frame" }, bg, ink);
+    const stage = el("div", { class: "sk-stage" }, frame);
+    const fileIn = el("input", { type: "file", accept: "image/*", hidden: true,
+      onchange: () => { const f = fileIn.files[0]; fileIn.value = ""; if (f) loadBg(URL.createObjectURL(f), true); } });
+    const btn = (label, on, attrs = {}) => el("button", { type: "button", class: "sk-btn", onclick: on, ...attrs }, label);
+    const toolBtns = [["pen", "Pen"], ["marker", "Highlighter"], ["eraser", "Eraser"]].map(([t, l]) => btn(l, () => { tool = t; sync(); }, { "data-tool": t }));
+    const swatches = INKS.map(c => el("button", { type: "button", class: "sw", style: `--c:${c}`, "aria-label": "Ink colour " + c, "data-c": c,
+      onclick: () => { color = c; if (tool === "eraser") tool = "pen"; sync(); } }));
+    const sizes = SIZES.map((s, i) => el("button", { type: "button", class: "sz", "data-i": i, "aria-label": ["Thin", "Medium", "Thick"][i] + " line",
+      onclick: () => { sizeIx = i; sync(); } }, el("span", { style: `width:${4 + i * 5}px;height:${4 + i * 5}px` })));
+    const cancelBtn = btn("Cancel", () => {
+      if (strokes.length && cancelBtn.dataset.armed !== "1") {
+        cancelBtn.dataset.armed = "1"; cancelBtn.textContent = "Discard drawing?";
+        setTimeout(() => { cancelBtn.dataset.armed = ""; cancelBtn.textContent = "Cancel"; }, 3000); return;
+      }
+      finish(null);
+    });
+    const bar = el("div", { class: "sk-bar" },
+      el("div", { class: "sk-group" }, ...toolBtns),
+      el("div", { class: "sk-group" }, ...swatches),
+      el("div", { class: "sk-group" }, ...sizes),
+      el("div", { class: "sk-group" }, btn("Undo", undo), btn("Clear", clearAll), btn("Load a photo", () => fileIn.click())),
+      el("div", { class: "spacer" }),
+      el("div", { class: "sk-group" }, cancelBtn, el("button", { type: "button", class: "btn primary", onclick: exportIt }, "Use sketch")),
+      fileIn);
+    const ov = el("div", { class: "sketch", role: "dialog", "aria-modal": "true", "aria-label": "Sketch pad" }, bar, stage);
+    document.body.append(ov); document.body.classList.add("locked");
+    const bctx = bg.getContext("2d"), ictx = ink.getContext("2d"), dctx = done.getContext("2d");
+
+    const unit = () => Math.max(W, H) / 1600;
+    function setSize(w, h) { W = w; H = h; for (const c of [bg, ink, done]) { c.width = w; c.height = h; } paintBg(); redrawDone(); renderInk(); fit(); }
+    function paintBg() { bctx.fillStyle = "#ffffff"; bctx.fillRect(0, 0, W, H); if (bgImg) bctx.drawImage(bgImg, 0, 0, W, H); }
+    function fit() {
+      const r = stage.getBoundingClientRect();
+      const s = Math.min((r.width - 24) / W, (r.height - 24) / H);
+      frame.style.width = Math.max(60, W * s) + "px"; frame.style.height = Math.max(60, H * s) + "px";
+    }
+    async function loadBg(src, isLocal) {
+      try {
+        const img = new Image();
+        if (!isLocal && !src.startsWith("data:") && !src.startsWith("blob:")) img.crossOrigin = "anonymous";
+        img.src = src; await img.decode();
+        bgImg = img; strokes = [];
+        const sc = Math.min(1, 2000 / Math.max(img.naturalWidth, img.naturalHeight));
+        setSize(Math.round(img.naturalWidth * sc), Math.round(img.naturalHeight * sc));
+      } catch { toast("Couldn't load that image into the sketch pad.", "err"); }
+    }
+    function drawStroke(ctx, s) {
+      if (s.tool === "clear") { ctx.clearRect(0, 0, W, H); return; }
+      const p = s.pts; if (!p.length) return;
+      ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.lineWidth = s.size;
+      if (s.tool === "eraser") { ctx.globalCompositeOperation = "destination-out"; ctx.strokeStyle = "#000"; }
+      else { ctx.strokeStyle = s.color; ctx.globalAlpha = s.tool === "marker" ? 0.35 : 1; }
+      ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y);
+      if (p.length === 1) ctx.lineTo(p[0].x + 0.01, p[0].y);
+      for (let i = 1; i < p.length - 1; i++) ctx.quadraticCurveTo(p[i].x, p[i].y, (p[i].x + p[i + 1].x) / 2, (p[i].y + p[i + 1].y) / 2);
+      if (p.length > 1) ctx.lineTo(p[p.length - 1].x, p[p.length - 1].y);
+      ctx.stroke(); ctx.restore();
+    }
+    function redrawDone() { dctx.clearRect(0, 0, W, H); strokes.forEach(s => drawStroke(dctx, s)); }
+    function renderInk() { ictx.clearRect(0, 0, W, H); ictx.drawImage(done, 0, 0); if (cur) drawStroke(ictx, cur); }
+    function pt(e) { const r = ink.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+    ink.addEventListener("pointerdown", e => {
+      e.preventDefault(); ink.setPointerCapture(e.pointerId);
+      const b = SIZES[sizeIx] * unit();
+      cur = { tool, color, size: tool === "marker" ? b * 3.5 : tool === "eraser" ? b * 4 : b, pts: [pt(e)] }; renderInk();
+    });
+    ink.addEventListener("pointermove", e => {
+      if (!cur) return;
+      for (const ev of (e.getCoalescedEvents ? e.getCoalescedEvents() : [e])) cur.pts.push(pt(ev));
+      renderInk();
+    });
+    const end = () => { if (!cur) return; drawStroke(dctx, cur); strokes.push(cur); cur = null; renderInk(); };
+    ink.addEventListener("pointerup", end); ink.addEventListener("pointercancel", end);
+    function undo() { strokes.pop(); redrawDone(); renderInk(); }
+    function clearAll() { if (strokes.length) { strokes.push({ tool: "clear", pts: [] }); redrawDone(); renderInk(); } }
+    function sync() {
+      toolBtns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tool === tool)));
+      swatches.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.c === color && tool !== "eraser")));
+      sizes.forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.i === sizeIx)));
+    }
+    function exportIt() {
+      const out = document.createElement("canvas"); out.width = W; out.height = H;
+      const o = out.getContext("2d"); o.drawImage(bg, 0, 0); o.drawImage(done, 0, 0);
+      try { out.toBlob(b => finish(b), bgImg ? "image/jpeg" : "image/png", 0.9); }
+      catch { toast("This photo can't be saved from the sketch pad. Download it and load it with “Load a photo” instead.", "err"); }
+    }
+    function finish(v) {
+      window.removeEventListener("resize", fit); ov.remove();
+      S.stack = S.stack.filter(n => n !== "sketch");
+      if (!S.stack.length) document.body.classList.remove("locked");
+      resolve(v);
+    }
+    window.addEventListener("resize", fit);
+    sync(); setSize(W, H);
+    if (bgUrl) loadBg(bgUrl, false);
+  });
+}
+
+/* ---------- Rooms & people ---------- */
+function openSettings() {
+  const body = el("div", { class: "panel-body" });
+  openOverlay("settings", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "Rooms and people" },
+    panelHead("Rooms & people", () => closeOverlay("settings")), body));
+  const act = async fn => { try { await fn(); await refresh(); await draw(); } catch (e) { toast(errMsg(e), "err"); } };
+  const moveRoom = (i, d) => act(async () => {
+    const a = S.rooms[i], b = S.rooms[i + d];
+    const pa = a.position ?? i, pb = b.position ?? i + d;
+    await S.store.updateRoom(a.id, { position: pb === pa ? pa + d : pb });
+    await S.store.updateRoom(b.id, { position: pa });
+  });
+  async function draw() {
+    const rooms = el("div", { class: "list" }, ...S.rooms.map((r, i) => el("div", { class: "list-row" },
+      el("input", { value: r.name, "aria-label": "Room name", onchange: e => { const v = e.target.value.trim(); if (v) act(() => S.store.updateRoom(r.id, { name: v })); } }),
+      el("button", { type: "button", class: "icon-btn", "aria-label": "Move up", disabled: i === 0, onclick: () => moveRoom(i, -1) }, "↑"),
+      el("button", { type: "button", class: "icon-btn", "aria-label": "Move down", disabled: i === S.rooms.length - 1, onclick: () => moveRoom(i, 1) }, "↓"),
+      confirmBtn("Remove", "Remove room?", () => act(() => S.store.deleteRoom(r.id)), "small ghost"))));
+    const newRoom = el("input", { id: "new-room", placeholder: "New room, e.g. Study", "aria-label": "New room name" });
+    const addRoom = el("form", { class: "list-row", onsubmit: e => { e.preventDefault(); const v = newRoom.value.trim(); if (v) act(() => S.store.addRoom(v)); } },
+      newRoom, el("button", { class: "btn small", type: "submit" }, "Add room"));
+    let people;
+    if (LIVE) {
+      let members = [];
+      try { members = await S.store.members(); } catch (e) { toast(errMsg(e), "err"); }
+      const me = (S.user?.email || "").toLowerCase();
+      const newEmail = el("input", { id: "new-member", type: "email", placeholder: "architect@studio.com", "aria-label": "Email to add" });
+      const link = location.origin + location.pathname;
+      people = el("section", { class: "set" },
+        el("h3", {}, "People who can edit"),
+        el("p", { class: "hint" }, "Everyone listed can sign in with an email link, and add, edit, delete and comment. Add each person at the studio."),
+        el("div", { class: "list" }, ...members.map(m => el("div", { class: "list-row" }, el("span", { class: "grow" }, m.email),
+          m.email === me ? el("span", { class: "hint" }, "You") : confirmBtn("Remove", "Remove access?", () => act(() => S.store.removeMember(m.email)), "small ghost")))),
+        el("form", { class: "list-row", onsubmit: e => { e.preventDefault(); const v = newEmail.value.trim().toLowerCase(); if (v) act(() => S.store.addMember(v)); } },
+          newEmail, el("button", { class: "btn small", type: "submit" }, "Add person")),
+        el("div", { class: "list-row" }, el("span", { class: "grow hint" }, "Link to send them: " + link),
+          el("button", { type: "button", class: "btn small", onclick: async () => {
+            try { await navigator.clipboard.writeText(link); toast("Link copied"); } catch { toast("Copy this link: " + link); } } }, "Copy link")));
+    } else {
+      people = el("section", { class: "set" }, el("h3", {}, "People"),
+        el("p", { class: "hint" }, "In demo mode the board lives only in this browser. Connect Supabase (see the README) to invite the studio here."),
+        el("div", {}, confirmBtn("Reset demo board", "Erase everything and reset?", async () => {
+          S.store.reset(); S.nodes.forEach(n => n.remove()); S.nodes.clear(); await refresh(); await draw(); toast("Demo board reset");
+        }, "small ghost")));
+    }
+    body.replaceChildren(
+      el("section", { class: "set" }, el("h3", {}, "Rooms"), el("p", { class: "hint" }, "Rename a room by editing its name. Removing a room moves its items to “Whole home”."), rooms, addRoom),
+      people);
+  }
+  draw();
+}
+
+/* ---------- paste and drop anywhere ---------- */
+document.addEventListener("paste", e => {
+  if (!S.ready) return;
+  const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith("image/"));
+  const text = e.clipboardData?.getData("text") || "";
+  const top = S.stack[S.stack.length - 1];
+  if (top === "editor") {
+    if (files.length && S.ed?.onFiles) { e.preventDefault(); S.ed.onFiles(S.ed.kind === "image" ? files : files.slice(0, 1)); }
+    return;
+  }
+  if (top) return;
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+  if (files.length) { e.preventDefault(); openEditor({ kind: "image", files }); }
+  else if (igPermalink(text)) { e.preventDefault(); openEditor({ kind: "instagram", text }); }
+  else if (/^https?:\/\/\S+$/i.test(text.trim())) { e.preventDefault(); openEditor({ kind: "link", text }); }
+});
+window.addEventListener("dragover", e => { if (e.dataTransfer?.types?.includes("Files")) e.preventDefault(); });
+window.addEventListener("drop", e => {
+  const files = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith("image/"));
+  if (!files.length) return;
+  e.preventDefault();
+  if (S.ready && !S.stack.length) openEditor({ kind: "image", files });
+});
+
+boot();
+</script>
+</body>
+</html>
