@@ -441,6 +441,8 @@ header.top{background:color-mix(in srgb,var(--surface) 92%,transparent);border-b
 .doc{box-shadow:var(--shadow-sm)}
 .foot{font-size:12px}
 
+.room-pick{display:flex;gap:6px;flex-wrap:wrap}
+.room-pick .chip.shortcut{border-style:dashed}
 .dict-group{display:inline-flex;gap:0;align-items:stretch}
 .dict-group .btn{border-top-right-radius:0;border-bottom-right-radius:0}
 .dict-lang{font-size:12px;padding:5px 6px;border-top-left-radius:0;border-bottom-left-radius:0;border-left:0;max-width:96px}
@@ -528,6 +530,19 @@ function titleOf(it) {
   return "Photo";
 }
 function roomName(id) { return (id && S.rooms.find(r => r.id === id)?.name) || "Whole home"; }
+/* A card can be filed under several rooms. room_id holds the first one and meta.rooms lists them all;
+   a card with no rooms belongs to "Whole home". Rooms that were deleted are ignored. */
+function roomsOf(it) {
+  const m = metaOf(it).rooms, out = [];
+  for (const id of [it.room_id, ...(Array.isArray(m) ? m : [])]) if (id && !out.includes(id) && S.rooms.some(r => r.id === id)) out.push(id);
+  return S.rooms.filter(r => out.includes(r.id)).map(r => r.id); // in the board's room order
+}
+const inRoom = (it, id) => (id ? roomsOf(it).includes(id) : !roomsOf(it).length);
+function roomsLabel(it, short) {
+  const names = roomsOf(it).map(roomName);
+  if (!names.length) return "Whole home";
+  return short && names.length > 2 ? `${names[0]}, ${names[1]} +${names.length - 2}` : names.join(", ");
+}
 function typesList() { return [...new Set([...CONFIG.TYPES, ...S.items.map(i => i.type).filter(Boolean)])]; }
 function prioBadge(p) { return el("span", { class: "prio " + p }, PRIO[p] || p); }
 function imgUrl(it) { return it.image_path ? S.urls.get(it.image_path) || null : null; }
@@ -959,6 +974,7 @@ const GU = {
   "This browser can't type that language from speech. Try Chrome.": "આ બ્રાઉઝર આ ભાષા સાંભળીને લખી શકતું નથી. Chrome વાપરો.",
   "Speak to type needs an internet connection.": "બોલીને લખવા માટે ઇન્ટરનેટ જરૂરી છે.",
   "Speak to type couldn't start. Try again.": "બોલીને લખવાનું શરૂ ન થયું. ફરી પ્રયાસ કરો.",
+  "All bedrooms": "બધા બેડરૂમ", "Pick one or more. Nothing picked means Whole home.": "એક કે વધુ પસંદ કરો. કંઈ પસંદ ન કરો તો આખું ઘર.",
   "Pin to top": "ઉપર પિન કરો", "Unpin": "પિન કાઢો", "Pinned": "પિન કરેલું", "Pinned to the top of the board": "બોર્ડમાં સૌથી ઉપર પિન કર્યું", "Unpinned": "પિન કાઢ્યું", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
   "Comments that tag you, replies to your comments, and comments on things you added.": "તમને ટેગ કરતી કોમેન્ટ, તમારી કોમેન્ટના જવાબ, અને તમે ઉમેરેલી વસ્તુઓ પરની કોમેન્ટ.",
   "Nothing yet. When someone tags you with @ or replies to you, it shows up here.": "હજી કંઈ નથી. કોઈ તમને @ થી ટેગ કરે કે જવાબ આપે ત્યારે અહીં દેખાશે.",
@@ -1031,6 +1047,8 @@ const GU_RX = [
   [/^■ Stop (\d+:\d\d)$/, t => "■ બંધ કરો " + t],
   [/^Uploading voice note…$/, () => "વોઇસ નોટ અપલોડ થાય છે…"],
   [/^· (.+)$/, t => "· " + tr(t)],
+  // A list of room names, e.g. "Bedroom 2, Bedroom 3 +1": translated only when every name is known.
+  [/^([^,]+(?:, [^,+]+)+)( \+\d+)?$/, (list, more) => { const p = list.split(", "); return p.every(x => GU[x]) ? p.map(x => GU[x]).join(", ") + (more || "") : null; }],
   [/^(.+?) · (.+)$/, (a, b) => tr(a) + " · " + tr(b)],
 ];
 function tr(s) {
@@ -1038,7 +1056,7 @@ function tr(s) {
   const m = String(s).match(/^(\s*)([\s\S]*?)(\s*)$/), core = m[2];
   if (!core) return s;
   let t = GU[core];
-  if (t == null) for (const [re, f] of GU_RX) { const x = core.match(re); if (x) { t = f(...x.slice(1)); break; } }
+  if (t == null) for (const [re, f] of GU_RX) { const x = core.match(re); if (x) { const v = f(...x.slice(1)); if (v != null) { t = v; break; } } }
   return t == null || t === core ? s : m[1] + t + m[3];
 }
 /* Places whose text people typed: never translated. */
@@ -1201,7 +1219,7 @@ function setView(v) {
 function renderFilters() {
   const counts = new Map(); let none = 0;
   const roomIds = new Set(S.rooms.map(r => r.id));
-  S.boardItems.forEach(i => { if (i.room_id && roomIds.has(i.room_id)) counts.set(i.room_id, (counts.get(i.room_id) || 0) + 1); else none++; });
+  S.boardItems.forEach(i => { const rs = roomsOf(i); if (!rs.length) none++; rs.forEach(id => counts.set(id, (counts.get(id) || 0) + 1)); });
   if (!["all", "none"].includes(S.filter.room) && !roomIds.has(S.filter.room)) S.filter.room = "all";
   const chip = (id, label, n) => el("button", { type: "button", class: "chip", "data-id": id, "aria-pressed": String(S.filter.room === id),
     onclick: () => { S.filter.room = id; applyFilters(); } }, label, el("span", { class: "n" }, String(n)));
@@ -1215,14 +1233,13 @@ function isNew(it) {
   return !!S.newSince && tsOf(it) > S.newSince && (it.created_by || "").toLowerCase() !== myEmail();
 }
 function matchesWith(it, f) {
-  if (f.room === "none") { if (it.room_id && S.rooms.some(r => r.id === it.room_id)) return false; }
-  else if (f.room !== "all" && it.room_id !== f.room) return false;
+  if (f.room !== "all" && !inRoom(it, f.room === "none" ? null : f.room)) return false;
   if (f.type !== "all" && it.type !== f.type) return false;
   if (f.prio !== "all" && it.priority !== f.prio) return false;
   if (f.newOnly && !isNew(it)) return false;
   if (f.q) {
     const pv = metaOf(it).preview || {};
-    const hay = [it.title, it.note, it.url, it.type, pv.title, pv.description, roomName(it.room_id), nameOf(it.created_by),
+    const hay = [it.title, it.note, it.url, it.type, pv.title, pv.description, roomsLabel(it), nameOf(it.created_by),
       ...S.comments.filter(c => c.item_id === it.id).map(c => c.body)].join(" ").toLowerCase();
     if (!hay.includes(f.q)) return false;
   }
@@ -1267,7 +1284,7 @@ function sortedItems() {
   else if (S.sort === "votes") a.sort((x, y) => (voteCount(y) - voteCount(x)) || (PRIO_ORDER[x.priority] - PRIO_ORDER[y.priority]) || newest(x, y));
   else if (S.sort === "room") {
     const pos = id => (id ? S.rooms.find(r => r.id === id)?.position ?? 9999 : -1);
-    a.sort((x, y) => (pos(x.room_id) - pos(y.room_id)) || newest(x, y));
+    a.sort((x, y) => (pos(roomsOf(x)[0]) - pos(roomsOf(y)[0])) || newest(x, y));
   } else a.sort(newest);
   // Pinned cards stay at the top whatever the sort, most recently pinned first.
   const pinAt = it => Date.parse(metaOf(it).pinned?.at) || 0;
@@ -1355,7 +1372,7 @@ function renderGrid() {
     if (node === cursor) cursor = cursor.nextElementSibling;
     else grid.insertBefore(node, cursor);
     const n = S.ccount.get(it.id) || 0;
-    node.querySelector(".c-room").textContent = roomName(it.room_id);
+    node.querySelector(".c-room").textContent = roomsLabel(it, true);
     node.querySelector(".c-comments").textContent = n ? `${n} comment${n === 1 ? "" : "s"}` : "No comments";
     const mk = S.markups.get(it.id)?.length || 0;
     node.querySelector(".c-mk").textContent = mk ? `✎ ${mk} markup${mk === 1 ? "" : "s"} · ` : "";
@@ -1514,7 +1531,7 @@ function renderDetail(force) {
       el("div", { class: "mk-grid" }, ...mks.map(m => el("button", { type: "button", "aria-label": "Open " + titleOf(m), title: `${titleOf(m)} · ${nameOf(m.created_by)}`, onclick: () => openDetail(m.id) },
         imgUrl(m) ? el("img", { src: imgUrl(m), alt: "" }) : "…")))) : null);
   const right = el("div", { class: "d-info" },
-    el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", {}, roomName(it.room_id)), it.type ? el("span", {}, "· " + it.type) : null),
+    el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", {}, roomsLabel(it)), it.type ? el("span", {}, "· " + it.type) : null),
     el("h2", { class: "d-title" }, titleOf(it)),
     parent ? el("p", { class: "d-by" }, "Markup on ", el("a", { href: "#", onclick: e => { e.preventDefault(); openDetail(parent.id); } }, titleOf(parent))) : null,
     it.kind !== "note" && it.note ? el("p", { class: "d-why" }, it.note) : null,
@@ -1533,7 +1550,7 @@ function renderDetail(force) {
     el("section", { class: "comments", "aria-label": "Comments" }, el("h3", {}, "Comments"), el("div", { id: "c-list", class: "list" }),
       composer({ it, placeholder: "Add a comment for the team. Type @ to tag someone.", label: "New comment" })));
   openOverlay("detail", el("div", { class: "panel wide", role: "dialog", "aria-modal": "true", "aria-label": titleOf(it) },
-    panelHead(KIND_LABEL[kindOf(it)] + " · " + roomName(it.room_id), () => closeOverlay("detail")),
+    panelHead(KIND_LABEL[kindOf(it)] + " · " + roomsLabel(it, true), () => closeOverlay("detail")),
     el("div", { class: "panel-body detail" }, left, right)));
   renderComments(it);
   processIG();
@@ -1779,7 +1796,7 @@ async function drawOn(it) {
   if (!blob) return;
   try {
     const path = await S.store.upload(blob, blob.type === "image/png" ? "png" : "jpg");
-    await S.store.insertItems([{ kind: "sketch", title: "Markup: " + titleOf(target), note: "", room_id: target.room_id, type: target.type, priority: target.priority,
+    await S.store.insertItems([{ kind: "sketch", title: "Markup: " + titleOf(target), note: "", room_id: roomsOf(target)[0] || null, type: target.type, priority: target.priority,
       image_path: path, created_at: new Date().toISOString(), ...extras({ meta: { markup_of: target.id } }) }]);
     toast(S.needsUpdate ? "Markup added as a new card" : "Markup saved with this post"); await refresh();
   } catch (e) { toast(errMsg(e), "err"); }
@@ -1806,8 +1823,20 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
   S.ed = ed;
 
   const fTitle = el("input", { id: "e-title", value: item?.title || "", placeholder: 'Optional, e.g. "Cane-back dining chair"' });
-  const fRoom = el("select", { id: "e-room" }, el("option", { value: "" }, "Whole home"), ...S.rooms.map(r => el("option", { value: r.id }, r.name)));
-  fRoom.value = item ? (item.room_id || "") : (!["all", "none"].includes(S.filter.room) ? S.filter.room : "");
+  // Rooms: pick one or several. Nothing picked means Whole home.
+  const picked = new Set(item ? roomsOf(item) : (!["all", "none"].includes(S.filter.room) ? [S.filter.room] : []));
+  const fRoom = el("div", { class: "room-pick", id: "e-room", role: "group", "aria-label": "Rooms" });
+  const bedrooms = S.rooms.filter(r => /bed/i.test(r.name));
+  function paintRooms() {
+    const chip = (label, on, onclick, extra = "") => el("button", { type: "button", class: "chip " + extra, "aria-pressed": String(on), onclick }, label);
+    const allBeds = bedrooms.length > 1 && bedrooms.every(r => picked.has(r.id));
+    fRoom.replaceChildren(
+      chip("Whole home", !picked.size, () => { picked.clear(); paintRooms(); }),
+      ...S.rooms.map(r => chip(r.name, picked.has(r.id), () => { picked.has(r.id) ? picked.delete(r.id) : picked.add(r.id); paintRooms(); })),
+      bedrooms.length > 1 ? chip("All bedrooms", allBeds, () => { bedrooms.forEach(r => (allBeds ? picked.delete(r.id) : picked.add(r.id))); paintRooms(); }, "shortcut") : null);
+  }
+  paintRooms();
+  const roomList = () => S.rooms.filter(r => picked.has(r.id)).map(r => r.id);
   const fType = el("select", { id: "e-type" }, el("option", { value: "" }, "No type"), ...typesList().map(t => el("option", { value: t }, t)));
   fType.value = item?.type || "";
   let prio = item?.priority || "nice";
@@ -1827,7 +1856,8 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
   const aiRow = el("div", { class: "ai-row" }, aiBtn, el("span", { class: "hint" }, "AI fills in the empty fields below from the picture."));
   const form = el("form", { class: "panel-body", onsubmit: e => { e.preventDefault(); save(); } },
     tabs, kindBox, aiRow, field("Title", fTitle),
-    el("div", { class: "row2" }, field("Room", fRoom), field("Type", fType)),
+    field("Rooms", fRoom, "Pick one or more. Nothing picked means Whole home."),
+    el("div", { class: "row2" }, field("Type", fType)),
     el("div", { class: "field" }, el("span", { class: "lbl" }, "Priority"), prioSeg),
     whyField,
     el("div", { class: "form-actions" }, el("button", { type: "button", class: "btn ghost", onclick: () => closeOverlay("editor") }, "Cancel"), saveBtn));
@@ -1870,7 +1900,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
       const filled = [];
       if (r.title && !fTitle.value.trim()) { fTitle.value = r.title; filled.push("title"); }
       const room = S.rooms.find(x => x.name.toLowerCase() === String(r.room || "").toLowerCase());
-      if (room && !fRoom.value) { fRoom.value = room.id; filled.push("room"); }
+      if (room && !picked.size) { picked.add(room.id); paintRooms(); filled.push("room"); }
       const type = typesList().find(t => t.toLowerCase() === String(r.type || "").toLowerCase());
       if (type && !fType.value) { fType.value = type; filled.push("type"); }
       if (r.why && !fWhy.value.trim()) { fWhy.value = r.why; filled.push("why I like it"); }
@@ -1980,7 +2010,10 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
   }
 
   async function save() {
-    const base = { title: fTitle.value.trim(), room_id: fRoom.value || null, type: fType.value || null, priority: prio };
+    const rooms = roomList();
+    const base = { title: fTitle.value.trim(), room_id: rooms[0] || null, type: fType.value || null, priority: prio };
+    const withRooms = meta => { const m = { ...meta }; if (rooms.length > 1) m.rooms = rooms; else delete m.rooms; return m; };
+    if (rooms.length > 1 && S.needsUpdate) { toast("Run update-2.sql in Supabase first to use several rooms (see the banner).", "err"); return; }
     const why = fWhy.value.trim();
     const st = S.store;
     const up = async p => (p ? await st.upload(p.blob, p.ext) : null);
@@ -2023,7 +2056,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
         const newImg = ed.kind === "sketch" ? ed.sketch : ed.kind === "palette" ? ed.palette : (ed.shot || fetchedImg);
         if (newImg) patch.image_path = await up(newImg);
         else if (ed.removeImage) { if (ed.kind === "image") throw new Error("A photo card needs an image. Add one, or delete the card."); patch.image_path = null; }
-        Object.assign(patch, extras({ meta }));
+        Object.assign(patch, extras({ meta: withRooms(meta) }));
         await st.updateItem(item.id, patch);
         if ("image_path" in patch && item.image_path && patch.image_path !== item.image_path) st.removeFile(item.image_path);
         toast("Saved");
@@ -2061,6 +2094,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
           const n = ed.noteInput.value.trim(); if (!n) throw new Error("The note is empty.");
           rows.push(mk({ kind: "note", note: n }, 0));
         }
+        if (rooms.length > 1) rows.forEach(r => { r.meta = withRooms(r.meta || {}); });
         await st.insertItems(rows);
         toast(rows.length === 1 ? "Added to the board" : `Added ${rows.length} items`);
       }
@@ -2339,7 +2373,7 @@ function openPalette(initial) {
 
     const boardPhotos = () => {
       const pool = S.boardItems.filter(i => i.image_path && S.urls.get(i.image_path) && !metaOf(i).palette &&
-        (S.filter.room === "all" || (S.filter.room === "none" ? !i.room_id : i.room_id === S.filter.room)));
+        (S.filter.room === "all" || inRoom(i, S.filter.room === "none" ? null : S.filter.room)));
       return pool.slice(0, 12);
     };
     function setColour(hex) { parts[sel] = okHex(hex); draw(); }
@@ -2385,7 +2419,8 @@ async function importBundle() {
   const haveDocs = new Set(S.docs.map(d => d.name));
   const docs = (Array.isArray(b.documents) ? b.documents : []).filter(d => d && d.name && d.data && !haveDocs.has(d.name));
   const roomByName = n => S.rooms.find(r => r.name.trim().toLowerCase() === String(n).trim().toLowerCase());
-  const newRooms = [...new Set(todo.map(x => x.room).filter(n => n && !roomByName(n)))];
+  const namesOf = x => (Array.isArray(x.rooms) && x.rooms.length ? x.rooms : x.room ? [x.room] : []);
+  const newRooms = [...new Set(todo.flatMap(namesOf).filter(n => n && !roomByName(n)))];
   const perRoom = new Map(); todo.forEach(x => perRoom.set(x.room || "Whole home", (perRoom.get(x.room || "Whole home") || 0) + 1));
   const go = el("button", { type: "button", class: "btn primary", disabled: !(todo.length || docs.length) || null },
     `Import ${todo.length} item${todo.length === 1 ? "" : "s"}` + (docs.length ? ` and ${docs.length} document${docs.length === 1 ? "" : "s"}` : ""));
@@ -2417,6 +2452,7 @@ async function importBundle() {
       let k = 0;
       for (const x of todo) {
         status.textContent = `Adding ${++k} of ${todo.length}: ${x.title || x.kind}…`;
+        const ids = namesOf(x).map(n => roomByName(n)?.id).filter(Boolean);
         let image_path = null;
         if (x.image) {
           const blob = await (await fetch(x.image)).blob();
@@ -2424,10 +2460,10 @@ async function importBundle() {
           image_path = await S.store.upload(p.blob, p.ext);
         }
         await S.store.insertItems([{
-          kind: x.kind, title: x.title || "", note: x.note || "", url: x.url || null, room_id: x.room ? roomByName(x.room)?.id || null : null,
+          kind: x.kind, title: x.title || "", note: x.note || "", url: x.url || null, room_id: ids[0] || null,
           type: x.type || null, priority: ["must", "nice", "avoid"].includes(x.priority) ? x.priority : "nice", image_path,
           created_at: new Date(Date.now() - k * 1000).toISOString(),
-          ...extras({ meta: { import_id: x.id, source: b.source || null } }),
+          ...extras({ meta: { import_id: x.id, source: b.source || null, ...(ids.length > 1 ? { rooms: ids } : {}) } }),
         }]);
       }
       closeOverlay("import"); toast(`Imported ${todo.length} card${todo.length === 1 ? "" : "s"}` + (docs.length ? ` and ${docs.length} document${docs.length === 1 ? "" : "s"}` : "")); await refresh(); S.redrawSettings?.();
@@ -2552,7 +2588,7 @@ function updatePlanZones() {
   const box = $("#plan-box"); if (!box) return;
   const f = S.filter, anyRoom = { ...f, room: "all" };
   const counts = new Map();
-  for (const it of S.boardItems) if (it.room_id && matchesWith(it, anyRoom)) counts.set(it.room_id, (counts.get(it.room_id) || 0) + 1);
+  for (const it of S.boardItems) if (matchesWith(it, anyRoom)) roomsOf(it).forEach(id => counts.set(id, (counts.get(id) || 0) + 1));
   const filtering = f.type !== "all" || f.prio !== "all" || !!f.q || f.newOnly;
   box.querySelectorAll(".zone").forEach(z => {
     const id = z.dataset.room, n = counts.get(id) || 0, on = f.room === id;
@@ -2641,7 +2677,7 @@ function renderRoomsView() {
   const roomIds = new Set(S.rooms.map(r => r.id));
   const groups = [...S.rooms.map(r => ({ id: r.id, name: r.name })), { id: null, name: "Whole home" }];
   box.replaceChildren(...groups.map(g => {
-    const list = vis.filter(i => ((i.room_id && roomIds.has(i.room_id)) ? i.room_id : null) === g.id)
+    const list = vis.filter(i => inRoom(i, g.id))
       .sort((a, b) => (isPinned(b) - isPinned(a)) || (voteCount(b) - voteCount(a)) || (PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority]) || (tsOf(b) - tsOf(a)));
     if (!list.length) return null;
     const hasBrief = !!S.settings[briefKey(g.id)];
@@ -2661,8 +2697,7 @@ function renderRoomsView() {
 const briefKey = id => "brief:" + (id || "home");
 S.briefWorking = new Set();
 function roomItems(id) {
-  const roomIds = new Set(S.rooms.map(r => r.id));
-  return S.items.filter(i => (id ? i.room_id === id : !(i.room_id && roomIds.has(i.room_id))));
+  return S.items.filter(i => inRoom(i, id));
 }
 function briefText(b) {
   const sec = (title, list) => (list?.length ? `\n${title}\n${list.map(t => "- " + t).join("\n")}\n` : "");

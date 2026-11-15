@@ -151,7 +151,7 @@ async function autofill(body: {
 type Item = {
   id: string; kind: string; title: string; url: string | null; note: string; room_id: string | null; type: string | null;
   priority: string; image_path: string | null; created_by: string | null; created_at: string; updated_at: string;
-  meta?: { preview?: { title?: string; description?: string }; markup_of?: string } | null;
+  meta?: { preview?: { title?: string; description?: string }; markup_of?: string; rooms?: string[] } | null;
 };
 type Comment = { id: string; item_id: string; author: string; body: string; parent_id?: string | null; created_at: string };
 
@@ -168,11 +168,15 @@ async function brief(sb: SupabaseClient, body: { room_id?: string | null }, emai
     return (m?.name && String(m.name).trim()) || (e ?? "someone").split("@")[0];
   };
 
-  let q = sb.from("items").select("*").order("created_at", { ascending: false });
-  q = roomId ? q.eq("room_id", roomId) : q.is("room_id", null);
-  const { data: itemsRaw, error } = await q;
+  // A card can be filed under several rooms (room_id plus meta.rooms); one with no existing room is "Whole home".
+  const { data: itemsRaw, error } = await sb.from("items").select("*").order("created_at", { ascending: false });
   if (error) throw error;
-  const items = (itemsRaw ?? []) as Item[];
+  const roomIds = new Set((rooms ?? []).map((r) => r.id));
+  const roomsOf = (it: Item) => {
+    const extra = Array.isArray(it.meta?.rooms) ? it.meta.rooms : [];
+    return [...new Set([it.room_id, ...extra].filter((id): id is string => !!id && roomIds.has(id)))];
+  };
+  const items = ((itemsRaw ?? []) as Item[]).filter((it) => (roomId ? roomsOf(it).includes(roomId) : !roomsOf(it).length));
   if (!items.length) throw new UserError(`There's nothing in ${roomName} yet.`);
   const order = { must: 0, nice: 1, avoid: 2 } as Record<string, number>;
   items.sort((a, b) => (order[a.priority] ?? 1) - (order[b.priority] ?? 1) || b.created_at.localeCompare(a.created_at));
@@ -199,6 +203,8 @@ async function brief(sb: SupabaseClient, body: { room_id?: string | null }, emai
       `ITEM ${n + 1}: "${titles.get(it.id)}"`,
       `${KIND[it.kind] ?? it.kind} · ${PRIO[it.priority] ?? it.priority}${it.type ? " · " + it.type : ""} · added by ${nameOf(it.created_by)}`,
     ];
+    const shared = roomsOf(it);
+    if (shared.length > 1) lines.push(`Filed under several rooms: ${shared.map((id) => rooms?.find((r) => r.id === id)?.name).join(", ")}.`);
     if (it.meta?.markup_of) lines.push(`This is a marked-up drawing on "${titles.get(it.meta.markup_of) ?? "another item"}".`);
     if (it.kind === "note") lines.push(`Note: ${it.note}`);
     else if (it.note) lines.push(`Why we like it: ${it.note}`);

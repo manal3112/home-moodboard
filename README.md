@@ -99,6 +99,7 @@ Cost: you pay Anthropic per use. Each brief or suggestion is a single request, a
 - **Documents**: a shared folder for drawings, PDFs, quotes, spreadsheets and CAD files (up to 50 MB each). Drag files onto the page or click **+ Upload**. Anyone can open, rename, file under a room, or delete them.
 - **Floor plan**: in **Rooms & people**, upload the layout as an image and mark where each room is. The plan then shows above the board: click a room to filter, and rooms with matching items light up when you filter by type, priority or search.
 - **Board / Feed / By room**: Board is a grid; Feed is a single Instagram-style column; By room is a summary with a row of thumbnails per room, must-haves first.
+- **Several rooms**: when adding or editing, tick as many rooms as fit (or **All bedrooms** in one tap). Nothing ticked means Whole home. The card then shows up under each of those rooms: in the room filters, **By room**, the floor plan and that room's AI brief.
 - **Pin**: click the pin on any card (or **Pin to top** when it's open) to keep it at the top of the board, whatever the sort or filter. Click again to unpin.
 - **Upvotes**: click **▲** on any card to upvote it (again to undo). Hover to see who upvoted. **Most upvoted** is the default sort and works within any filter. So that cards don't jump while you vote, the order updates when you press **↻ Re-sort** or reload.
 - **New**: items other people added since your last visit get a "New" tag, and the **New** button filters to just those.
