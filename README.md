@@ -8,6 +8,7 @@ Files:
 - `schema.sql`: the database, file storage and access rules for Supabase (for a new setup)
 - `supabase/functions/ai/index.ts`: the AI helper (room briefs and "Suggest details"), run by Supabase so the AI key stays private
 - `update-2.sql`: a one-time update for boards set up before documents, the floor plan and replies were added
+- `update-3.sql`: a one-time update that adds upvotes and the AI access list
 
 ## Try it first (2 minutes)
 
@@ -57,7 +58,7 @@ In **Authentication → URL Configuration**:
 
 ## Updating a board that's already set up
 
-If your board was set up before November 2026, run the update once: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, and click **Run**. Until then the board shows a yellow banner, and documents, the floor plan, replies and @mentions stay switched off. Everything else keeps working.
+If your board was set up before November 2026, run the updates once, in order: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, click **Run**, then do the same with `update-3.sql`. Until then the board shows a yellow banner naming the file still to run, and the features that need it stay switched off. Everything else keeps working.
 
 ## AI features (optional)
 
@@ -67,6 +68,8 @@ Two buttons use Claude (Anthropic's AI):
 - **✨ Suggest details**: in the add or edit form, it fills the empty title, room, type and "why I like it" fields from the picture.
 
 The AI can't see inside Instagram posts (they're Instagram's own frame), so it uses their screenshots and your notes. Attach screenshots to the posts that matter.
+
+**Who can use it:** only people ticked **AI** under **Rooms & people**. At first that's just the board owner (the first email added in `schema.sql`), and only the owner can tick or untick people. The AI helper itself checks this list, so hiding the buttons isn't the only protection. Everyone can read a saved brief.
 
 Setup, once:
 
@@ -93,6 +96,7 @@ Cost: you pay Anthropic per use. Each brief or suggestion is a single request, a
 - **Documents**: a shared folder for drawings, PDFs, quotes, spreadsheets and CAD files (up to 50 MB each). Drag files onto the page or click **+ Upload**. Anyone can open, rename, file under a room, or delete them.
 - **Floor plan**: in **Rooms & people**, upload the layout as an image and mark where each room is. The plan then shows above the board: click a room to filter, and rooms with matching items light up when you filter by type, priority or search.
 - **Board / Feed / By room**: Board is a grid; Feed is a single Instagram-style column; By room is a summary with a row of thumbnails per room, must-haves first.
+- **Upvotes**: click **▲** on any card to upvote it (again to undo). Hover to see who upvoted. **Most upvoted** is the default sort and works within any filter. So that cards don't jump while you vote, the order updates when you press **↻ Re-sort** or reload.
 - **New**: items other people added since your last visit get a "New" tag, and the **New** button filters to just those.
 - **Rooms & people**: rename, reorder, add or remove rooms, upload the floor plan, manage who has access, and give each person a name for @tags.
 - Changes appear for everyone within a second or two. No reload needed.

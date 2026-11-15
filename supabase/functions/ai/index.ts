@@ -1,6 +1,6 @@
 // Home Moodboard AI: room briefs and "Suggest details" for new items.
 // Runs as a Supabase Edge Function so the Anthropic API key never reaches the browser.
-// Only signed-in board members can call it (checked with the same is_member() rule as the database).
+// Only people on the AI access list can call it (the can_use_ai() rule from update-3.sql).
 //
 // Setup (once): add the secret ANTHROPIC_API_KEY in Supabase → Edge Functions → Secrets,
 // then deploy with:  supabase functions deploy ai --no-verify-jwt --project-ref <your project ref>
@@ -35,8 +35,10 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: auth } },
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    const { data: member, error: memberErr } = await sb.rpc("is_member");
-    if (memberErr || !member) return json({ error: "Only people on the board can use the AI features. Sign in again and retry." }, 403);
+    // Only people on the AI access list (public.ai_users, managed by the board owner) may use the AI.
+    const { data: allowed, error: accessErr } = await sb.rpc("can_use_ai");
+    if (accessErr) return json({ error: "AI access isn't set up yet. Run update-3.sql in Supabase, then try again." }, 403);
+    if (!allowed) return json({ error: "Your account doesn't have AI access. Ask the board owner to turn it on under Rooms & people." }, 403);
     if (!Deno.env.get("ANTHROPIC_API_KEY")) {
       return json({ error: "The AI key hasn't been added yet. In Supabase open Edge Functions → Secrets and add ANTHROPIC_API_KEY." }, 503);
     }

@@ -293,6 +293,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
 .dot.must{background:var(--must)} .dot.nice{background:var(--nice)} .dot.avoid{background:var(--avoid)}
 
+/* Upvotes */
+.cfoot{align-items:center}
+.cf-left{display:inline-flex;gap:8px;align-items:center}
+.vote{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:3px 10px;font:600 12px/1.4 var(--body);cursor:pointer;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vote:hover{border-color:var(--accent);color:var(--accent)}
+.vote[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.vote.big{font-size:14px;padding:8px 14px;border-radius:8px}
+.tile .tv{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;flex:none}
+.ai-tag{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 7px;border-radius:999px}
+
 /* AI: room briefs and suggestions */
 .ai-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn.ai{border-color:var(--accent);color:var(--accent)}
@@ -535,6 +545,16 @@ class SupaStore {
   }
   async settings() { const rows = await this.q(this.sb.from("settings").select("*")); return Object.fromEntries(rows.map(r => [r.key, r.value])); }
   setSetting(key, value) { return this.q(this.sb.from("settings").upsert({ key, value, updated_at: new Date().toISOString() })); }
+  reactions() { return this.q(this.sb.from("reactions").select("item_id,email")); }
+  react(item_id) { return this.q(this.sb.from("reactions").insert({ item_id })); }
+  unreact(item_id) { return this.q(this.sb.from("reactions").delete().eq("item_id", item_id).eq("email", myEmail())); }
+  async access() {
+    const [ai, admin, users] = await Promise.all([this.sb.rpc("can_use_ai"), this.sb.rpc("is_admin"), this.sb.from("ai_users").select("email")]);
+    if (ai.error || admin.error || users.error) throw ai.error || admin.error || users.error;
+    return { ai: !!ai.data, admin: !!admin.data, aiUsers: (users.data || []).map(r => r.email) };
+  }
+  addAiUser(email) { return this.q(this.sb.from("ai_users").insert({ email })); }
+  removeAiUser(email) { return this.q(this.sb.from("ai_users").delete().eq("email", email)); }
   /* Calls the "ai" Edge Function (supabase/functions/ai), which holds the Anthropic key. */
   async ai(body) {
     const { data, error } = await this.sb.functions.invoke("ai", { body });
@@ -549,7 +569,7 @@ class SupaStore {
   }
   subscribe(cb, withUpdate) {
     const ch = this.sb.channel("board");
-    const tables = ["items", "comments", "rooms", ...(withUpdate ? ["documents", "settings"] : [])];
+    const tables = ["items", "comments", "rooms", ...(withUpdate ? ["documents", "settings"] : []), ...(S.missing.has("update-3.sql") ? [] : ["reactions"])];
     for (const table of tables) ch.on("postgres_changes", { event: "*", schema: "public", table }, cb);
     ch.subscribe();
   }
@@ -579,7 +599,7 @@ class LocalStore {
   }
   fill() {
     const d = this.db;
-    d.documents ||= []; d.settings ||= {};
+    d.documents ||= []; d.settings ||= {}; d.reactions ||= [];
     d.members ||= [{ email: "you (demo)", name: "You" }, { email: "studio@example.com", name: "Studio (sample)" }];
   }
   save() { try { localStorage.setItem(this.key, JSON.stringify(this.db)); } catch { toast("This browser ran out of demo storage. Connect Supabase to store images properly.", "err"); } }
@@ -602,6 +622,7 @@ class LocalStore {
   async updateItem(id, patch) { const it = this.db.items.find(i => i.id === id); if (it) Object.assign(it, patch, { updated_at: new Date().toISOString() }); this.save(); }
   async deleteItem(it) {
     this.db.items = this.db.items.filter(i => i.id !== it.id);
+    this.db.reactions = this.db.reactions.filter(r => r.item_id !== it.id);
     this.db.comments = this.db.comments.filter(c => c.item_id !== it.id);
     if (it.image_path) delete this.db.files[it.image_path];
     this.save();
@@ -634,6 +655,12 @@ class LocalStore {
   async settings() { return JSON.parse(JSON.stringify(this.db.settings)); }
   async setSetting(key, value) { this.db.settings[key] = value; this.save(); }
   async ai() { throw new Error("The AI features need the live board (Supabase), not demo mode."); }
+  async reactions() { return [...this.db.reactions]; }
+  async react(item_id) { if (!this.db.reactions.some(r => r.item_id === item_id && r.email === "you (demo)")) this.db.reactions.push({ item_id, email: "you (demo)" }); this.save(); }
+  async unreact(item_id) { this.db.reactions = this.db.reactions.filter(r => !(r.item_id === item_id && r.email === "you (demo)")); this.save(); }
+  async access() { return { ai: false, admin: true, aiUsers: [] }; }
+  async addAiUser() { throw new Error("AI access needs the live board."); }
+  async removeAiUser() {}
   subscribe() {}
 }
 
@@ -642,10 +669,11 @@ const S = {
   store: null, user: null, ready: false, subscribed: false,
   rooms: [], items: [], boardItems: [], comments: [], members: [], docs: [], settings: {},
   byId: new Map(), ccount: new Map(), markups: new Map(), urls: new Map(),
-  nodes: new Map(), pendingIG: new Set(), needsUpdate: false, newSince: 0,
+  nodes: new Map(), pendingIG: new Set(), needsUpdate: false, missing: new Set(), newSince: 0,
+  votes: new Map(), access: { ai: false, admin: false, aiUsers: [] }, lastOrder: null, orderStale: false,
   filter: { room: "all", type: "all", prio: "all", q: "", newOnly: false },
   docFilter: { room: "all", q: "" },
-  sort: "newest", view: ["feed", "rooms"].includes(lsGet("mb-view")) ? lsGet("mb-view") : "board",
+  sort: ["newest", "oldest", "priority", "room", "votes"].includes(lsGet("mb-sort")) ? lsGet("mb-sort") : "votes", view: ["feed", "rooms"].includes(lsGet("mb-view")) ? lsGet("mb-view") : "board",
   section: lsGet("mb-section") === "docs" ? "docs" : "board",
   planOpen: lsGet("mb-plan") !== "closed",
   stack: [], overlays: {}, detailId: null, detailVer: null, ed: null, replyOpen: null,
@@ -679,11 +707,19 @@ async function gate() {
 async function refresh() {
   try {
     const st = S.store;
-    let missing = false;
+    let missing = false, missing3 = false;
     const soft = (p, fallback) => p.catch(() => { missing = true; return fallback; });
-    const [rooms, items, comments, members, docs, settings] = await Promise.all([
-      st.rooms(), st.items(), st.comments(), st.members().catch(() => []), soft(st.documents(), []), soft(st.settings(), {})]);
+    const soft3 = (p, fallback) => p.catch(() => { missing3 = true; return fallback; });
+    const [rooms, items, comments, members, docs, settings, reactions, access] = await Promise.all([
+      st.rooms(), st.items(), st.comments(), st.members().catch(() => []), soft(st.documents(), []), soft(st.settings(), {}),
+      soft3(st.reactions(), []), soft3(st.access(), { ai: false, admin: false, aiUsers: [] })]);
     S.needsUpdate = LIVE && missing;
+    S.missing = new Set([...(S.needsUpdate ? ["update-2.sql"] : []), ...(LIVE && missing3 ? ["update-3.sql"] : [])]);
+    S.access = access;
+    const oldVotes = S.votes;
+    S.votes = new Map();
+    for (const r of reactions) { if (!S.votes.has(r.item_id)) S.votes.set(r.item_id, []); S.votes.get(r.item_id).push(r.email); }
+    if (S.sort === "votes" && [...S.votes.keys(), ...oldVotes.keys()].some(id => (S.votes.get(id)?.length || 0) !== (oldVotes.get(id)?.length || 0))) S.orderStale = true;
     S.rooms = rooms; S.items = items; S.comments = comments; S.members = members || []; S.docs = docs || []; S.settings = settings || {};
     S.byId = new Map(items.map(i => [i.id, i]));
     S.ccount = new Map(); comments.forEach(c => S.ccount.set(c.item_id, (S.ccount.get(c.item_id) || 0) + 1));
@@ -699,6 +735,7 @@ async function refresh() {
     renderGrid();
     renderDocs();
     updateForYou();
+    document.querySelectorAll(".overlay [data-vote]").forEach(paintVote);
     if (S.detailId) renderDetail(false);
     backfillPreviews();
   } catch (e) { toast("Couldn't load the board: " + errMsg(e), "err"); }
@@ -797,8 +834,10 @@ function renderShell() {
           onclick: () => openBrief(S.filter.room === "none" ? null : S.filter.room) }, "✨ Room brief"),
         el("input", { id: "f-q", type: "search", placeholder: "Search titles, notes, comments", "aria-label": "Search",
           oninput: debounce(e => { S.filter.q = e.target.value.trim().toLowerCase(); applyFilters(); }, 150) }),
-        el("select", { id: "f-sort", "aria-label": "Sort", onchange: e => { S.sort = e.target.value; renderGrid(); } },
-          ...[["newest", "Newest first"], ["oldest", "Oldest first"], ["priority", "Must-haves first"], ["room", "By room"]].map(([v, l]) => el("option", { value: v }, l))),
+        el("select", { id: "f-sort", "aria-label": "Sort", onchange: e => { S.sort = e.target.value; lsSet("mb-sort", S.sort); S.lastOrder = null; S.orderStale = false; renderGrid(); } },
+          ...[["votes", "Most upvoted"], ["newest", "Newest first"], ["oldest", "Oldest first"], ["priority", "Must-haves first"], ["room", "By room"]].map(([v, l]) => el("option", { value: v }, l))),
+        el("button", { type: "button", class: "btn small ghost", id: "resort", hidden: true, title: "Votes have changed since the board was sorted",
+          onclick: () => { S.lastOrder = null; S.orderStale = false; renderGrid(); } }, "↻ Re-sort"),
         el("span", { class: "count", id: "count" }))));
   const main = el("main", { class: "wrap", id: "board-sec" },
     el("section", { id: "plan", class: "plan", hidden: true, "aria-label": "Floor plan" }),
@@ -821,9 +860,12 @@ function renderBanner() {
   const b = $("#banner"); if (!b) return;
   if (!LIVE) b.replaceChildren(el("div", { class: "banner" },
     el("strong", {}, "Demo mode. "), "Everything is saved only in this browser. Add your Supabase details at the top of index.html to share the board with the studio."));
-  else if (S.needsUpdate) b.replaceChildren(el("div", { class: "banner warn" },
-    el("strong", {}, "One-time database update needed. "),
-    "Documents, the floor plan, replies, @mentions, covers and link previews need it. In Supabase open SQL Editor → New query, paste all of update-2.sql from the project folder, click Run, then reload this page."));
+  else if (S.missing.size) {
+    const files = [...S.missing];
+    b.replaceChildren(el("div", { class: "banner warn" },
+      el("strong", {}, "Database update needed. "),
+      `Some features stay off until it's done. In Supabase open SQL Editor → New query, paste all of ${files.join(", then ")} from the project folder, click Run, then reload this page.`));
+  }
   else b.replaceChildren();
 }
 
@@ -893,7 +935,8 @@ function applyFilters() {
   nb.hidden = !nNew && !S.filter.newOnly;
   nb.setAttribute("aria-pressed", String(S.filter.newOnly));
   $("#f-new-n").textContent = String(nNew);
-  $("#brief-btn").hidden = S.filter.room === "all";
+  const bRoom = S.filter.room === "none" ? null : S.filter.room;
+  $("#brief-btn").hidden = S.filter.room === "all" || !(S.access.ai || S.settings[briefKey(bRoom)]);
   updatePlanZones();
   if (S.view === "rooms") renderRoomsView();
   const empty = $("#empty");
@@ -914,6 +957,7 @@ function sortedItems() {
   const newest = (x, y) => tsOf(y) - tsOf(x);
   if (S.sort === "oldest") a.sort((x, y) => tsOf(x) - tsOf(y));
   else if (S.sort === "priority") a.sort((x, y) => (PRIO_ORDER[x.priority] - PRIO_ORDER[y.priority]) || newest(x, y));
+  else if (S.sort === "votes") a.sort((x, y) => (voteCount(y) - voteCount(x)) || (PRIO_ORDER[x.priority] - PRIO_ORDER[y.priority]) || newest(x, y));
   else if (S.sort === "room") {
     const pos = id => (id ? S.rooms.find(r => r.id === id)?.position ?? 9999 : -1);
     a.sort((x, y) => (pos(x.room_id) - pos(y.room_id)) || newest(x, y));
@@ -922,10 +966,52 @@ function sortedItems() {
 }
 const itemVer = it => `${it.updated_at}|${it.image_path ? (S.urls.has(it.image_path) ? "u" : "n") : "-"}`;
 
+/* ---------- Upvotes ---------- */
+const voteCount = it => S.votes.get(it.id)?.length || 0;
+/* With "Most upvoted", a vote doesn't make cards jump around under your cursor:
+   the order is kept until you press Re-sort, change the sort, or items are added or removed. */
+function gridOrder() {
+  const fresh = sortedItems(), prev = S.lastOrder;
+  if (S.sort === "votes" && S.orderStale && prev && prev.length === fresh.length) {
+    const pos = new Map(prev.map((id, k) => [id, k]));
+    if (fresh.every(i => pos.has(i.id))) return [...fresh].sort((a, b) => pos.get(a.id) - pos.get(b.id));
+  }
+  S.orderStale = false; S.lastOrder = fresh.map(i => i.id);
+  return fresh;
+}
+function voteBtn(it, big) {
+  const b = el("button", { type: "button", class: "vote" + (big ? " big" : ""), "data-vote": it.id,
+    onclick: e => { e.stopPropagation(); toggleVote(it.id); }, onkeydown: e => e.stopPropagation() });
+  paintVote(b);
+  return b;
+}
+function paintVote(b) {
+  const list = S.votes.get(b.dataset.vote) || [], mine = list.includes(myEmail());
+  b.hidden = S.missing.has("update-3.sql");
+  b.setAttribute("aria-pressed", String(mine));
+  b.textContent = "▲ " + list.length + (b.classList.contains("big") ? (mine ? " Upvoted" : " Upvote") : "");
+  b.title = list.length ? "Upvoted by " + list.map(nameOf).join(", ") : "Upvote";
+  b.setAttribute("aria-label", `${mine ? "Remove your upvote" : "Upvote"}. ${list.length} upvote${list.length === 1 ? "" : "s"}`);
+}
+S.voting = new Set();
+async function toggleVote(id) {
+  if (S.voting.has(id)) return;
+  const me = myEmail(), before = S.votes.get(id) || [], mine = before.includes(me);
+  S.votes.set(id, mine ? before.filter(e => e !== me) : [...before, me]);
+  if (S.sort === "votes") S.orderStale = true;
+  const repaint = () => { document.querySelectorAll(`[data-vote="${id}"]`).forEach(paintVote); $("#resort").hidden = !(S.sort === "votes" && S.orderStale); if (S.view === "rooms") renderRoomsView(); };
+  repaint();
+  S.voting.add(id);
+  try { await (mine ? S.store.unreact(id) : S.store.react(id)); }
+  catch (e) { S.votes.set(id, before); repaint(); toast(errMsg(e), "err"); }
+  S.voting.delete(id);
+}
+
 /* Re-render without moving cards that are already in place, so playing Instagram embeds don't reload. */
 function renderGrid() {
   const grid = $("#grid"); if (!grid) return;
-  const order = sortedItems();
+  const order = gridOrder();
+  $("#resort").hidden = !(S.sort === "votes" && S.orderStale);
   const ids = new Set(order.map(i => i.id));
   for (const [id, node] of S.nodes) if (!ids.has(id)) { node.remove(); S.nodes.delete(id); }
   let cursor = grid.firstElementChild;
@@ -945,6 +1031,7 @@ function renderGrid() {
     node.querySelector(".c-comments").textContent = n ? `${n} comment${n === 1 ? "" : "s"}` : "No comments";
     const mk = S.markups.get(it.id)?.length || 0;
     node.querySelector(".c-mk").textContent = mk ? `✎ ${mk} markup${mk === 1 ? "" : "s"} · ` : "";
+    paintVote(node.querySelector(".vote"));
   }
   applyFilters();
   processIG();
@@ -961,7 +1048,8 @@ function cardNode(it) {
         el("span", { class: "c-room" }), it.type ? el("span", {}, "· " + it.type) : null),
       showTitle ? el("div", { class: "ctitle" }, titleOf(it)) : null,
       it.kind !== "note" && it.note ? el("div", { class: "cwhy" }, it.note) : null,
-      el("div", { class: "cfoot" }, el("span", { class: "c-comments" }), el("span", {}, el("span", { class: "c-mk" }), KIND_LABEL[it.kind] || ""))));
+      el("div", { class: "cfoot" }, el("span", { class: "cf-left" }, voteBtn(it), el("span", { class: "c-comments" })),
+        el("span", {}, el("span", { class: "c-mk" }), KIND_LABEL[it.kind] || ""))));
 }
 
 function mediaNode(it, captioned) {
@@ -1104,6 +1192,7 @@ function renderDetail(force) {
     it.kind !== "note" && it.note ? el("p", { class: "d-why" }, it.note) : null,
     el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}`),
     el("div", { class: "d-actions" },
+      voteBtn(it, true),
       it.url ? el("a", { class: "btn", href: it.url, target: "_blank", rel: "noopener" }, it.kind === "instagram" ? "Open on Instagram ↗" : "Open link ↗") : null,
       el("button", { type: "button", class: "btn", onclick: () => openEditor({ item: it }) }, "Edit"),
       el("button", { type: "button", class: "btn", onclick: () => drawOn(it),
@@ -1321,7 +1410,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     ed.kind = k; ed.files = []; ed.shot = null; ed.sketch = null; ed.removeImage = false; ed.onFiles = null;
     tabs?.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.k === k)));
     whyField.hidden = k === "note";
-    aiRow.hidden = !LIVE || k === "note";
+    aiRow.hidden = !LIVE || !S.access.ai || k === "note";
     kindBox.replaceChildren(kindSection(k));
   }
 
@@ -1680,10 +1769,18 @@ function openSettings() {
       people = el("section", { class: "set" },
         el("h3", {}, "People who can edit"),
         el("p", { class: "hint" }, "Everyone listed can sign in with an email link, and add, edit, delete and comment. Add each person at the studio, and give them a name so they can be @tagged in comments."),
+        S.missing.has("update-3.sql") ? null : el("p", { class: "hint" }, S.access.admin
+          ? "Tick “AI” for the people who may use the AI features. Each use is charged to your Anthropic account."
+          : "Only people marked ✨ AI can use the AI features. The board owner decides who."),
         el("div", { class: "list" }, ...members.map(m => el("div", { class: "list-row" },
           el("input", { value: m.name || "", placeholder: "Name", "aria-label": "Name for " + m.email, style: "flex:0 1 150px", disabled: S.needsUpdate || null,
             onchange: e => act(() => S.store.updateMember(m.email, { name: e.target.value.trim() || null })) }),
           el("span", { class: "grow" }, m.email),
+          S.missing.has("update-3.sql") ? null
+            : S.access.admin ? el("label", { class: "check", title: "Can use the AI features (room briefs, Suggest details). These cost money per use." },
+                el("input", { type: "checkbox", checked: S.access.aiUsers.includes(m.email) || null,
+                  onchange: e => act(() => (e.target.checked ? S.store.addAiUser(m.email) : S.store.removeAiUser(m.email))) }), "AI")
+            : S.access.aiUsers.includes(m.email) ? el("span", { class: "ai-tag" }, "✨ AI") : null,
           m.email === me ? el("span", { class: "hint" }, "You") : confirmBtn("Remove", "Remove access?", () => act(() => S.store.removeMember(m.email)), "small ghost")))),
         el("form", { class: "list-row", onsubmit: e => { e.preventDefault(); const v = newEmail.value.trim().toLowerCase(); if (v) act(() => S.store.addMember(v)); } },
           newEmail, el("button", { class: "btn small", type: "submit" }, "Add person")),
@@ -1835,7 +1932,8 @@ function tileNode(it) {
   else if (it.kind === "note") tm = el("div", { class: "tm txt" }, (it.note || "").slice(0, 220));
   else tm = el("div", { class: "tm" }, it.kind === "instagram" ? "Instagram post" : KIND_LABEL[it.kind]);
   return el("button", { type: "button", class: "tile", "data-prio": it.priority, onclick: () => openDetail(it.id), title: titleOf(it) },
-    tm, el("span", { class: "tt" }, el("i", { class: "dot " + it.priority, "aria-label": PRIO[it.priority] }), el("span", {}, titleOf(it))));
+    tm, el("span", { class: "tt" }, el("i", { class: "dot " + it.priority, "aria-label": PRIO[it.priority] }), el("span", {}, titleOf(it)),
+      voteCount(it) ? el("span", { class: "tv", "aria-label": `${voteCount(it)} upvotes` }, "▲ " + voteCount(it)) : null));
 }
 function renderRoomsView() {
   const box = $("#rooms-view"); if (!box) return;
@@ -1844,14 +1942,15 @@ function renderRoomsView() {
   const groups = [...S.rooms.map(r => ({ id: r.id, name: r.name })), { id: null, name: "Whole home" }];
   box.replaceChildren(...groups.map(g => {
     const list = vis.filter(i => ((i.room_id && roomIds.has(i.room_id)) ? i.room_id : null) === g.id)
-      .sort((a, b) => (PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority]) || (tsOf(b) - tsOf(a)));
+      .sort((a, b) => (voteCount(b) - voteCount(a)) || (PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority]) || (tsOf(b) - tsOf(a)));
     if (!list.length) return null;
+    const hasBrief = !!S.settings[briefKey(g.id)];
     const n = p => list.filter(i => i.priority === p).length;
     return el("section", { class: "rv", "aria-label": g.name },
       el("div", { class: "rv-head" }, el("h2", {}, g.name),
         el("div", { class: "rv-stats" }, ...["must", "nice", "avoid"].filter(n).map(p => el("span", { class: "prio " + p }, `${n(p)} ${PRIO[p]}`))),
         el("span", { class: "spacer" }),
-        el("button", { type: "button", class: "btn small ai", onclick: () => openBrief(g.id) }, S.settings[briefKey(g.id)] ? "Brief ✓" : "✨ Brief"),
+        S.access.ai || hasBrief ? el("button", { type: "button", class: "btn small ai", onclick: () => openBrief(g.id) }, hasBrief ? "Brief ✓" : "✨ Brief") : null,
         el("button", { type: "button", class: "btn small ghost", onclick: () => { S.filter.room = g.id ?? "none"; setView("board"); window.scrollTo(0, 0); } },
           `See all ${list.length} →`)),
       el("div", { class: "rv-row" }, ...list.map(tileNode)));
@@ -1888,7 +1987,11 @@ function openBrief(id) {
         el("span", {}, "This usually takes under a minute. You can close this window: the brief is saved for everyone when it's ready.")));
       return;
     }
-    const gen = el("button", { type: "button", class: "btn primary", disabled: !n || null, onclick: generate }, b ? "Rewrite brief" : "Write brief");
+    const gen = S.access.ai ? el("button", { type: "button", class: "btn primary", disabled: !n || null, onclick: generate }, b ? "Rewrite brief" : "Write brief") : null;
+    if (!b && !S.access.ai) {
+      body.replaceChildren(el("p", {}, "No brief has been written for this room yet. Only people with AI access can write one."));
+      return;
+    }
     if (!b) {
       body.replaceChildren(
         el("p", {}, n ? `The AI reads the ${n} item${n === 1 ? "" : "s"} in ${name} (pictures, notes and comments) and writes a one-page brief for the studio: style, materials, must-haves, things to avoid, and open questions.`
@@ -1901,7 +2004,7 @@ function openBrief(id) {
     const stale = n !== b.item_count || latest > (b.latest || "");
     const sec = (cls, title, list) => (list?.length ? el("section", { class: cls }, el("h3", {}, title), el("ul", {}, ...list.map(t => el("li", {}, t)))) : null);
     body.replaceChildren(el("div", { class: "brief" },
-      stale ? el("div", { class: "stale" }, "The room has changed since this brief was written. Rewrite it to include the latest items.") : null,
+      stale ? el("div", { class: "stale" }, "The room has changed since this brief was written." + (S.access.ai ? " Rewrite it to include the latest items." : "")) : null,
       el("p", { class: "brief-ov" }, b.overview || ""),
       sec("", "Style and mood", b.style),
       sec("", "Colours, materials and finishes", b.materials),
