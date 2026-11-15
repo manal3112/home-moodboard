@@ -456,33 +456,29 @@ header.top{background:color-mix(in srgb,var(--surface) 92%,transparent);border-b
 .p-x{border:0;background:rgb(255 255 255 / .18);color:inherit;width:20px;height:20px;border-radius:50%;cursor:pointer;line-height:1;padding:0}
 .plan2d-stage{background:#fdfcfa;border-radius:8px;border:1px solid var(--line);overflow:hidden}
 svg.plan2d{display:block;width:100%;height:auto;max-height:calc(100vh - var(--hdr,0px) - 190px);max-height:calc(100dvh - var(--hdr,0px) - 190px)}
-.p-room{fill-opacity:.62;stroke:none;cursor:pointer;transition:fill-opacity .15s}
-.p-room:hover,.p-room:focus-visible{fill-opacity:1;outline:none;stroke:#26211e;stroke-width:1.2}
-.p-room.none{fill-opacity:.18}
-.p-room.has{fill-opacity:.9}
-.p-room.on{fill-opacity:1;stroke:#26211e;stroke-width:2}
-.p-room.unlinked{fill-opacity:.35}
-.z-public{fill:#ecd9c2;background:#ecd9c2} .z-dining{fill:#f2e2b8;background:#f2e2b8} .z-entry{fill:#e4ddd2;background:#e4ddd2} .z-outdoor{fill:#d9e2c4;background:#d9e2c4} .z-service{fill:#f0cdb8;background:#f0cdb8}
+.p-room{fill-opacity:.7;stroke:none;cursor:pointer;transition:fill-opacity .15s}
+.p-room:hover,.p-room:focus-visible{fill-opacity:1;outline:none;stroke:#26211e;stroke-width:2.5}
+.p-room.none{fill-opacity:.22}
+.p-room.has{fill-opacity:.95}
+.p-room.on{fill-opacity:1;stroke:#26211e;stroke-width:4}
+.p-room.unlinked{fill-opacity:.4}
+.p-room.still{cursor:default;fill-opacity:.5}
+.z-public{fill:#ecd9c2;background:#ecd9c2} .z-dining{fill:#f2e2b8;background:#f2e2b8} .z-entry{fill:#e4ddd2;background:#e4ddd2}
+.z-outdoor{fill:#d9e2c4;background:#d9e2c4} .z-service{fill:#f0cdb8;background:#f0cdb8} .z-service2{fill:#f3d8c8;background:#f3d8c8}
 .z-puja{fill:#f3d98d;background:#f3d98d} .z-bed1{fill:#cfe0d1;background:#cfe0d1} .z-bed2{fill:#cfdbea;background:#cfdbea}
-.z-bed3{fill:#efd3d6;background:#efd3d6} .z-bed4{fill:#ddd3ea;background:#ddd3ea} .z-wet{fill:#d6e6ec;background:#d6e6ec} .z-staff{fill:#e3dfda;background:#e3dfda}
-.p-base,.p-walls,.p-labels{pointer-events:none}
-.p-furn{fill:#fff;stroke:#a19a92;stroke-width:.35}
-.p-lines{fill:none;stroke:#a19a92;stroke-width:.35}
-.p-grey{fill:#e4e1dc;stroke:#b9b2aa;stroke-width:.3} .p-beige{fill:#ece3d9} .p-green{fill:#d8d4ae} .p-deck{fill:#d9c6b2}
-.p-wall{fill:#9a7464} .p-col{fill:#5e4c43}
+.z-bed3{fill:#efd3d6;background:#efd3d6} .z-bed4{fill:#ddd3ea;background:#ddd3ea} .z-wet{fill:#d6e6ec;background:#d6e6ec}
+.z-staff{fill:#e3dfda;background:#e3dfda} .z-circ{fill:#eeebe6;background:#eeebe6}
+.p-drawing{mix-blend-mode:multiply;pointer-events:none}
+.p-labels{pointer-events:none}
 .p-piece{cursor:pointer}
-.p-piece .p-hit{fill:transparent}
-.p-piece path{fill:#fff;stroke:#8f877f;stroke-width:.4;transition:fill .15s,stroke .15s}
-.p-piece:hover path,.p-piece:focus-visible path{fill:#f6d9c9;stroke:var(--accent);stroke-width:.8}
-.p-piece:hover .p-hit,.p-piece:focus-visible .p-hit{fill:rgb(143 94 75 / .12)}
+.p-piece rect{fill:transparent;stroke:transparent;stroke-width:2;transition:fill .15s,stroke .15s}
+.p-piece:hover rect,.p-piece:focus-visible rect{fill:rgb(143 94 75 / .2);stroke:var(--accent)}
 .p-piece:focus-visible{outline:none}
-.p-piece.on path{fill:#e7b49b;stroke:#6e4434;stroke-width:1}
-.p-piece.on .p-hit{fill:rgb(143 94 75 / .18);stroke:#6e4434;stroke-width:.6;stroke-dasharray:2 1.5}
-.p-piece.has path{fill:#fbefe7}
-.p-label{font:600 6.4px var(--body);fill:#3a322d;letter-spacing:.04em;text-transform:uppercase;paint-order:stroke;stroke:rgb(253 252 250 / .85);stroke-width:2.4px;stroke-linejoin:round}
-.p-count{font:500 5.4px var(--body);fill:#6d625b;paint-order:stroke;stroke:rgb(253 252 250 / .85);stroke-width:2.2px;stroke-linejoin:round}
-.p-count.link{fill:var(--accent);font-style:italic}
-.p-entry{font:600 5.6px var(--body);fill:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.p-piece.has rect{stroke:rgb(143 94 75 / .45);stroke-dasharray:6 4}
+.p-piece.on rect{fill:rgb(143 94 75 / .32);stroke:#6e4434;stroke-width:3;stroke-dasharray:none}
+.p-badge{fill:#26211e;opacity:.82}
+.p-badge.link{fill:var(--accent)}
+.p-badge-t{font:600 12px var(--body);fill:#fff}
 .p-tip{position:fixed;z-index:90;pointer-events:none;background:#26211e;color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;display:grid;gap:1px;box-shadow:var(--shadow);max-width:240px}
 .p-tip strong{font-weight:600;font-size:13px}
 .p-tip span{opacity:.78}
@@ -511,7 +507,6 @@ svg.plan2d{display:block;width:100%;height:auto;max-height:calc(100vh - var(--hd
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
-<script src="plan-1302.js"></script>
 <script>
 "use strict";
 
@@ -929,13 +924,14 @@ async function refresh() {
     S.markups = new Map();
     for (const i of items) { const p = metaOf(i).markup_of; if (p && S.byId.has(p)) { if (!S.markups.has(p)) S.markups.set(p, []); S.markups.get(p).push(i); } }
     S.boardItems = items.filter(i => !(metaOf(i).markup_of && S.byId.has(metaOf(i).markup_of)));
-    const need = [...new Set([...items.map(i => i.image_path), ...S.docs.map(d => d.path), ...comments.map(c => c.audio_path), planData()?.path].filter(p => p && !S.urls.has(p)))];
+    const need = [...new Set([...items.map(i => i.image_path), ...S.docs.map(d => d.path), ...comments.map(c => c.audio_path), planData()?.path, planLayout()?.image_path].filter(p => p && !S.urls.has(p)))];
     if (need.length) (await st.urls(need)).forEach((u, p) => S.urls.set(p, u));
     renderBanner();
     renderFilters();
     renderPlan();
     renderGrid();
     renderDocs();
+    if (S.view !== "plan" && lsGet("mb-view") === "plan" && planLayout()) setView("plan"); // the plan has loaded now
     updateForYou();
     document.querySelectorAll(".overlay [data-vote]").forEach(paintVote);
     if (S.detailId) renderDetail(false);
@@ -1210,7 +1206,7 @@ function renderShell() {
     el("div", { class: "wrap filters", id: "filters" },
       el("div", { class: "chips", id: "room-chips", role: "group", "aria-label": "Filter by room" }),
       el("div", { class: "filter-row" },
-        el("div", { class: "seg", role: "group", "aria-label": "Layout" }, viewBtn("board", "Board"), viewBtn("feed", "Feed"), viewBtn("rooms", "By room"), PLAN ? viewBtn("plan", "Plan") : null),
+        el("div", { class: "seg", role: "group", "aria-label": "Layout" }, viewBtn("board", "Board"), viewBtn("feed", "Feed"), viewBtn("rooms", "By room"), viewBtn("plan", "Plan")),
         el("select", { id: "f-type", "aria-label": "Filter by type", onchange: e => { S.filter.type = e.target.value; applyFilters(); } }),
         prioSeg,
         el("button", { type: "button", class: "chip new-chip", id: "f-new", "aria-pressed": "false", hidden: true, title: "Items other people added since your last visit",
@@ -1267,8 +1263,9 @@ function setSection(s) {
 }
 
 function setView(v) {
-  if (v === "plan" && !PLAN) v = "board";
-  S.view = v; lsSet("mb-view", v);
+  // Until the plan has loaded (or if there's none), show the board but remember that Plan was chosen.
+  if (v === "plan" && !planLayout()) v = "board"; else lsSet("mb-view", v);
+  S.view = v;
   const grid = $("#grid");
   grid.classList.toggle("feed", v === "feed");
   grid.hidden = v === "rooms";
@@ -1330,7 +1327,8 @@ function applyFilters() {
   $("#brief-btn").hidden = S.filter.room === "all" || !(S.access.ai || S.settings[briefKey(bRoom)]);
   updatePlanZones();
   if (S.view === "rooms") renderRoomsView();
-  if (S.view === "plan") renderPlan2d();
+  const vp = $("#v-plan"); if (vp) vp.hidden = !planLayout();
+  if (S.view === "plan") { if (planLayout()) renderPlan2d(); else setView("board"); }
   const empty = $("#empty");
   empty.hidden = shown > 0;
   if (!shown) {
@@ -1907,6 +1905,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
   const roomList = () => S.rooms.filter(r => picked.has(r.id)).map(r => r.id);
   // Optional: the piece of furniture on the floor plan this card is about.
   let fSpot = null;
+  const PLAN = planLayout();
   if (PLAN) {
     const seen = new Set();
     fSpot = el("select", { id: "e-spot" }, el("option", { value: "" }, "Not on the plan"),
@@ -2508,19 +2507,22 @@ async function importBundle() {
   // Documents in the file go to the Documents section; one with the same name is already there is skipped.
   const haveDocs = new Set(S.docs.map(d => d.name));
   const docs = (Array.isArray(b.documents) ? b.documents : []).filter(d => d && d.name && d.data && !haveDocs.has(d.name));
+  // An interactive floor plan: a drawing plus its clickable rooms and furniture, saved privately for this board.
+  const plan = b.plan && b.plan.image && b.plan.data && S.settings["plan:layout"]?.import_id !== b.plan.id ? b.plan : null;
   const roomByName = n => S.rooms.find(r => r.name.trim().toLowerCase() === String(n).trim().toLowerCase());
   const namesOf = x => (Array.isArray(x.rooms) && x.rooms.length ? x.rooms : x.room ? [x.room] : []);
   const newRooms = [...new Set(todo.flatMap(namesOf).filter(n => n && !roomByName(n)))];
   const perRoom = new Map(); todo.forEach(x => perRoom.set(x.room || "Whole home", (perRoom.get(x.room || "Whole home") || 0) + 1));
-  const go = el("button", { type: "button", class: "btn primary", disabled: !(todo.length || docs.length) || null },
-    `Import ${todo.length} item${todo.length === 1 ? "" : "s"}` + (docs.length ? ` and ${docs.length} document${docs.length === 1 ? "" : "s"}` : ""));
+  const parts = [todo.length && `${todo.length} item${todo.length === 1 ? "" : "s"}`, docs.length && `${docs.length} document${docs.length === 1 ? "" : "s"}`, plan && "the floor plan"].filter(Boolean);
+  const go = el("button", { type: "button", class: "btn primary", disabled: !parts.length || null }, parts.length ? "Import " + parts.join(", ") : "Import");
   const status = el("p", { class: "hint", "aria-live": "polite" });
   openOverlay("import", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "Import" },
     panelHead("Import: " + (b.source || f.name), () => closeOverlay("import")),
     el("div", { class: "panel-body" },
+      plan ? el("p", {}, "Floor plan: " + (b.plan.data.name || "interactive plan") + (S.settings["plan:layout"] ? " (replaces the current one)" : "") + ". It opens under Plan, next to Board, Feed and By room.") : null,
       docs.length ? el("p", {}, "Documents: " + docs.map(d => d.name).join(", ")) : null,
       todo.length ? el("p", {}, `This adds ${todo.length} card${todo.length === 1 ? "" : "s"} to the board${done.size && todo.length < b.items.length ? ` (${b.items.length - todo.length} were imported before and are skipped)` : ""}:`)
-        : docs.length ? null : el("p", {}, "Everything in this file is already on the board."),
+        : docs.length || plan ? null : el("p", {}, "Everything in this file is already on the board."),
       el("ul", {}, ...[...perRoom].map(([r, n]) => el("li", {}, `${r}: ${n}`))),
       newRooms.length ? el("p", {}, "New rooms will be created: " + newRooms.join(", ") + ".") : null,
       el("p", { class: "hint" }, "Imported cards are normal cards: edit, move or delete them afterwards. Running the same file again won't add duplicates."),
@@ -2531,6 +2533,17 @@ async function importBundle() {
     try {
       for (const n of newRooms) await S.store.addRoom(n);
       S.rooms = await S.store.rooms();
+      if (plan) {
+        if (S.needsUpdate) throw new Error("Run update-2.sql in Supabase first (see the banner at the top).");
+        status.textContent = "Adding the floor plan…";
+        const blob = await (await fetch(plan.image)).blob();
+        const old = S.settings["plan:layout"]?.image_path;
+        const image_path = await S.store.upload(blob, (blob.type.split("/")[1] || "png").replace("jpeg", "jpg"));
+        const value = { ...plan.data, image_path, import_id: plan.id };
+        await S.store.setSetting("plan:layout", value);
+        S.settings["plan:layout"] = value;
+        if (old && old !== image_path) S.store.removeFile(old);
+      }
       for (const d of docs) {
         status.textContent = `Uploading ${d.name}…`;
         const blob = await (await fetch(d.data)).blob();
@@ -2553,10 +2566,10 @@ async function importBundle() {
           kind: x.kind, title: x.title || "", note: x.note || "", url: x.url || null, room_id: ids[0] || null,
           type: x.type || null, priority: ["must", "nice", "avoid"].includes(x.priority) ? x.priority : "nice", image_path,
           created_at: new Date(Date.now() - k * 1000).toISOString(),
-          ...extras({ meta: { import_id: x.id, source: b.source || null, ...(ids.length > 1 ? { rooms: ids } : {}) } }),
+          ...extras({ meta: { import_id: x.id, source: b.source || null, ...(ids.length > 1 ? { rooms: ids } : {}), ...(Array.isArray(x.spots) && x.spots.length ? { spots: x.spots } : {}) } }),
         }]);
       }
-      closeOverlay("import"); toast(`Imported ${todo.length} card${todo.length === 1 ? "" : "s"}` + (docs.length ? ` and ${docs.length} document${docs.length === 1 ? "" : "s"}` : "")); await refresh(); S.redrawSettings?.();
+      closeOverlay("import"); toast("Imported " + parts.join(", ")); await refresh(); S.redrawSettings?.();
     } catch (e) { status.textContent = "Stopped: " + errMsg(e) + " Run the import again to add the rest."; toast(errMsg(e), "err"); go.disabled = false; }
   });
 }
@@ -2784,24 +2797,26 @@ function renderRoomsView() {
 }
 
 /* ===================== INTERACTIVE FLOOR PLAN (Plan view) =====================
-   The unit's plan is redrawn from the builder's vector drawing (plan-1302.js). Rooms are colour-coded;
-   hovering shows what you're pointing at, and clicking a room or a piece of furniture filters the cards.
-   Plan rooms link to board rooms (bedrooms are linked by you, once, under "Link rooms"). */
-const PLAN = window.PLAN_1302 || null;
-const PLAN_KEY = "plan:1302";
+   The studio's furniture layout, with clickable rooms and furniture drawn over it. The drawing and its
+   room/furniture outlines are private: they're added with "Import from file" and kept in the board's own
+   storage and settings (key "plan:layout"), never in this public code. Rooms are colour-coded; hovering
+   shows what you're pointing at, and clicking a room or a piece of furniture filters the cards.
+   Plan rooms link to board rooms by name; anyone can change that under "Link rooms". */
+const PLAN_KEY = "plan:links";
+const planLayout = () => { const p = S.settings?.["plan:layout"]; return p && Array.isArray(p.rooms) && p.image_path ? p : null; };
 const SVGNS = "http://www.w3.org/2000/svg";
 function svgEl(tag, attrs = {}) { const n = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) if (v != null) n.setAttribute(k, v); return n; }
 function planMap() {
   const saved = S.settings[PLAN_KEY]?.map || {};
   const out = {};
-  for (const r of PLAN?.rooms || []) {
+  for (const r of planLayout()?.rooms || []) {
     if (r.id in saved) out[r.id] = S.rooms.some(x => x.id === saved[r.id]) ? saved[r.id] : null;
     else out[r.id] = (r.board && S.rooms.find(x => x.name.toLowerCase() === r.board.toLowerCase())?.id) || null;
   }
   return out;
 }
-const pieceById = id => PLAN?.pieces.find(p => p.id === id);
-const planRoom = id => PLAN?.rooms.find(r => r.id === id);
+const pieceById = id => planLayout()?.pieces.find(p => p.id === id);
+const planRoom = id => planLayout()?.rooms.find(r => r.id === id);
 /* A card belongs to a piece of furniture if it was tagged with it, or if it mentions it (e.g. "sofa")
    and is filed under that piece's room or under Whole home. */
 function spotMatch(it, pid) {
@@ -2814,51 +2829,51 @@ function spotMatch(it, pid) {
   return new RegExp("\\b(" + p.words + ")", "i").test(text);
 }
 function planTip() { let t = $("#p-tip"); if (!t) { t = el("div", { id: "p-tip", class: "p-tip", role: "tooltip", hidden: true }); document.body.append(t); } return t; }
+const polyD = pts => "M" + pts.map(pt => pt.join(" ")).join("L") + "Z";
 function renderPlan2d() {
-  const box = $("#plan2d"); if (!box || !PLAN) return;
+  const box = $("#plan2d"), PLAN = planLayout(); if (!box || !PLAN) return;
+  const url = S.urls.get(PLAN.image_path);
   const map = planMap(), f = S.filter;
   const others = { ...f, room: "all", spot: null };
   const roomCount = id => (map[id] ? S.boardItems.filter(it => inRoom(it, map[id]) && matchesWith(it, others)).length : 0);
   const pieceCount = id => S.boardItems.filter(it => spotMatch(it, id) && matchesWith(it, others)).length;
   const filtering = f.type !== "all" || f.prio !== "all" || !!f.q || f.newOnly;
-  const [vx, vy, vw, vh] = PLAN.viewBox;
-  const svg = svgEl("svg", { viewBox: `${vx} ${vy} ${vw} ${vh}`, class: "plan2d", role: "img", "aria-label": "Floor plan" });
+  const [vw, vh] = PLAN.size;
+  const svg = svgEl("svg", { viewBox: `0 0 ${vw} ${vh}`, class: "plan2d", role: "img", "aria-label": "Floor plan" });
   const tip = planTip();
   const show = (e, lines) => {
-    tip.replaceChildren(...lines.map((l, i) => el(i ? "span" : "strong", {}, l)));
+    tip.replaceChildren(...lines.filter(Boolean).map((l, i) => el(i ? "span" : "strong", {}, l)));
     tip.hidden = false;
     const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8), y = Math.max(8, e.clientY - tip.offsetHeight - 12);
     tip.style.left = x + "px"; tip.style.top = y + "px";
   };
   const hide = () => { tip.hidden = true; };
   const cardsTxt = n => `${n} card${n === 1 ? "" : "s"}`;
-  // Rooms
+  // Room colours sit under the drawing; the drawing is multiplied over them so its lines stay crisp.
   const gRooms = svgEl("g", { class: "p-rooms" });
   for (const r of PLAN.rooms) {
-    const board = map[r.id], n = roomCount(r.id);
+    const board = map[r.id], n = roomCount(r.id), still = r.zone === "circ";
     const on = !f.spot && board && f.room === board;
-    const p = svgEl("path", { d: "M" + r.poly.map(pt => pt.join(" ")).join("L") + "Z",
-      class: `p-room z-${r.zone}${on ? " on" : ""}${!board ? " unlinked" : ""}${filtering && board ? (n ? " has" : " none") : ""}`,
-      "data-room": r.id, tabindex: "0", role: "button", "aria-label": `${r.name}${board ? " (" + roomName(board) + ")" : ""}` });
-    p.addEventListener("pointermove", e => show(e, [board ? roomName(board) : r.name, `${r.name} · ${r.size}`, board ? cardsTxt(n) : "Not linked yet. Click to link it to a room."]));
-    p.addEventListener("pointerleave", hide);
-    const pick = () => { hide(); if (!board) { openPlanLinks(r.id); return; } S.filter.spot = null; S.filter.room = on ? "all" : board; applyFilters(); };
-    p.addEventListener("click", pick);
-    p.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    const p = svgEl("path", { d: polyD(r.poly),
+      class: `p-room z-${r.zone}${on ? " on" : ""}${!board && !still ? " unlinked" : ""}${still ? " still" : ""}${filtering && board ? (n ? " has" : " none") : ""}`,
+      "data-room": r.id, ...(still ? {} : { tabindex: "0", role: "button", "aria-label": `${r.name}${board ? " (" + roomName(board) + ")" : ""}` }) });
+    if (!still) {
+      p.addEventListener("pointermove", e => show(e, [board ? roomName(board) : r.name, r.size ? `${r.name} · ${r.size}` : r.name, board ? cardsTxt(n) : "Not linked yet. Click to link it to a room."]));
+      p.addEventListener("pointerleave", hide);
+      const pick = () => { hide(); if (!board) { openPlanLinks(r.id); return; } S.filter.spot = null; S.filter.room = on ? "all" : board; applyFilters(); };
+      p.addEventListener("click", pick);
+      p.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    }
     gRooms.append(p);
   }
   svg.append(gRooms);
-  // The drawing itself (walls, built-in units, fixtures): not clickable.
-  const B = PLAN.base, base = svgEl("g", { class: "p-base" });
-  [["deck", B.deck], ["green", B.green], ["grey", B.grey], ["beige", B.beige], ["furn", B.furn], ["lines", B.lines]].forEach(([c, d]) => d && base.append(svgEl("path", { d, class: "p-" + c })));
-  svg.append(base);
-  // Furniture
+  if (url) svg.append(svgEl("image", { href: url, x: 0, y: 0, width: vw, height: vh, class: "p-drawing", preserveAspectRatio: "none" }));
+  // Furniture: each piece is one or more boxes over the drawing.
   const gPieces = svgEl("g", { class: "p-pieces" });
   for (const pc of PLAN.pieces) {
     const n = pieceCount(pc.id), on = f.spot === pc.id;
     const g = svgEl("g", { class: `p-piece${on ? " on" : ""}${filtering ? (n ? " has" : " none") : ""}`, "data-piece": pc.id, tabindex: "0", role: "button", "aria-label": pc.name });
-    const [x0, y0, x1, y1] = pc.hit;
-    g.append(svgEl("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, class: "p-hit", rx: 2 }), svgEl("path", { d: pc.d }));
+    for (const [x0, y0, x1, y1] of pc.hit) g.append(svgEl("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, rx: 4 }));
     const board = map[pc.room];
     g.addEventListener("pointermove", e => { e.stopPropagation(); show(e, [pc.name, board ? roomName(board) : planRoom(pc.room)?.name, cardsTxt(n)]); });
     g.addEventListener("pointerleave", hide);
@@ -2868,37 +2883,27 @@ function renderPlan2d() {
     gPieces.append(g);
   }
   svg.append(gPieces);
-  const walls = svgEl("g", { class: "p-walls" });
-  walls.append(svgEl("path", { d: B.walls, class: "p-wall" }), svgEl("path", { d: B.cols, class: "p-col" }));
-  svg.append(walls);
-  // Room names and counts
-  const gLab = svgEl("g", { class: "p-labels" }), labelled = new Set();
+  // Card counts, in a small badge at each room's top-left corner (the drawing already names the rooms).
+  const gLab = svgEl("g", { class: "p-labels" });
   for (const r of PLAN.rooms) {
-    const xs = r.poly.map(p => p[0]), ys = r.poly.map(p => p[1]);
-    if (r.zone === "wet" || Math.max(...xs) - Math.min(...xs) < 42) continue; // too small for a label: see the legend
-    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, top = (Math.min(...ys) + Math.max(...ys)) / 2 - 6;
-    const board = map[r.id], n = roomCount(r.id);
-    const t = svgEl("text", { x: cx, y: top + 9, "text-anchor": "middle", class: "p-label" });
-    // Name it after its board room; a second plan room on the same board room (store, inner foyer) keeps its own name.
-    t.textContent = board && !labelled.has(board) ? roomName(board) : r.name;
-    if (board) labelled.add(board);
-    gLab.append(t);
-    if (board && n) { const c = svgEl("text", { x: cx, y: top + 17, "text-anchor": "middle", class: "p-count" }); c.textContent = cardsTxt(n); gLab.append(c); }
-    else if (!board) { const c = svgEl("text", { x: cx, y: top + 17, "text-anchor": "middle", class: "p-count link" }); c.textContent = "Click to link"; gLab.append(c); }
+    const board = map[r.id]; if (r.zone === "wet" || r.zone === "circ") continue;
+    const n = roomCount(r.id), x = Math.min(...r.poly.map(p => p[0])) + 8, y = Math.min(...r.poly.map(p => p[1])) + 8;
+    const txt = board ? (n ? cardsTxt(n) : "") : "Click to link";
+    if (!txt) continue;
+    const t = svgEl("text", { x: x + 9, y: y + 15, class: "p-badge-t" + (board ? "" : " link") }); t.textContent = txt;
+    const bg = svgEl("rect", { x, y, height: 22, rx: 11, class: "p-badge" + (board ? "" : " link") });
+    gLab.append(bg, t);
   }
-  const [ex, ey] = PLAN.entry;
-  const ent = svgEl("text", { x: ex, y: ey + 12, "text-anchor": "middle", class: "p-entry" }); ent.textContent = "Entrance ▲";
-  gLab.append(ent);
   svg.append(gLab);
   // Header: what's selected
   const sel = f.spot ? pieceById(f.spot) : null;
   const selRoom = !f.spot && !["all", "none"].includes(f.room) ? roomName(f.room) : null;
   const selection = sel || selRoom
-    ? el("span", { class: "p-sel" }, sel ? `${sel.name} · ${roomName(map[sel.room]) || planRoom(sel.room)?.name}` : selRoom,
+    ? el("span", { class: "p-sel" }, sel ? `${sel.name} · ${map[sel.room] ? roomName(map[sel.room]) : planRoom(sel.room)?.name}` : selRoom,
         el("button", { type: "button", class: "p-x", "aria-label": "Clear selection", onclick: () => { S.filter.spot = null; S.filter.room = "all"; applyFilters(); } }, "×"))
     : el("span", { class: "hint" }, "Hover to see what's what. Click a room or a piece of furniture to show its cards.");
   const inLegend = new Set();
-  const legend = el("div", { class: "p-legend" }, ...PLAN.rooms.filter(r => r.zone !== "wet").map(r => {
+  const legend = el("div", { class: "p-legend" }, ...PLAN.rooms.filter(r => r.zone !== "wet" && r.zone !== "circ").map(r => {
     const board = map[r.id];
     if (board && inLegend.has(board)) return null;
     if (board) inLegend.add(board);
@@ -2911,12 +2916,15 @@ function renderPlan2d() {
       el("button", { type: "button", class: "btn small ghost", onclick: () => openPlanLinks() }, "Link rooms")),
     el("div", { class: "plan2d-stage" }, svg),
     legend,
-    el("p", { class: "hint" }, `${PLAN.name}, redrawn from the ${PLAN.source}. Sizes are the builder's (approximate).`));
+    el("p", { class: "hint" }, PLAN.source || ""));
+  // Badges are sized to their text once it's drawn.
+  requestAnimationFrame(() => gLab.querySelectorAll("text").forEach(t => { try { t.previousSibling.setAttribute("width", t.getBBox().width + 18); } catch {} }));
 }
 /* Which board room is each room on the plan? Saved for everyone. */
 function openPlanLinks(focusId) {
   const map = planMap();
-  const sels = PLAN.rooms.map(r => {
+  const PLAN = planLayout(); if (!PLAN) return;
+  const sels = PLAN.rooms.filter(r => r.zone !== "circ").map(r => {
     const s = el("select", { "aria-label": r.name, "data-room": r.id },
       el("option", { value: "" }, "Not linked"), ...S.rooms.map(x => el("option", { value: x.id }, x.name)));
     s.value = map[r.id] || "";
