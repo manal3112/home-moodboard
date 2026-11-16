@@ -151,7 +151,7 @@ async function autofill(body: {
 type Item = {
   id: string; kind: string; title: string; url: string | null; note: string; room_id: string | null; type: string | null;
   priority: string; image_path: string | null; created_by: string | null; created_at: string; updated_at: string;
-  meta?: { preview?: { title?: string; description?: string }; markup_of?: string; rooms?: string[] } | null;
+  meta?: { preview?: { title?: string; description?: string }; markup_of?: string; rooms?: string[]; curated?: unknown } | null;
 };
 type Comment = { id: string; item_id: string; author: string; body: string; parent_id?: string | null; created_at: string };
 
@@ -203,6 +203,7 @@ async function brief(sb: SupabaseClient, body: { room_id?: string | null }, emai
       `ITEM ${n + 1}: "${titles.get(it.id)}"`,
       `${KIND[it.kind] ?? it.kind} · ${PRIO[it.priority] ?? it.priority}${it.type ? " · " + it.type : ""} · added by ${nameOf(it.created_by)}`,
     ];
+    if (it.meta?.curated) lines.push("CURATED: one of the family's final picks.");
     const shared = roomsOf(it);
     if (shared.length > 1) lines.push(`Filed under several rooms: ${shared.map((id) => rooms?.find((r) => r.id === id)?.name).join(", ")}.`);
     if (it.meta?.markup_of) lines.push(`This is a marked-up drawing on "${titles.get(it.meta.markup_of) ?? "another item"}".`);
@@ -225,7 +226,7 @@ async function brief(sb: SupabaseClient, body: { room_id?: string | null }, emai
       "They collect inspiration on a shared moodboard: photos, Instagram screenshots, sketches, links and notes, each marked Must-have, Nice-to-have or Avoid, with comments from the family and the studio. " +
       "Some notes and comments are written in Gujarati: read them as carefully as the English ones, and write the whole brief in English. Comments that are voice notes are not included, as you can't hear them. " +
       "Turn one room's items into a clear brief the architects can act on. Look closely at the pictures: name furniture types, materials, finishes, colours, patterns, craft techniques (e.g. block print, cane, jaali, inlay) and lighting. " +
-      "Rules: use only what is on the board; give Must-haves the most weight; treat Avoid items as things to steer clear of; " +
+      "Rules: use only what is on the board; give Curated items (the family's final picks) and Must-haves the most weight, and treat items that aren't curated as ideas still under consideration; treat Avoid items as things to steer clear of; " +
       "when you refer to a specific item, use its title in quotes; point out contradictions between items or comments; " +
       "put unresolved questions from the comments in open_questions. Each list point is one short sentence. Keep each list to the points that matter (usually 2-6). " +
       "Leave a list empty rather than inventing content. overview is 2-4 sentences in plain English.",

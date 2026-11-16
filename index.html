@@ -14,6 +14,7 @@
   --bg:#f5f2ed; --surface:#ffffff; --sunk:#efebe4; --ink:#26211e; --muted:#7b716a; --line:#e5dfd6; --line-strong:#d3cbc0;
   --accent:#8f5e4b; --accent-ink:#ffffff; --accent-soft:#f3e8e2;
   --must:#8a6420; --must-soft:#f6eddb; --nice:#4d6a59; --nice-soft:#e6eee8; --avoid:#a3463a; --avoid-soft:#f7e3df;
+  --star:#b8872a;
   --shadow:0 1px 2px rgb(38 33 30 / .04), 0 12px 32px -8px rgb(38 33 30 / .14);
   --shadow-sm:0 1px 2px rgb(38 33 30 / .05), 0 2px 8px -2px rgb(38 33 30 / .06);
   --display:"Jost", "Noto Sans Gujarati", "Avenir Next", "Century Gothic", system-ui, sans-serif;
@@ -26,6 +27,7 @@
     --bg:#151312; --surface:#1d1a18; --sunk:#25211f; --ink:#ece6e0; --muted:#a39890; --line:#302b28; --line-strong:#423b37;
     --accent:#d39d86; --accent-ink:#1d1512; --accent-soft:#3a2a23;
     --must:#e0b96a; --must-soft:#372c18; --nice:#97c2a8; --nice-soft:#1f2d25; --avoid:#ec8f80; --avoid-soft:#3d231f;
+    --star:#e3b75a;
     --shadow:0 1px 2px rgb(0 0 0 / .3), 0 12px 32px -8px rgb(0 0 0 / .5);
     --shadow-sm:0 1px 2px rgb(0 0 0 / .3);
     color-scheme:dark;
@@ -509,6 +511,27 @@ svg.plan2d{display:block;width:100%;height:auto;max-height:calc(100vh - var(--hd
 .dict-row{display:flex;gap:8px}
 .mic.rec,.dict.rec{background:var(--avoid);border-color:var(--avoid);color:#fff;font-variant-numeric:tabular-nums}
 @media (max-width:720px){ .nav{margin-right:0} .top-row{padding-block:14px 10px} }
+/* ===== Curated: the final picks ===== */
+.star-ic{display:inline-flex;color:var(--star)}
+.star-ic svg{display:block}
+.cur-seg .seg-btn{display:inline-flex;align-items:center;gap:5px}
+.cur-seg .seg-btn .n{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cur-seg .seg-btn .n:empty{display:none}
+.cur-seg .star-ic svg{width:13px;height:13px}
+.cur-pill{display:inline-flex;gap:4px;align-items:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-radius:4px;padding:3px 7px;background:var(--ink);color:var(--bg)}
+.cur-pill .star-ic svg{width:11px;height:11px}
+.card.curated{border-color:color-mix(in srgb,var(--star) 55%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--star) 30%,transparent),var(--shadow-sm)}
+.cur-btn{border:0;background:none;color:var(--line-strong);cursor:pointer;padding:3px;border-radius:6px;display:inline-flex}
+.cur-btn .star-ic{color:inherit}
+.cur-btn:hover{color:var(--star);background:var(--sunk)}
+.cur-btn[aria-pressed="true"]{color:var(--star)}
+.btn.cur{display:inline-flex;gap:6px;align-items:center}
+.btn.cur.on{border-color:var(--star)}
+.cur-check{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--sunk)}
+.cur-check span{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cur-hint{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted);margin:0 0 14px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:10px}
+.cur-hint .star-ic{margin-top:2px}
+@media (max-width:700px){ .cur-seg{width:100%} .cur-seg .seg-btn{flex:1;justify-content:center;font-size:12.5px;padding-left:6px;padding-right:6px} }
 </style>
 </head>
 <body>
@@ -875,7 +898,7 @@ const S = {
   byId: new Map(), ccount: new Map(), markups: new Map(), urls: new Map(),
   nodes: new Map(), pendingIG: new Set(), needsUpdate: false, missing: new Set(), newSince: 0,
   votes: new Map(), access: { ai: false, admin: false, aiUsers: [] }, lastOrder: null, orderStale: false,
-  filter: { room: "all", type: "all", prio: "all", q: "", newOnly: false, spot: null },
+  filter: { room: "all", type: "all", prio: "all", q: "", newOnly: false, spot: null, cur: "curated" },
   docFilter: { room: "all", q: "" },
   sort: ["newest", "oldest", "priority", "room", "votes"].includes(lsGet("mb-sort")) ? lsGet("mb-sort") : "votes", view: ["feed", "rooms"].includes(lsGet("mb-view")) ? lsGet("mb-view") : "board",
   section: lsGet("mb-section") === "docs" ? "docs" : "board",
@@ -1039,6 +1062,12 @@ const GU = {
   "Swipe the plan sideways to see all of it.": "આખો પ્લાન જોવા તેને બાજુમાં સરકાવો.",
   "Hover to see what's what. Click a room or a piece of furniture to show its cards.": "કોઈ રૂમ કે ફર્નિચર પર ક્લિક કરો, તેનાં કાર્ડ દેખાશે.",
   "On the floor plan (optional)": "ફ્લોર પ્લાન પર (વૈકલ્પિક)", "Entrance ▲": "પ્રવેશ ▲", "Pick one or more. Nothing picked means Whole home.": "એક કે વધુ પસંદ કરો. કંઈ પસંદ ન કરો તો આખું ઘર.",
+  "Curated": "પસંદગીનું", "Not yet curated": "હજી પસંદ નથી", "Curated or not": "પસંદગીનું કે નહીં", "Mark curated": "પસંદગીનું તરીકે ચિહ્નિત કરો", "Curated ✓": "પસંદગીનું ✓",
+  "Curated. Tap to undo": "પસંદગીનું. પાછું લેવા ટૅપ કરો", "Marked curated": "પસંદગીનું તરીકે ચિહ્નિત કર્યું", "Moved to Not yet curated": "“હજી પસંદ નથી”માં ખસેડ્યું",
+  " · a final pick that lifts the whole look": " · આખા દેખાવને ઊંચું લઈ જતી અંતિમ પસંદગી",
+  "Only curated cards are showing.": "ફક્ત પસંદગીનાં કાર્ડ દેખાય છે.", "Only cards that aren't curated yet are showing.": "ફક્ત હજી પસંદ ન થયેલાં કાર્ડ દેખાય છે.",
+  "Nothing is curated yet, so everything is showing. Tap the star on a card that's a final pick to mark it curated. The board then opens on curated cards only.": "હજી કંઈ પસંદગીનું નથી, એટલે બધું દેખાય છે. અંતિમ પસંદગીવાળા કાર્ડ પરના તારા પર ટૅપ કરો. પછી બોર્ડ ફક્ત પસંદગીનાં કાર્ડ સાથે ખૂલશે.",
+  "Added to the board. Find it under “Not yet curated”.": "બોર્ડમાં ઉમેરાયું. તે “હજી પસંદ નથી”માં મળશે.",
   "Pin to top": "ઉપર પિન કરો", "Unpin": "પિન કાઢો", "Pinned": "પિન કરેલું", "Pinned to the top of the board": "બોર્ડમાં સૌથી ઉપર પિન કર્યું", "Unpinned": "પિન કાઢ્યું", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
   "Comments that tag you, replies to your comments, and comments on things you added.": "તમને ટેગ કરતી કોમેન્ટ, તમારી કોમેન્ટના જવાબ, અને તમે ઉમેરેલી વસ્તુઓ પરની કોમેન્ટ.",
   "Nothing yet. When someone tags you with @ or replies to you, it shows up here.": "હજી કંઈ નથી. કોઈ તમને @ થી ટેગ કરે કે જવાબ આપે ત્યારે અહીં દેખાશે.",
@@ -1101,6 +1130,7 @@ const GU_RX = [
   [/^Open (.+)$/, t => tr(t) + " ખોલો"],
   [/^Tagged (.+)\. They'll see it under “For you”\.$/, w => w + " ને ટેગ કર્યા. તેઓ “તમારા માટે”માં જોશે."],
   [/^Added (\d+) items$/, n => n + " વસ્તુઓ ઉમેરી"],
+  [/^Added (\d+) items\. Find them under “Not yet curated”\.$/, n => n + " વસ્તુઓ ઉમેરી. તે “હજી પસંદ નથી”માં મળશે."],
   [/^(.+) tagged you$/, w => w + " એ તમને ટેગ કર્યા"],
   [/^(.+) replied to you$/, w => w + " એ તમને જવાબ આપ્યો"],
   [/^(.+) commented on your post$/, w => w + " એ તમારી પોસ્ટ પર કોમેન્ટ કરી"],
@@ -1199,6 +1229,9 @@ function renderShell() {
   const prioSeg = el("div", { class: "seg", id: "f-prio", role: "group", "aria-label": "Filter by priority" },
     ...["all", "must", "nice", "avoid"].map(p => el("button", { type: "button", class: "seg-btn", "data-p": p, "aria-pressed": String(S.filter.prio === p),
       onclick: () => { S.filter.prio = p; applyFilters(); } }, p === "all" ? "All" : PRIO[p])));
+  const curSeg = el("div", { class: "seg cur-seg", id: "f-cur", role: "group", "aria-label": "Curated or not" },
+    ...[["curated", "Curated"], ["draft", "Not yet curated"], ["all", "All"]].map(([c, l]) => el("button", { type: "button", class: "seg-btn", "data-c": c, "aria-pressed": String(S.filter.cur === c),
+      onclick: () => { S.filter.cur = c; applyFilters(); } }, c === "curated" ? starIcon() : null, l, c === "all" ? null : el("span", { class: "n" }))));
   const viewBtn = (v, label) => el("button", { type: "button", class: "seg-btn", id: "v-" + v, "aria-pressed": String(S.view === v), onclick: () => setView(v) }, label);
   const header = el("header", { class: "top" },
     el("div", { class: "wrap top-row" },
@@ -1214,6 +1247,7 @@ function renderShell() {
     el("div", { class: "wrap filters", id: "filters" },
       el("div", { class: "chips", id: "room-chips", role: "group", "aria-label": "Filter by room" }),
       el("div", { class: "filter-row" },
+        curSeg,
         el("div", { class: "seg", role: "group", "aria-label": "Layout" }, viewBtn("board", "Board"), viewBtn("feed", "Feed"), viewBtn("rooms", "By room")),
         el("select", { id: "f-type", "aria-label": "Filter by type", onchange: e => { S.filter.type = e.target.value; applyFilters(); } }),
         prioSeg,
@@ -1231,6 +1265,7 @@ function renderShell() {
   const main = el("main", { class: "wrap", id: "board-sec" },
     el("section", { id: "plan", class: "plan", hidden: true, "aria-label": "Floor plan" }),
     el("section", { id: "plan2d", class: "plan2d-wrap", hidden: true, "aria-label": "Interactive floor plan" }),
+    el("p", { id: "cur-hint", class: "cur-hint", hidden: true }, starIcon(), "Nothing is curated yet, so everything is showing. Tap the star on a card that's a final pick to mark it curated. The board then opens on curated cards only."),
     el("div", { id: "grid", class: "grid" + (S.view === "feed" ? " feed" : "") }),
     el("div", { id: "rooms-view", class: "rooms-view", hidden: true }),
     el("div", { id: "empty", class: "empty", hidden: true }));
@@ -1301,6 +1336,9 @@ function isNew(it) {
   return !!S.newSince && tsOf(it) > S.newSince && (it.created_by || "").toLowerCase() !== myEmail();
 }
 function matchesWith(it, f) {
+  const cur = curMode(f);
+  if (cur === "curated" && !isCurated(it)) return false;
+  if (cur === "draft" && isCurated(it)) return false;
   if (f.spot) { if (!spotMatch(it, f.spot)) return false; }
   else if (f.room !== "all" && !inRoom(it, f.room === "none" ? null : f.room)) return false;
   if (f.type !== "all" && it.type !== f.type) return false;
@@ -1320,10 +1358,18 @@ function applyFilters() {
   if (!$("#grid")) return;
   document.querySelectorAll("#room-chips .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === S.filter.room)));
   document.querySelectorAll("#f-prio .seg-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === S.filter.prio)));
+  const nCur = S.boardItems.filter(isCurated).length;
+  S.anyCurated = nCur > 0;
+  document.querySelectorAll("#f-cur .seg-btn").forEach(b => {
+    b.setAttribute("aria-pressed", String(b.dataset.c === curMode(S.filter)));
+    const n = b.querySelector(".n"); if (n) n.textContent = String(b.dataset.c === "curated" ? nCur : S.boardItems.length - nCur);
+  });
   let shown = 0;
   for (const it of S.boardItems) { const n = S.nodes.get(it.id); if (!n) continue; const m = matches(it); n.hidden = !m; if (m) shown++; }
   const total = S.boardItems.length;
   $("#count").textContent = shown === total ? `${total} item${total === 1 ? "" : "s"}` : `${shown} of ${total}`;
+  const cHint = $("#cur-hint");
+  if (cHint) cHint.hidden = !(S.filter.cur === "curated" && !S.anyCurated && total);
   const nNew = S.boardItems.filter(isNew).length, nb = $("#f-new");
   nb.hidden = !nNew && !S.filter.newOnly;
   nb.setAttribute("aria-pressed", String(S.filter.newOnly));
@@ -1337,12 +1383,14 @@ function applyFilters() {
   empty.hidden = shown > 0;
   if (!shown) {
     empty.replaceChildren(...(total
-      ? [el("h2", {}, "Nothing matches these filters"), el("button", { class: "btn", onclick: clearFilters }, "Show everything")]
+      ? [el("h2", {}, "Nothing matches these filters"),
+        curMode(S.filter) !== "all" ? el("p", { class: "hint" }, curMode(S.filter) === "curated" ? "Only curated cards are showing." : "Only cards that aren't curated yet are showing.") : null,
+        el("button", { class: "btn", onclick: clearFilters }, "Show everything")]
       : [el("h2", {}, "The board is empty"), el("p", { class: "hint" }, "Add an Instagram post, a photo, a sketch, a link or a note."), el("button", { class: "btn primary", onclick: () => openEditor() }, "+ Add the first item")]));
   }
 }
 function clearFilters() {
-  S.filter = { room: "all", type: "all", prio: "all", q: "", newOnly: false, spot: null };
+  S.filter = { room: "all", type: "all", prio: "all", q: "", newOnly: false, spot: null, cur: "all" };
   $("#f-q").value = ""; $("#f-type").value = "all"; applyFilters();
 }
 
@@ -1361,7 +1409,7 @@ function sortedItems() {
   return [...a.filter(isPinned).sort((x, y) => pinAt(y) - pinAt(x)), ...a.filter(x => !isPinned(x))];
 }
 const isPinned = it => !!metaOf(it).pinned;
-const itemVer = it => `${it.updated_at}|${isPinned(it) ? "p" : ""}|${it.image_path ? (S.urls.has(it.image_path) ? "u" : "n") : "-"}`;
+const itemVer = it => `${it.updated_at}|${isPinned(it) ? "p" : ""}${isCurated(it) ? "c" : ""}|${it.image_path ? (S.urls.has(it.image_path) ? "u" : "n") : "-"}`;
 const PIN_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M15.6 2.6a1 1 0 0 1 1.4 0l4.4 4.4a1 1 0 0 1 0 1.4l-1.2 1.2a1 1 0 0 1-1.1.2l-3.4 3.4.4 3.9a1 1 0 0 1-.3.8l-1.1 1.1a1 1 0 0 1-1.4 0L9.9 15.6l-5.2 5.2a1 1 0 0 1-1.4-1.4l5.2-5.2-3.4-3.4a1 1 0 0 1 0-1.4l1.1-1.1a1 1 0 0 1 .8-.3l3.9.4 3.4-3.4a1 1 0 0 1 .2-1.1z"/></svg>';
 function pinIcon() { const s = el("span", { class: "pin-ic" }); s.innerHTML = PIN_SVG; return s; }
 async function togglePin(it) {
@@ -1379,6 +1427,28 @@ function pinBtn(it) {
   const on = isPinned(it);
   return el("button", { type: "button", class: "pin-btn", "aria-pressed": String(on), title: on ? "Unpin" : "Pin to top",
     "aria-label": on ? "Unpin" : "Pin to top", onclick: e => { e.stopPropagation(); togglePin(it); }, onkeydown: e => e.stopPropagation() }, pinIcon());
+}
+
+/* ---------- Curated: the final picks the board opens on ---------- */
+const isCurated = it => !!metaOf(it).curated;
+// "Curated" falls back to everything until at least one card is curated, so the board never opens empty.
+const curMode = f => (f.cur === "curated" && !S.anyCurated ? "all" : f.cur || "all");
+const STAR_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+function starIcon() { const s = el("span", { class: "star-ic" }); s.innerHTML = STAR_SVG; return s; }
+async function toggleCurated(it) {
+  if (S.needsUpdate) { toast("Run update-2.sql in Supabase first (see the banner at the top).", "err"); return; }
+  const meta = { ...metaOf(it) }, was = !!meta.curated;
+  if (was) delete meta.curated; else meta.curated = { by: myEmail(), at: new Date().toISOString() };
+  try {
+    await S.store.updateItem(it.id, { meta });
+    toast(was ? "Moved to Not yet curated" : "Marked curated");
+    await refresh();
+  } catch (e) { toast(errMsg(e), "err"); }
+}
+function curBtn(it) {
+  const on = isCurated(it), t = on ? "Curated. Tap to undo" : "Mark curated";
+  return el("button", { type: "button", class: "cur-btn", "aria-pressed": String(on), title: t, "aria-label": t,
+    onclick: e => { e.stopPropagation(); toggleCurated(it); }, onkeydown: e => e.stopPropagation() }, starIcon());
 }
 
 /* ---------- Upvotes ---------- */
@@ -1455,16 +1525,16 @@ function renderGrid() {
 function cardNode(it) {
   const open = () => openDetail(it.id);
   const showTitle = it.kind !== "note" || (it.title && it.title.trim());
-  return el("article", { class: "card" + (isPinned(it) ? " pinned" : ""), "data-prio": it.priority, "data-kind": it.kind },
+  return el("article", { class: "card" + (isPinned(it) ? " pinned" : "") + (isCurated(it) ? " curated" : ""), "data-prio": it.priority, "data-kind": it.kind },
     mediaNode(it, false),
     el("div", { class: "cbody", role: "button", tabindex: "0", "aria-label": "Open " + titleOf(it), onclick: open,
       onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } } },
-      el("div", { class: "cmeta" }, isPinned(it) ? el("span", { class: "pin-pill" }, pinIcon(), "Pinned") : null, prioBadge(it.priority), isNew(it) ? el("span", { class: "new-pill" }, "New") : null,
+      el("div", { class: "cmeta" }, isCurated(it) ? el("span", { class: "cur-pill" }, starIcon(), "Curated") : null, isPinned(it) ? el("span", { class: "pin-pill" }, pinIcon(), "Pinned") : null, prioBadge(it.priority), isNew(it) ? el("span", { class: "new-pill" }, "New") : null,
         el("span", { class: "c-room" }), it.type ? el("span", {}, "· " + it.type) : null),
       showTitle ? el("div", { class: "ctitle" }, titleOf(it)) : null,
       it.kind !== "note" && it.note ? el("div", { class: "cwhy" }, it.note) : null,
       el("div", { class: "cfoot" }, el("span", { class: "cf-left" }, voteBtn(it), el("span", { class: "c-comments" })),
-        el("span", { class: "cf-right" }, el("span", { class: "c-mk" }), el("span", {}, KIND_LABEL[kindOf(it)] || ""), pinBtn(it)))));
+        el("span", { class: "cf-right" }, el("span", { class: "c-mk" }), el("span", {}, KIND_LABEL[kindOf(it)] || ""), curBtn(it), pinBtn(it)))));
 }
 
 function mediaNode(it, captioned) {
@@ -1608,6 +1678,7 @@ function renderDetail(force) {
     el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}` + (metaOf(it).source ? ` · From: ${metaOf(it).source}` : "")),
     el("div", { class: "d-actions" },
       voteBtn(it, true),
+      el("button", { type: "button", class: "btn cur" + (isCurated(it) ? " on" : ""), onclick: () => toggleCurated(it) }, starIcon(), isCurated(it) ? "Curated ✓" : "Mark curated"),
       el("button", { type: "button", class: "btn" + (isPinned(it) ? " on" : ""), onclick: () => togglePin(it) }, pinIcon(), isPinned(it) ? "Unpin" : "Pin to top"),
       it.url ? el("a", { class: "btn", href: it.url, target: "_blank", rel: "noopener" }, it.kind === "instagram" ? "Open on Instagram ↗" : "Open link ↗") : null,
       el("button", { type: "button", class: "btn", onclick: () => openEditor({ item: it }) }, "Edit"),
@@ -1936,6 +2007,8 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
   const kindBox = el("div", { class: "stack" });
   const tabs = isEdit ? null : el("div", { class: "tabs", role: "tablist", "aria-label": "What are you adding?" },
     ...KINDS.map(([k, l]) => el("button", { type: "button", role: "tab", class: "tab", "data-k": k, "aria-selected": String(ed.kind === k), onclick: () => setKind(k) }, l)));
+  const fCur = el("input", { type: "checkbox", id: "e-cur" });
+  fCur.checked = isEdit ? isCurated(item) : false;
   const saveLabel = isEdit ? "Save changes" : "Add to board";
   const saveBtn = el("button", { class: "btn primary", type: "submit" }, saveLabel);
   const aiBtn = el("button", { type: "button", class: "btn small ai", onclick: () => suggest() }, "✨ Suggest details");
@@ -1946,6 +2019,7 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     fSpot ? field("On the floor plan (optional)", fSpot, "The piece of furniture this is for, so it shows when someone clicks it on the plan.") : null,
     el("div", { class: "row2" }, field("Type", fType)),
     el("div", { class: "field" }, el("span", { class: "lbl" }, "Priority"), prioSeg),
+    el("label", { class: "check cur-check" }, fCur, el("span", {}, starIcon(), el("b", {}, "Curated"), " · a final pick that lifts the whole look")),
     whyField,
     el("div", { class: "form-actions" }, el("button", { type: "button", class: "btn ghost", onclick: () => closeOverlay("editor") }, "Cancel"), saveBtn));
   openOverlay("editor", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": isEdit ? "Edit item" : "Add to the board" },
@@ -2102,6 +2176,8 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
     const spot = fSpot?.value || "";
     const withRooms = meta => {
       const m = { ...meta };
+      if (!fCur.checked) delete m.curated;
+      else if (!m.curated) m.curated = { by: myEmail(), at: new Date().toISOString() };
       if (rooms.length > 1) m.rooms = rooms; else delete m.rooms;
       if (spot) m.spots = [spot]; else delete m.spots;
       return m;
@@ -2187,9 +2263,10 @@ function openEditor({ item = null, kind = null, files = null, text = "" } = {}) 
           const n = ed.noteInput.value.trim(); if (!n) throw new Error("The note is empty.");
           rows.push(mk({ kind: "note", note: n }, 0));
         }
-        if ((rooms.length > 1 || spot) && !S.needsUpdate) rows.forEach(r => { r.meta = withRooms(r.meta || {}); });
+        if ((rooms.length > 1 || spot || fCur.checked) && !S.needsUpdate) rows.forEach(r => { r.meta = withRooms(r.meta || {}); });
         await st.insertItems(rows);
-        toast(rows.length === 1 ? "Added to the board" : `Added ${rows.length} items`);
+        const hiddenNow = !fCur.checked && curMode(S.filter) === "curated";
+        toast((rows.length === 1 ? "Added to the board" : `Added ${rows.length} items`) + (hiddenNow ? (rows.length === 1 ? ". Find it under “Not yet curated”." : ". Find them under “Not yet curated”.") : ""));
       }
       closeOverlay("editor");
       await refresh();
