@@ -447,8 +447,6 @@ header.top{background:color-mix(in srgb,var(--surface) 92%,transparent);border-b
 #board-sec.plan-mode #grid{columns:240px;column-gap:16px}
 #board-sec.plan-mode #empty{grid-column:2}
 @media (max-width:900px){ #board-sec.plan-mode{display:block} #board-sec.plan-mode .plan2d-wrap{position:static} }
-/* On phones the plan keeps a readable size and scrolls sideways inside its frame. */
-@media (max-width:700px){ .plan2d-stage{overflow-x:auto;-webkit-overflow-scrolling:touch} svg.plan2d{min-width:640px;max-height:none} .plan2d-wrap{padding:12px} }
 .plan2d-wrap.collapsed{margin-top:16px;padding:8px 14px}
 .plan2d-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:14px 16px 12px;display:grid;gap:10px}
 .plan2d-head{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
@@ -480,6 +478,15 @@ svg.plan2d{display:block;width:100%;height:auto;max-height:calc(100vh - var(--hd
 .p-badge{fill:#26211e;opacity:.82}
 .p-badge.link{fill:var(--accent)}
 .p-badge-t{font:600 12px var(--body);fill:#fff}
+/* On phones the plan keeps a readable size and scrolls sideways inside its frame.
+   (This must come after the svg.plan2d rule above, or its height limit shrinks the drawing.) */
+.p-swipe{display:none}
+@media (max-width:700px){
+  .plan2d-stage{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  .plan2d-stage svg.plan2d{width:760px;min-width:760px;max-width:none;height:auto;max-height:none}
+  .plan2d-wrap{padding:12px}
+  .p-swipe{display:block}
+}
 .p-tip{position:fixed;z-index:90;pointer-events:none;background:#26211e;color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;display:grid;gap:1px;box-shadow:var(--shadow);max-width:240px}
 .p-tip strong{font-weight:600;font-size:13px}
 .p-tip span{opacity:.78}
@@ -1029,6 +1036,7 @@ const GU = {
   "Speak to type couldn't start. Try again.": "બોલીને લખવાનું શરૂ ન થયું. ફરી પ્રયાસ કરો.",
   "All bedrooms": "બધા બેડરૂમ", "Plan": "પ્લાન", "Link rooms": "રૂમ જોડો", "Not linked": "જોડેલું નથી",
   "Click to link": "જોડવા ક્લિક કરો", "Not on the plan": "પ્લાન પર નથી", "Plan rooms linked": "પ્લાનના રૂમ જોડાઈ ગયા", "Clear selection": "પસંદગી કાઢો",
+  "Swipe the plan sideways to see all of it.": "આખો પ્લાન જોવા તેને બાજુમાં સરકાવો.",
   "Hover to see what's what. Click a room or a piece of furniture to show its cards.": "કોઈ રૂમ કે ફર્નિચર પર ક્લિક કરો, તેનાં કાર્ડ દેખાશે.",
   "On the floor plan (optional)": "ફ્લોર પ્લાન પર (વૈકલ્પિક)", "Entrance ▲": "પ્રવેશ ▲", "Pick one or more. Nothing picked means Whole home.": "એક કે વધુ પસંદ કરો. કંઈ પસંદ ન કરો તો આખું ઘર.",
   "Pin to top": "ઉપર પિન કરો", "Unpin": "પિન કાઢો", "Pinned": "પિન કરેલું", "Pinned to the top of the board": "બોર્ડમાં સૌથી ઉપર પિન કર્યું", "Unpinned": "પિન કાઢ્યું", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
@@ -2938,6 +2946,7 @@ function renderPlan2d() {
       el("button", { type: "button", class: "btn small ghost", onclick: () => openPlanLinks() }, "Link rooms"),
       el("button", { type: "button", class: "btn small ghost", onclick: () => setPlanHidden(true) }, "Hide plan")),
     el("div", { class: "plan2d-stage" }, svg),
+    el("p", { class: "hint p-swipe" }, "Swipe the plan sideways to see all of it."),
     legend,
     el("p", { class: "hint" }, PLAN.source || ""));
   // Badges are sized to their text once it's drawn.
