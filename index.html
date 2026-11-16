@@ -449,6 +449,7 @@ header.top{background:color-mix(in srgb,var(--surface) 92%,transparent);border-b
 @media (max-width:900px){ #board-sec.plan-mode{display:block} #board-sec.plan-mode .plan2d-wrap{position:static} }
 /* On phones the plan keeps a readable size and scrolls sideways inside its frame. */
 @media (max-width:700px){ .plan2d-stage{overflow-x:auto;-webkit-overflow-scrolling:touch} svg.plan2d{min-width:640px;max-height:none} .plan2d-wrap{padding:12px} }
+.plan2d-wrap.collapsed{margin-top:16px;padding:8px 14px}
 .plan2d-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:14px 16px 12px;display:grid;gap:10px}
 .plan2d-head{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
 .plan2d-head h2{font:500 15px/1.2 var(--display);letter-spacing:.06em;text-transform:uppercase;margin:0}
@@ -931,7 +932,6 @@ async function refresh() {
     renderPlan();
     renderGrid();
     renderDocs();
-    if (S.view !== "plan" && lsGet("mb-view") === "plan" && planLayout()) setView("plan"); // the plan has loaded now
     updateForYou();
     document.querySelectorAll(".overlay [data-vote]").forEach(paintVote);
     if (S.detailId) renderDetail(false);
@@ -1206,7 +1206,7 @@ function renderShell() {
     el("div", { class: "wrap filters", id: "filters" },
       el("div", { class: "chips", id: "room-chips", role: "group", "aria-label": "Filter by room" }),
       el("div", { class: "filter-row" },
-        el("div", { class: "seg", role: "group", "aria-label": "Layout" }, viewBtn("board", "Board"), viewBtn("feed", "Feed"), viewBtn("rooms", "By room"), viewBtn("plan", "Plan")),
+        el("div", { class: "seg", role: "group", "aria-label": "Layout" }, viewBtn("board", "Board"), viewBtn("feed", "Feed"), viewBtn("rooms", "By room")),
         el("select", { id: "f-type", "aria-label": "Filter by type", onchange: e => { S.filter.type = e.target.value; applyFilters(); } }),
         prioSeg,
         el("button", { type: "button", class: "chip new-chip", id: "f-new", "aria-pressed": "false", hidden: true, title: "Items other people added since your last visit",
@@ -1263,18 +1263,15 @@ function setSection(s) {
 }
 
 function setView(v) {
-  // Until the plan has loaded (or if there's none), show the board but remember that Plan was chosen.
-  if (v === "plan" && !planLayout()) v = "board"; else lsSet("mb-view", v);
+  if (!["board", "feed", "rooms"].includes(v)) v = "board"; // "plan" was a view before the plan moved onto the board
+  lsSet("mb-view", v);
   S.view = v;
   const grid = $("#grid");
   grid.classList.toggle("feed", v === "feed");
   grid.hidden = v === "rooms";
   $("#rooms-view").hidden = v !== "rooms";
-  $("#board-sec").classList.toggle("plan-mode", v === "plan");
-  $("#plan2d").hidden = v !== "plan";
-  if (v !== "plan") { S.filter.spot = null; $("#p-tip")?.setAttribute("hidden", ""); }
-  setHeaderHeight(); renderPlan();
-  ["board", "feed", "rooms", "plan"].forEach(k => $("#v-" + k)?.setAttribute("aria-pressed", String(v === k)));
+  setHeaderHeight();
+  ["board", "feed", "rooms"].forEach(k => $("#v-" + k)?.setAttribute("aria-pressed", String(v === k)));
   $("#f-sort").hidden = v === "rooms";
   applyFilters();
 }
@@ -1327,8 +1324,7 @@ function applyFilters() {
   $("#brief-btn").hidden = S.filter.room === "all" || !(S.access.ai || S.settings[briefKey(bRoom)]);
   updatePlanZones();
   if (S.view === "rooms") renderRoomsView();
-  const vp = $("#v-plan"); if (vp) vp.hidden = !planLayout();
-  if (S.view === "plan") { if (planLayout()) renderPlan2d(); else setView("board"); }
+  if (syncPlan2d()) renderPlan2d();
   const empty = $("#empty");
   empty.hidden = shown > 0;
   if (!shown) {
@@ -2642,7 +2638,16 @@ function openSettings() {
         toast(plan ? "Plan replaced. Check the room boxes still line up." : "Plan added. Now mark where each room is.");
       });
     };
-    const planSec = el("section", { class: "set" }, el("h3", {}, "Floor plan"),
+    const lay = planLayout();
+    const planSec = lay ? el("section", { class: "set" }, el("h3", {}, "Floor plan"),
+      el("p", { class: "hint" }, `${lay.name || "The floor plan"} is on the board, next to the cards. Click a room or a piece of furniture there to filter. To replace it, import a newer plan file below.`),
+      el("div", { class: "list-row" },
+        el("button", { type: "button", class: "btn small", onclick: () => openPlanLinks() }, "Link rooms"),
+        confirmBtn("Remove plan", "Remove the plan for everyone?", () => act(async () => {
+          await S.store.setSetting("plan:layout", null); S.store.removeFile(lay.image_path); S.settings["plan:layout"] = null; }), "small ghost"),
+        plan ? confirmBtn("Delete the old plan picture", "Delete it for everyone?", () => act(async () => {
+          await S.store.setSetting("floorplan", null); S.store.removeFile(plan.path); }), "small ghost") : null))
+    : el("section", { class: "set" }, el("h3", {}, "Floor plan"),
       el("p", { class: "hint" }, "Upload the layout as an image (PNG or JPG; for a PDF, take a screenshot of the page). Then mark where each room is. The plan appears above the board: click a room to filter, and rooms with matching items light up as you filter by type, priority or search."),
       S.needsUpdate ? el("p", { class: "hint" }, "Needs the one-time database update first (see the banner).") : null,
       purl ? el("img", { src: purl, alt: "Floor plan", class: "sketch-prev", style: "max-width:100%" }) : null,
@@ -2670,7 +2675,7 @@ const pctBox = a => `left:${a[0] * 100}%;top:${a[1] * 100}%;width:${a[2] * 100}%
 function renderPlan() {
   const sec = $("#plan"); if (!sec) return;
   const p = planData(), url = p && S.urls.get(p.path);
-  if (!url || S.view === "plan") { sec.hidden = true; sec.replaceChildren(); return; }
+  if (!url || planLayout()) { sec.hidden = true; sec.replaceChildren(); return; }
   sec.hidden = false;
   const zones = [];
   for (const r of S.rooms) (Array.isArray(r.area) ? r.area : []).forEach((a, k) => zones.push(
@@ -2830,8 +2835,25 @@ function spotMatch(it, pid) {
 }
 function planTip() { let t = $("#p-tip"); if (!t) { t = el("div", { id: "p-tip", class: "p-tip", role: "tooltip", hidden: true }); document.body.append(t); } return t; }
 const polyD = pts => "M" + pts.map(pt => pt.join(" ")).join("L") + "Z";
+/* The plan sits on the board, beside the cards (above them on narrow screens). Each person can hide it. */
+const planHidden = () => lsGet("mb-plan-hidden") === "1";
+function syncPlan2d() {
+  const sec = $("#board-sec"), box = $("#plan2d"); if (!sec || !box) return false;
+  const has = !!planLayout() && S.view !== "rooms", open = has && !planHidden();
+  sec.classList.toggle("plan-mode", open);
+  box.hidden = !has;
+  box.classList.toggle("collapsed", has && !open);
+  if (!open) { S.filter.spot = null; $("#p-tip")?.setAttribute("hidden", ""); }
+  return has;
+}
+function setPlanHidden(h) { lsSet("mb-plan-hidden", h ? "1" : "0"); if (h) S.filter.spot = null; applyFilters(); }
 function renderPlan2d() {
   const box = $("#plan2d"), PLAN = planLayout(); if (!box || !PLAN) return;
+  if (planHidden()) {
+    box.replaceChildren(el("div", { class: "plan2d-head" }, el("h2", {}, "Floor plan"), el("span", { class: "spacer" }),
+      el("button", { type: "button", class: "btn small", onclick: () => setPlanHidden(false) }, "Show plan")));
+    return;
+  }
   const url = S.urls.get(PLAN.image_path);
   const map = planMap(), f = S.filter;
   const others = { ...f, room: "all", spot: null };
@@ -2913,7 +2935,8 @@ function renderPlan2d() {
   }));
   box.replaceChildren(
     el("div", { class: "plan2d-head" }, el("h2", {}, "Floor plan"), selection, el("span", { class: "spacer" }),
-      el("button", { type: "button", class: "btn small ghost", onclick: () => openPlanLinks() }, "Link rooms")),
+      el("button", { type: "button", class: "btn small ghost", onclick: () => openPlanLinks() }, "Link rooms"),
+      el("button", { type: "button", class: "btn small ghost", onclick: () => setPlanHidden(true) }, "Hide plan")),
     el("div", { class: "plan2d-stage" }, svg),
     legend,
     el("p", { class: "hint" }, PLAN.source || ""));
