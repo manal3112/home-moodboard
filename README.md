@@ -49,7 +49,7 @@ Any static host works. Two easy ones:
 
 ### 4. Tell Supabase where the site lives
 In **Authentication → URL Configuration**:
-- **Site URL**: your hosted URL, e.g. `https://our-home-board.netlify.app`
+- **Site URL**: your hosted URL. This board lives at `https://kalpataruhouse.in` (GitHub Pages with a custom domain; the `CNAME` file holds it)
 - **Redirect URLs**: add the same URL, plus `http://localhost:8000` if you want to test locally
 
 ### 5. Sign in and invite the studio
