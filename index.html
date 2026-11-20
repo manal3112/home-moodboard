@@ -551,6 +551,8 @@ svg.plan2d{display:block;width:100%;height:auto;max-height:calc(100vh - var(--hd
 .pres-row p{margin:0;font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pres-row b{font-size:13.5px}
 .pres-row.away{opacity:.6}
+.pres-stack .pres-av.me{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--pc)}
+.pres-empty{margin:6px 6px 2px;font-size:12.5px;color:var(--muted);line-height:1.45}
 .card{position:relative}
 .card .viewers{position:absolute;top:8px;left:8px;display:flex;z-index:2;filter:drop-shadow(0 1px 3px rgb(0 0 0/.25));pointer-events:auto}
 .card .viewers .pres-av+.pres-av{margin-left:-6px}
@@ -1107,7 +1109,7 @@ const GU = {
   "Only curated cards are showing.": "ફક્ત પસંદગીનાં કાર્ડ દેખાય છે.", "Only cards that aren't curated yet are showing.": "ફક્ત હજી પસંદ ન થયેલાં કાર્ડ દેખાય છે.",
   "Nothing is curated yet, so everything is showing. Tap the star on a card that's a final pick to mark it curated. The board then opens on curated cards only.": "હજી કંઈ પસંદગીનું નથી, એટલે બધું દેખાય છે. અંતિમ પસંદગીવાળા કાર્ડ પરના તારા પર ટૅપ કરો. પછી બોર્ડ ફક્ત પસંદગીનાં કાર્ડ સાથે ખૂલશે.",
   "Added to the board. Find it under “Not yet curated”.": "બોર્ડમાં ઉમેરાયું. તે “હજી પસંદ નથી”માં મળશે.",
-  "Here now": "હમણાં અહીં છે", "Away": "દૂર છે", "In Documents": "દસ્તાવેજોમાં", "On the board": "બોર્ડ પર", "Looking at": "જોઈ રહ્યાં છે", "Browsing": "જોઈ રહ્યાં છે",
+  "Here now": "હમણાં અહીં છે", "You": "તમે", "Just you right now. When someone else opens the board, their face appears here.": "હમણાં ફક્ત તમે જ છો. બીજું કોઈ બોર્ડ ખોલશે ત્યારે તેમનો ચહેરો અહીં દેખાશે.", "Away": "દૂર છે", "In Documents": "દસ્તાવેજોમાં", "On the board": "બોર્ડ પર", "Looking at": "જોઈ રહ્યાં છે", "Browsing": "જોઈ રહ્યાં છે",
   "Open": "ખોલો", "is also looking at this": "પણ આ જોઈ રહ્યાં છે", "are also looking at this": "પણ આ જોઈ રહ્યાં છે",
   "Pin to top": "ઉપર પિન કરો", "Unpin": "પિન કાઢો", "Pinned": "પિન કરેલું", "Pinned to the top of the board": "બોર્ડમાં સૌથી ઉપર પિન કર્યું", "Unpinned": "પિન કાઢ્યું", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
   "Comments that tag you, replies to your comments, and comments on things you added.": "તમને ટેગ કરતી કોમેન્ટ, તમારી કોમેન્ટના જવાબ, અને તમે ઉમેરેલી વસ્તુઓ પરની કોમેન્ટ.",
@@ -1366,6 +1368,7 @@ function onPresence(state) {
   }
   people.sort((a, b) => (a.away - b.away) || nameOf(a.email).localeCompare(nameOf(b.email)));
   S.here = people;
+  S.meHere = !!state[me]?.length;   // our own tab is on the channel: proof that "who's here" is connected
   paintPresence();
 }
 function presStatus(p) {
@@ -1380,21 +1383,28 @@ function paintPresence() {
   const here = S.here || [];
   // Header: a stack of faces, like Google Docs.
   const box = $("#presence");
+  const me = { email: myEmail(), you: true };
+  const on = here.length || S.meHere;
   if (box) {
     const shown = here.slice(0, 4), extra = here.length - shown.length;
-    box.hidden = !here.length;
+    box.hidden = !on;
     box.querySelector(".pres-stack")?.remove();   // replace only the faces, so an open list stays open
-    if (here.length) box.prepend(el("button", { type: "button", class: "pres-stack", "aria-label": `${here.length} other ${here.length === 1 ? "person" : "people"} here now`,
-      title: here.map(p => nameOf(p.email)).join(", "), onclick: togglePresList },
+    if (on) box.prepend(el("button", { type: "button", class: "pres-stack", onclick: togglePresList,
+      "aria-label": here.length ? `${here.length} other ${here.length === 1 ? "person" : "people"} here now` : "Just you here right now",
+      title: here.length ? here.map(p => nameOf(p.email)).join(", ") + " + you" : "Just you right now" },
       ...shown.map(p => presAvatar(p)), extra > 0 ? el("span", { class: "pres-av more" }, "+" + extra) : null,
+      el("span", { class: "pres-av me", style: `--pc:${presColor(me.email)}`, title: "You" }, presInitials(nameOf(me.email))),
       el("span", { class: "pres-live", "aria-hidden": "true" })));
   }
   const list = $("#pres-list");
   if (list) {
-    if (!here.length) list.remove();
-    else list.replaceChildren(el("p", { class: "pres-h" }, "Here now"), ...here.map(p => el("div", { class: "pres-row" + (p.away ? " away" : "") }, presAvatar(p),
-      el("div", {}, el("b", { class: "notr" }, nameOf(p.email)), el("p", {}, ...presStatus(p))),
-      p.item && S.byId.get(p.item) && !p.away ? el("button", { type: "button", class: "btn small ghost", onclick: () => { list.remove(); openDetail(p.item); } }, "Open") : null)));
+    if (!on) list.remove();
+    else list.replaceChildren(el("p", { class: "pres-h" }, "Here now"),
+      ...here.map(p => el("div", { class: "pres-row" + (p.away ? " away" : "") }, presAvatar(p),
+        el("div", {}, el("b", { class: "notr" }, nameOf(p.email)), el("p", {}, ...presStatus(p))),
+        p.item && S.byId.get(p.item) && !p.away ? el("button", { type: "button", class: "btn small ghost", onclick: () => { list.remove(); openDetail(p.item); } }, "Open") : null)),
+      el("div", { class: "pres-row" }, presAvatar(me), el("div", {}, el("b", {}, "You"))),
+      here.length ? null : el("p", { class: "pres-empty" }, "Just you right now. When someone else opens the board, their face appears here."));
   }
   // Cards: little faces on the ideas people have open right now.
   document.querySelectorAll(".card .viewers").forEach(n => n.remove());
