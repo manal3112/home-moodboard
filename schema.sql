@@ -240,3 +240,13 @@ insert into public.ai_users (email) select email from public.admins on conflict 
 
 -- Voice notes on comments (same as update-4.sql).
 alter table public.comments add column if not exists audio_path text;
+
+-- "Who's here" live presence (same as update-5.sql): a private realtime channel for members only.
+drop policy if exists "members see who's here" on realtime.messages;
+create policy "members see who's here" on realtime.messages
+  for select to authenticated
+  using (realtime.topic() = 'presence:board' and public.is_member());
+drop policy if exists "members share they're here" on realtime.messages;
+create policy "members share they're here" on realtime.messages
+  for insert to authenticated
+  with check (realtime.topic() = 'presence:board' and public.is_member());

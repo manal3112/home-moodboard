@@ -532,6 +532,30 @@ svg.plan2d{display:block;width:100%;height:auto;max-height:calc(100vh - var(--hd
 .cur-hint{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted);margin:0 0 14px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:10px}
 .cur-hint .star-ic{margin-top:2px}
 @media (max-width:700px){ .cur-seg{width:100%} .cur-seg .seg-btn{flex:1;justify-content:center;font-size:12.5px;padding-left:6px;padding-right:6px} }
+/* ===== Who's here ===== */
+.presence{position:relative;display:flex;align-items:center}
+.pres-stack{display:inline-flex;align-items:center;border:0;background:none;padding:2px 4px;cursor:pointer;border-radius:999px;position:relative}
+.pres-stack:hover{background:var(--sunk)}
+.pres-av{width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;background:var(--pc,#8f5e4b);color:#fff;font:600 11.5px/1 var(--body);letter-spacing:.02em;border:2px solid var(--surface);flex:none}
+.pres-stack .pres-av+.pres-av{margin-left:-8px}
+.pres-av.more{background:var(--sunk);color:var(--muted)}
+.pres-av.away{opacity:.45;filter:grayscale(.6)}
+.pres-av.sm{width:22px;height:22px;font-size:9.5px;border-width:1.5px}
+.pres-live{position:absolute;right:2px;bottom:2px;width:9px;height:9px;border-radius:50%;background:#2e9e5b;border:2px solid var(--surface);animation:pres-pulse 2.4s ease-in-out infinite}
+@keyframes pres-pulse{50%{box-shadow:0 0 0 4px rgb(46 158 91/.18)}}
+@media (prefers-reduced-motion:reduce){.pres-live{animation:none}}
+.pres-list{position:absolute;top:calc(100% + 8px);left:0;z-index:60;min-width:260px;max-width:min(340px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px}
+.pres-h{margin:2px 6px 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.pres-row{display:flex;gap:10px;align-items:center;padding:6px;border-radius:10px}
+.pres-row>div{flex:1;min-width:0}
+.pres-row p{margin:0;font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pres-row b{font-size:13.5px}
+.pres-row.away{opacity:.6}
+.card{position:relative}
+.card .viewers{position:absolute;top:8px;left:8px;display:flex;z-index:2;filter:drop-shadow(0 1px 3px rgb(0 0 0/.25));pointer-events:auto}
+.card .viewers .pres-av+.pres-av{margin-left:-6px}
+.d-here{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin:-2px 0 6px;flex-wrap:wrap}
+.d-here .pres-av+.pres-av{margin-left:-6px}
 </style>
 </head>
 <body>
@@ -793,6 +817,18 @@ class SupaStore {
     }
     throw new Error("Couldn't reach the AI service. Check your connection and try again.");
   }
+  /** Live presence on a private channel (needs update-5.sql). onSync gets { email: [meta, …] }; onDenied runs if the
+      database hasn't been updated, so the board can show the banner instead of failing silently. */
+  presence(meta, onSync, onDenied) {
+    let ready = false, current = meta;
+    const ch = this.sb.channel("presence:board", { config: { private: true, presence: { key: myEmail() } } });
+    ch.on("presence", { event: "sync" }, () => onSync(ch.presenceState()));
+    ch.subscribe(async (status, err) => {
+      if (status === "SUBSCRIBED") { ready = true; await ch.track(current); }
+      else if (status === "CHANNEL_ERROR" && !ready) { onDenied(err); this.sb.removeChannel(ch); }
+    });
+    return { update: m => { current = m; if (ready) ch.track(m); } };
+  }
   subscribe(cb, withUpdate) {
     const ch = this.sb.channel("board");
     const tables = ["items", "comments", "rooms", ...(withUpdate ? ["documents", "settings"] : []), ...(S.missing.has("update-3.sql") ? [] : ["reactions"])];
@@ -888,6 +924,7 @@ class LocalStore {
   async access() { return { ai: false, admin: true, aiUsers: [] }; }
   async addAiUser() { throw new Error("AI access needs the live board."); }
   async removeAiUser() {}
+  presence() { return null; }
   subscribe() {}
 }
 
@@ -929,6 +966,7 @@ async function gate() {
   S.ready = true;
   await refresh();
   if (!S.subscribed) { S.store.subscribe(debounce(() => S.ready && refresh(), 400), !S.needsUpdate); S.subscribed = true; }
+  startPresence();
 }
 
 async function refresh() {
@@ -942,7 +980,8 @@ async function refresh() {
       st.rooms(), st.items(), st.comments(), st.members().catch(() => []), soft(st.documents(), []), soft(st.settings(), {}),
       soft3(st.reactions(), []), soft3(st.access(), { ai: false, admin: false, aiUsers: [] })]);
     S.needsUpdate = LIVE && missing;
-    S.missing = new Set([...(S.needsUpdate ? ["update-2.sql"] : []), ...(LIVE && missing3 ? ["update-3.sql"] : []), ...(LIVE && missing4 ? ["update-4.sql"] : [])]);
+    S.missing = new Set([...(S.needsUpdate ? ["update-2.sql"] : []), ...(LIVE && missing3 ? ["update-3.sql"] : []), ...(LIVE && missing4 ? ["update-4.sql"] : []),
+      ...(S.presenceDenied ? ["update-5.sql"] : [])]);
     S.access = access;
     const oldVotes = S.votes;
     S.votes = new Map();
@@ -964,7 +1003,7 @@ async function refresh() {
     renderDocs();
     updateForYou();
     document.querySelectorAll(".overlay [data-vote]").forEach(paintVote);
-    if (S.detailId) renderDetail(false);
+    if (S.detailId) { renderDetail(false); paintPresence(); }
     backfillPreviews();
   } catch (e) { toast("Couldn't load the board: " + errMsg(e), "err"); }
 }
@@ -1068,6 +1107,8 @@ const GU = {
   "Only curated cards are showing.": "ફક્ત પસંદગીનાં કાર્ડ દેખાય છે.", "Only cards that aren't curated yet are showing.": "ફક્ત હજી પસંદ ન થયેલાં કાર્ડ દેખાય છે.",
   "Nothing is curated yet, so everything is showing. Tap the star on a card that's a final pick to mark it curated. The board then opens on curated cards only.": "હજી કંઈ પસંદગીનું નથી, એટલે બધું દેખાય છે. અંતિમ પસંદગીવાળા કાર્ડ પરના તારા પર ટૅપ કરો. પછી બોર્ડ ફક્ત પસંદગીનાં કાર્ડ સાથે ખૂલશે.",
   "Added to the board. Find it under “Not yet curated”.": "બોર્ડમાં ઉમેરાયું. તે “હજી પસંદ નથી”માં મળશે.",
+  "Here now": "હમણાં અહીં છે", "Away": "દૂર છે", "In Documents": "દસ્તાવેજોમાં", "On the board": "બોર્ડ પર", "Looking at": "જોઈ રહ્યાં છે", "Browsing": "જોઈ રહ્યાં છે",
+  "Open": "ખોલો", "is also looking at this": "પણ આ જોઈ રહ્યાં છે", "are also looking at this": "પણ આ જોઈ રહ્યાં છે",
   "Pin to top": "ઉપર પિન કરો", "Unpin": "પિન કાઢો", "Pinned": "પિન કરેલું", "Pinned to the top of the board": "બોર્ડમાં સૌથી ઉપર પિન કર્યું", "Unpinned": "પિન કાઢ્યું", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
   "Comments that tag you, replies to your comments, and comments on things you added.": "તમને ટેગ કરતી કોમેન્ટ, તમારી કોમેન્ટના જવાબ, અને તમે ઉમેરેલી વસ્તુઓ પરની કોમેન્ટ.",
   "Nothing yet. When someone tags you with @ or replies to you, it shows up here.": "હજી કંઈ નથી. કોઈ તમને @ થી ટેગ કરે કે જવાબ આપે ત્યારે અહીં દેખાશે.",
@@ -1236,6 +1277,7 @@ function renderShell() {
   const header = el("header", { class: "top" },
     el("div", { class: "wrap top-row" },
       el("div", { class: "brand" }, el("h1", {}, ...brandTitle()), el("p", {}, CONFIG.BOARD_SUBTITLE)),
+      el("div", { id: "presence", class: "presence", hidden: true }),
       el("nav", { class: "nav", "aria-label": "Sections" },
         el("button", { type: "button", class: "nav-btn", id: "n-board", onclick: () => setSection("board") }, "Moodboard"),
         el("button", { type: "button", class: "nav-btn", id: "n-docs", onclick: () => setSection("docs") }, "Documents", el("span", { class: "n", id: "n-docs-n" }))),
@@ -1281,6 +1323,104 @@ function renderShell() {
   setView(S.view);
 }
 
+/* ===================== WHO'S HERE (live presence, like Google Docs) ===================== */
+const PRES_COLORS = ["#8f5e4b", "#4d6a59", "#5b6c9a", "#a3463a", "#8a6420", "#6a4c93", "#2f7d7d", "#b0567c"];
+function presColor(email) { let h = 0; for (const c of email) h = (h * 31 + c.charCodeAt(0)) >>> 0; return PRES_COLORS[h % PRES_COLORS.length]; }
+function presInitials(name) {
+  const w = String(name || "?").replace(/\(.*?\)/g, "").split(/[\s@._-]+/).map(x => x.match(/\p{L}/u)?.[0]).filter(Boolean);
+  return (w.length > 1 ? w[0] + w[1] : (w[0] || "?")).toUpperCase();
+}
+function presAvatar(p, size = "") {
+  return el("span", { class: "pres-av notr " + size + (p.away ? " away" : ""), style: `--pc:${presColor(p.email)}`, title: nameOf(p.email) }, presInitials(nameOf(p.email)));
+}
+/** What this tab is doing right now; sent to everyone else on the board. */
+function presenceMeta() {
+  return {
+    section: S.section,
+    item: S.section === "board" && S.detailId ? S.detailId : null,
+    room: S.section === "board" && S.filter.room !== "all" ? S.filter.room : null,
+    away: document.visibilityState === "hidden",
+    t: Date.now(),
+  };
+}
+function startPresence() {
+  if (!LIVE || S.presence !== undefined) return;
+  S.presence = S.store.presence(presenceMeta(), onPresence, () => {
+    S.presenceDenied = true; S.missing.add("update-5.sql"); renderBanner(); paintPresence();
+  });
+  document.addEventListener("visibilitychange", updatePresence);
+}
+const updatePresence = debounce(() => {
+  if (!S.presence) return;
+  const m = presenceMeta(), key = JSON.stringify({ ...m, t: 0 });
+  if (key === S.presenceSent) return;     // nothing changed: don't send
+  S.presenceSent = key; S.presence.update(m);
+}, 150);
+function onPresence(state) {
+  const me = myEmail(), people = [];
+  for (const [email, metas] of Object.entries(state)) {
+    if (email === me || !metas?.length) continue;
+    // Someone with several tabs open: show their most recent active tab.
+    const sorted = [...metas].sort((a, b) => (a.away - b.away) || (b.t - a.t));
+    people.push({ email, ...sorted[0], away: metas.every(m => m.away) });
+  }
+  people.sort((a, b) => (a.away - b.away) || nameOf(a.email).localeCompare(nameOf(b.email)));
+  S.here = people;
+  paintPresence();
+}
+function presStatus(p) {
+  if (p.away) return [el("span", {}, "Away")];
+  if (p.section === "docs") return [el("span", {}, "In Documents")];
+  const it = p.item && S.byId.get(p.item);
+  if (it) return [el("span", {}, "Looking at"), " ", el("b", { class: "notr" }, "“" + titleOf(it) + "”")];
+  if (p.room) return [el("span", {}, "Browsing"), " ", el("b", { class: "notr" }, roomName(p.room))];
+  return [el("span", {}, "On the board")];
+}
+function paintPresence() {
+  const here = S.here || [];
+  // Header: a stack of faces, like Google Docs.
+  const box = $("#presence");
+  if (box) {
+    const shown = here.slice(0, 4), extra = here.length - shown.length;
+    box.hidden = !here.length;
+    box.querySelector(".pres-stack")?.remove();   // replace only the faces, so an open list stays open
+    if (here.length) box.prepend(el("button", { type: "button", class: "pres-stack", "aria-label": `${here.length} other ${here.length === 1 ? "person" : "people"} here now`,
+      title: here.map(p => nameOf(p.email)).join(", "), onclick: togglePresList },
+      ...shown.map(p => presAvatar(p)), extra > 0 ? el("span", { class: "pres-av more" }, "+" + extra) : null,
+      el("span", { class: "pres-live", "aria-hidden": "true" })));
+  }
+  const list = $("#pres-list");
+  if (list) {
+    if (!here.length) list.remove();
+    else list.replaceChildren(el("p", { class: "pres-h" }, "Here now"), ...here.map(p => el("div", { class: "pres-row" + (p.away ? " away" : "") }, presAvatar(p),
+      el("div", {}, el("b", { class: "notr" }, nameOf(p.email)), el("p", {}, ...presStatus(p))),
+      p.item && S.byId.get(p.item) && !p.away ? el("button", { type: "button", class: "btn small ghost", onclick: () => { list.remove(); openDetail(p.item); } }, "Open") : null)));
+  }
+  // Cards: little faces on the ideas people have open right now.
+  document.querySelectorAll(".card .viewers").forEach(n => n.remove());
+  const byItem = new Map();
+  for (const p of here) if (!p.away && p.item) { if (!byItem.has(p.item)) byItem.set(p.item, []); byItem.get(p.item).push(p); }
+  for (const [id, ps] of byItem) {
+    const card = S.nodes?.get(id);
+    if (card) card.append(el("div", { class: "viewers", title: ps.map(p => nameOf(p.email)).join(", ") + " · looking now" }, ...ps.slice(0, 3).map(p => presAvatar(p, "sm"))));
+  }
+  // Open idea: "Mummy is also looking at this".
+  const d = $("#d-here");
+  if (d) {
+    const ps = S.detailId ? byItem.get(S.detailId) || [] : [];
+    d.hidden = !ps.length;
+    d.replaceChildren(...(ps.length ? [...ps.map(p => presAvatar(p, "sm")), el("b", { class: "notr" }, " " + ps.map(p => nameOf(p.email)).join(", ") + " "),
+      el("span", {}, ps.length > 1 ? "are also looking at this" : "is also looking at this")] : []));
+  }
+}
+function togglePresList(e) {
+  e.stopPropagation();
+  const old = $("#pres-list"); if (old) { old.remove(); return; }
+  const list = el("div", { id: "pres-list", class: "pres-list", role: "dialog", "aria-label": "Here now" });
+  $("#presence").append(list); paintPresence();
+  setTimeout(() => document.addEventListener("click", function off(ev) { if (!ev.target.closest("#pres-list")) { $("#pres-list")?.remove(); document.removeEventListener("click", off); } }), 0);
+}
+
 function renderBanner() {
   const b = $("#banner"); if (!b) return;
   if (!LIVE) b.replaceChildren(el("div", { class: "banner" },
@@ -1295,7 +1435,7 @@ function renderBanner() {
 }
 
 function setSection(s) {
-  S.section = s; lsSet("mb-section", s);
+  S.section = s; lsSet("mb-section", s); updatePresence();
   $("#n-board").setAttribute("aria-current", s === "board" ? "page" : "false");
   $("#n-docs").setAttribute("aria-current", s === "docs" ? "page" : "false");
   $("#filters").hidden = s !== "board";
@@ -1379,6 +1519,7 @@ function applyFilters() {
   updatePlanZones();
   if (S.view === "rooms") renderRoomsView();
   if (syncPlan2d()) renderPlan2d();
+  paintPresence(); updatePresence();
   const empty = $("#empty");
   empty.hidden = shown > 0;
   if (!shown) {
@@ -1630,7 +1771,7 @@ function closeOverlay(name) {
   const ov = S.overlays[name]; if (!ov) return;
   ov.remove(); delete S.overlays[name];
   S.stack = S.stack.filter(n => n !== name);
-  if (name === "detail") S.detailId = null;
+  if (name === "detail") { S.detailId = null; updatePresence(); }
   if (name === "editor") S.ed = null;
   if (!S.stack.length) document.body.classList.remove("locked");
 }
@@ -1653,7 +1794,7 @@ function confirmBtn(label, armedLabel, fn, extra = "") {
 }
 
 /* ---------- Item detail ---------- */
-function openDetail(id) { S.detailId = id; S.replyOpen = null; renderDetail(true); }
+function openDetail(id) { S.detailId = id; S.replyOpen = null; renderDetail(true); paintPresence(); updatePresence(); }
 function renderDetail(force) {
   const it = S.byId.get(S.detailId);
   if (!it) { closeOverlay("detail"); return; }
@@ -1673,6 +1814,7 @@ function renderDetail(force) {
   const right = el("div", { class: "d-info" },
     el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", {}, roomsLabel(it)), it.type ? el("span", {}, "· " + it.type) : null),
     el("h2", { class: "d-title" }, titleOf(it)),
+    el("p", { id: "d-here", class: "d-here", hidden: true }),
     parent ? el("p", { class: "d-by" }, "Markup on ", el("a", { href: "#", onclick: e => { e.preventDefault(); openDetail(parent.id); } }, titleOf(parent))) : null,
     it.kind !== "note" && it.note ? el("p", { class: "d-why" }, it.note) : null,
     el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}` + (metaOf(it).source ? ` · From: ${metaOf(it).source}` : "")),

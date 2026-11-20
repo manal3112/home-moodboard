@@ -10,6 +10,7 @@ Files:
 - `update-2.sql`: a one-time update for boards set up before documents, the floor plan and replies were added
 - `update-3.sql`: a one-time update that adds upvotes and the AI access list
 - `update-4.sql`: a one-time update that adds voice notes to comments
+- `update-5.sql`: a one-time update that turns on "who's here" (see who else has the board open, like Google Docs)
 
 ## Try it first (2 minutes)
 
@@ -59,7 +60,7 @@ In **Authentication → URL Configuration**:
 
 ## Updating a board that's already set up
 
-If your board was set up before November 2026, run the updates once, in order: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, click **Run**, then do the same with `update-3.sql` and then `update-4.sql`. Until then the board shows a yellow banner naming the file still to run, and the features that need it stay switched off. Everything else keeps working.
+If your board was set up before November 2026, run the updates once, in order: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, click **Run**, then do the same with `update-3.sql`, `update-4.sql` and `update-5.sql`. Until then the board shows a yellow banner naming the file still to run, and the features that need it stay switched off. Everything else keeps working.
 
 ## AI features (optional)
 
@@ -119,3 +120,7 @@ To change the title, subtitle or the list of item types, edit `CONFIG` at the to
 - Ad blockers and some privacy settings (Safari's, Brave's) can block Instagram embeds. The card then shows a link and your screenshot.
 - Images over ~1.5 MB are shrunk in the browser before upload. The free Supabase plan includes 1 GB of file storage, which is a few thousand photos.
 - Photos and data are private: only signed-in members can see them, and image links expire after a week.
+
+## Who's here
+Faces at the top of the board show who else has it open right now, like Google Docs. Tap them to see what each person is doing: looking at a card, browsing a room, in Documents, or away (their tab is in the background). A small face also appears on any card someone has open, and inside an open card you'll see "Mummy is also looking at this".
+It runs on a private live channel that only people on the members list can join (`update-5.sql`). Nothing is stored: it disappears when people close the board.
