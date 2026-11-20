@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Riviera Majestica 1302</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<meta name="theme-color" content="#f5f2ed">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&family=Noto+Sans+Gujarati:wght@300;400;500;600&display=swap">
@@ -993,6 +997,7 @@ async function gate() {
   await refresh();
   if (!S.subscribed) { S.store.subscribe(debounce(() => S.ready && refresh(), 400), !S.needsUpdate); S.subscribed = true; }
   startPresence();
+  openShared();
 }
 
 async function refresh() {
@@ -1134,6 +1139,7 @@ const GU = {
   "Nothing is curated yet, so everything is showing. Tap the star on a card that's a final pick to mark it curated. The board then opens on curated cards only.": "હજી કંઈ પસંદગીનું નથી, એટલે બધું દેખાય છે. અંતિમ પસંદગીવાળા કાર્ડ પરના તારા પર ટૅપ કરો. પછી બોર્ડ ફક્ત પસંદગીનાં કાર્ડ સાથે ખૂલશે.",
   "Added to the board. Find it under “Not yet curated”.": "બોર્ડમાં ઉમેરાયું. તે “હજી પસંદ નથી”માં મળશે.",
   "Here now": "હમણાં અહીં છે", "You": "તમે", "Just you right now. When someone else opens the board, their face appears here.": "હમણાં ફક્ત તમે જ છો. બીજું કોઈ બોર્ડ ખોલશે ત્યારે તેમનો ચહેરો અહીં દેખાશે.", "Away": "દૂર છે", "In Documents": "દસ્તાવેજોમાં", "On the board": "બોર્ડ પર", "Looking at": "જોઈ રહ્યાં છે", "Browsing": "જોઈ રહ્યાં છે",
+  "That share didn't include a link, so there's nothing to add.": "શેરમાં લિંક નહોતી, એટલે ઉમેરવા જેવું કંઈ નથી.",
   "Last seen": "છેલ્લે આવ્યાં", "Not seen yet": "હજી આવ્યાં નથી", "History": "ઇતિહાસ", "Seen by": "કોણે જોયું", "just now": "હમણાં જ", "Document": "દસ્તાવેજ",
   "Nobody else is on the board right now.": "હમણાં બીજું કોઈ બોર્ડ પર નથી.", "Only board owners can see this.": "આ ફક્ત બોર્ડના માલિક જ જોઈ શકે છે.",
   "Nothing opened yet.": "હજી કંઈ ખોલ્યું નથી.", "Only board owners can see this. Each idea counts once per half hour.": "આ ફક્ત બોર્ડના માલિક જ જોઈ શકે છે. દરેક વસ્તુ અડધા કલાકમાં એક જ વાર ગણાય છે.",
@@ -3555,6 +3561,27 @@ function openDocEditor(d) {
   setTimeout(() => name.focus(), 40);
 }
 
+/* ---------- shared from another app (Android share menu, iPhone Shortcut) ----------
+   Arrives as ?add=… (Shortcut) or ?url=/text=/title= (Android share target). Kept in localStorage so it survives signing in. */
+function takeShared() {
+  const p = new URLSearchParams(location.search);
+  const raw = ["add", "url", "text", "title"].map(k => p.get(k)).filter(Boolean).join(" ");
+  if (!raw) return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  lsSet("mb-shared", JSON.stringify({ raw, t: Date.now() }));
+}
+function openShared() {
+  let s = null; try { s = JSON.parse(lsGet("mb-shared") || "null"); } catch {}
+  if (!s) return;
+  try { localStorage.removeItem("mb-shared"); } catch {}
+  if (Date.now() - s.t > 30 * 60e3) return;
+  const url = (String(s.raw).match(/https?:\/\/[^\s"'<>]+/) || [])[0];
+  if (!url) { toast("That share didn't include a link, so there's nothing to add.", "err"); return; }
+  if (S.section !== "board") setSection("board");
+  openEditor({ kind: igPermalink(url) ? "instagram" : "link", text: url });
+}
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+
 /* ---------- paste and drop anywhere ---------- */
 document.addEventListener("paste", e => {
   if (!S.ready) return;
@@ -3589,6 +3616,7 @@ window.addEventListener("drop", e => {
   else toast("Only images go on the board. Put other files under Documents.");
 });
 
+takeShared();
 boot();
 </script>
 </body>

@@ -131,3 +131,16 @@ Only board owners (the people in the `admins` table) see any of this. Everyone e
 - **Seen by**, inside an open idea, lists who has looked at it and when.
 
 While someone has the board open, it checks in about every 45 seconds. People drop off "here now" two minutes after their last check-in. It's turned on by `update-6.sql`, and it starts recording from the moment that update is run.
+
+## Share from Instagram straight to the board
+**Android:** open the board in Chrome, tap ⋮ → **Add to Home screen** (or **Install app**). From then on, in Instagram tap the share (paper plane) icon → **Share to…** / **More** → **1302**. The board opens with the post ready to add.
+
+**iPhone:** iPhone web apps can't appear in the share menu, so use a one-time Shortcut:
+1. Open the **Shortcuts** app → **+**. Name it "Add to 1302".
+2. Tap the ⓘ (or the settings icon) → turn on **Show in Share Sheet**.
+3. Add the action **URL Encode** (it uses the Shortcut Input).
+4. Add the action **Open URLs**, and set the URL to `https://kalpataruhouse.in/?add=` followed by the **URL Encoded Text** variable.
+
+Then in Instagram: share icon → **More** (or scroll the row of apps to the end) → **Add to 1302**. It opens in Safari, so sign in to the board in Safari once.
+
+Either way, a shared link that arrives before you're signed in waits until you've signed in. Shares older than 30 minutes are skipped.
