@@ -558,6 +558,26 @@ svg.plan2d{display:block;width:100%;height:auto;max-height:calc(100vh - var(--hd
 .card .viewers .pres-av+.pres-av{margin-left:-6px}
 .d-here{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin:-2px 0 6px;flex-wrap:wrap}
 .d-here .pres-av+.pres-av{margin-left:-6px}
+.pres-list{max-height:min(72vh,560px);overflow:auto}
+.pres-list .pres-h:not(:first-child){margin-top:12px}
+.pres-row .btn.small{flex:none}
+.pres-foot{margin:10px 6px 2px;padding-top:8px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+.d-seen{display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:-2px 0 6px}
+.d-seen .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.seen-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 2px;border-radius:999px;background:var(--sunk)}
+.seen-chip b{color:var(--ink);font-weight:600}
+.act{gap:6px}
+.act-status{margin:0 0 6px;font-size:14px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.act-status.on{color:var(--ink)}
+.act-status .dot{width:9px;height:9px;border-radius:50%;background:#2e9e5b}
+.act-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:none;padding:6px;border-radius:10px;cursor:pointer;color:inherit;font:inherit}
+.act-row:hover{background:var(--sunk)}
+.act-th{width:44px;height:44px;border-radius:8px;overflow:hidden;flex:none;display:grid;place-items:center;background:var(--sunk);color:var(--muted);font-size:11px;font-weight:600}
+.act-th img{width:100%;height:100%;object-fit:cover}
+.act-main{flex:1;min-width:0;display:grid}
+.act-main b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act-main small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act-time{font-size:12px;color:var(--muted);flex:none}
 </style>
 </head>
 <body>
@@ -819,17 +839,18 @@ class SupaStore {
     }
     throw new Error("Couldn't reach the AI service. Check your connection and try again.");
   }
-  /** Live presence on a private channel (needs update-5.sql). onSync gets { email: [meta, …] }; onDenied runs if the
-      database hasn't been updated, so the board can show the banner instead of failing silently. */
-  presence(meta, onSync, onDenied) {
-    let ready = false, current = meta;
-    const ch = this.sb.channel("presence:board", { config: { private: true, presence: { key: myEmail() } } });
-    ch.on("presence", { event: "sync" }, () => onSync(ch.presenceState()));
-    ch.subscribe(async (status, err) => {
-      if (status === "SUBSCRIBED") { ready = true; await ch.track(current); }
-      else if (status === "CHANNEL_ERROR" && !ready) { onDenied(err); this.sb.removeChannel(ch); }
-    });
-    return { update: m => { current = m; if (ready) ch.track(m); } };
+  /** "Who's here" (needs update-6.sql). Everyone checks in; only owners can read last_seen and views. */
+  async checkIn(m) {
+    const { data, error } = await this.sb.rpc("check_in", { p_section: m.section, p_item: m.item, p_room: m.room, p_away: m.away, p_doc: m.doc || null });
+    if (error) throw error;
+    return data;   // the server's clock
+  }
+  seen() { return this.q(this.sb.from("last_seen").select("*")); }
+  viewsBy(col, val) { return this.q(this.sb.from("views").select("email,item_id,doc_id,at").eq(col, val).order("at", { ascending: false }).limit(300)); }
+  watchSeen(cb) {
+    const ch = this.sb.channel("seen");
+    ch.on("postgres_changes", { event: "*", schema: "public", table: "last_seen" }, p => p.new?.email && cb(p.new));
+    ch.subscribe();
   }
   subscribe(cb, withUpdate) {
     const ch = this.sb.channel("board");
@@ -926,7 +947,10 @@ class LocalStore {
   async access() { return { ai: false, admin: true, aiUsers: [] }; }
   async addAiUser() { throw new Error("AI access needs the live board."); }
   async removeAiUser() {}
-  presence() { return null; }
+  async checkIn() { return null; }
+  async seen() { return []; }
+  async viewsBy() { return []; }
+  watchSeen() {}
   subscribe() {}
 }
 
@@ -983,7 +1007,7 @@ async function refresh() {
       soft3(st.reactions(), []), soft3(st.access(), { ai: false, admin: false, aiUsers: [] })]);
     S.needsUpdate = LIVE && missing;
     S.missing = new Set([...(S.needsUpdate ? ["update-2.sql"] : []), ...(LIVE && missing3 ? ["update-3.sql"] : []), ...(LIVE && missing4 ? ["update-4.sql"] : []),
-      ...(S.presenceDenied ? ["update-5.sql"] : [])]);
+      ...(S.activityMissing && access.admin ? ["update-6.sql"] : [])]);
     S.access = access;
     const oldVotes = S.votes;
     S.votes = new Map();
@@ -1110,6 +1134,10 @@ const GU = {
   "Nothing is curated yet, so everything is showing. Tap the star on a card that's a final pick to mark it curated. The board then opens on curated cards only.": "હજી કંઈ પસંદગીનું નથી, એટલે બધું દેખાય છે. અંતિમ પસંદગીવાળા કાર્ડ પરના તારા પર ટૅપ કરો. પછી બોર્ડ ફક્ત પસંદગીનાં કાર્ડ સાથે ખૂલશે.",
   "Added to the board. Find it under “Not yet curated”.": "બોર્ડમાં ઉમેરાયું. તે “હજી પસંદ નથી”માં મળશે.",
   "Here now": "હમણાં અહીં છે", "You": "તમે", "Just you right now. When someone else opens the board, their face appears here.": "હમણાં ફક્ત તમે જ છો. બીજું કોઈ બોર્ડ ખોલશે ત્યારે તેમનો ચહેરો અહીં દેખાશે.", "Away": "દૂર છે", "In Documents": "દસ્તાવેજોમાં", "On the board": "બોર્ડ પર", "Looking at": "જોઈ રહ્યાં છે", "Browsing": "જોઈ રહ્યાં છે",
+  "Last seen": "છેલ્લે આવ્યાં", "Not seen yet": "હજી આવ્યાં નથી", "History": "ઇતિહાસ", "Seen by": "કોણે જોયું", "just now": "હમણાં જ", "Document": "દસ્તાવેજ",
+  "Nobody else is on the board right now.": "હમણાં બીજું કોઈ બોર્ડ પર નથી.", "Only board owners can see this.": "આ ફક્ત બોર્ડના માલિક જ જોઈ શકે છે.",
+  "Nothing opened yet.": "હજી કંઈ ખોલ્યું નથી.", "Only board owners can see this. Each idea counts once per half hour.": "આ ફક્ત બોર્ડના માલિક જ જોઈ શકે છે. દરેક વસ્તુ અડધા કલાકમાં એક જ વાર ગણાય છે.",
+  "Who's been on the board": "બોર્ડ પર કોણ આવ્યું હતું", "Run update-6.sql in Supabase to turn this on (see the banner above).": "આ ચાલુ કરવા Supabase માં update-6.sql ચલાવો (ઉપરની સૂચના જુઓ).",
   "Open": "ખોલો", "is also looking at this": "પણ આ જોઈ રહ્યાં છે", "are also looking at this": "પણ આ જોઈ રહ્યાં છે",
   "Pin to top": "ઉપર પિન કરો", "Unpin": "પિન કાઢો", "Pinned": "પિન કરેલું", "Pinned to the top of the board": "બોર્ડમાં સૌથી ઉપર પિન કર્યું", "Unpinned": "પિન કાઢ્યું", "Loading voice note…": "વોઇસ નોટ લોડ થાય છે…",
   "Comments that tag you, replies to your comments, and comments on things you added.": "તમને ટેગ કરતી કોમેન્ટ, તમારી કોમેન્ટના જવાબ, અને તમે ઉમેરેલી વસ્તુઓ પરની કોમેન્ટ.",
@@ -1168,6 +1196,12 @@ const GU_RX = [
   [/^(Remove your upvote|Upvote)\. (\d+) upvotes?$/, (a, n) => tr(a) + ". " + n + " પસંદ"],
   [/^Upvoted by (.+)$/, w => w + " ને ગમ્યું"],
   [/^Added by (.+?) · (.+?)(?: · From: (.+))?$/, (w, d, f) => w + " એ ઉમેર્યું · " + d + (f ? " · સ્રોત: " + f : "")],
+  [/^Last seen (.+)$/, w => "છેલ્લે આવ્યાં: " + tr(w)],
+  [/^(\d+) min ago$/, n => n + " મિનિટ પહેલાં"],
+  [/^(\d+) h ago$/, n => n + " કલાક પહેલાં"],
+  [/^today, (.+)$/, t => "આજે, " + t],
+  [/^yesterday, (.+)$/, t => "ગઈકાલે, " + t],
+  [/^History for (.+)$/, w => w + " નો ઇતિહાસ"],
   [/^Signed in as (.*)$/, e => "સાઇન ઇન: " + e],
   [/^Markups \((\d+)\)$/, n => "દોરેલાં ચિત્રો (" + n + ")"],
   [/^Open (.+)$/, t => tr(t) + " ખોલો"],
@@ -1325,8 +1359,10 @@ function renderShell() {
   setView(S.view);
 }
 
-/* ===================== WHO'S HERE (live presence, like Google Docs) ===================== */
+/* ===================== WHO'S HERE (owner only: live faces, last seen, what people opened) =====================
+   Everyone's tab quietly checks in (needs update-6.sql); only board owners can read it back. */
 const PRES_COLORS = ["#8f5e4b", "#4d6a59", "#5b6c9a", "#a3463a", "#8a6420", "#6a4c93", "#2f7d7d", "#b0567c"];
+const ONLINE_MS = 120000, BEAT_MS = 45000;
 function presColor(email) { let h = 0; for (const c of email) h = (h * 31 + c.charCodeAt(0)) >>> 0; return PRES_COLORS[h % PRES_COLORS.length]; }
 function presInitials(name) {
   const w = String(name || "?").replace(/\(.*?\)/g, "").split(/[\s@._-]+/).map(x => x.match(/\p{L}/u)?.[0]).filter(Boolean);
@@ -1335,41 +1371,60 @@ function presInitials(name) {
 function presAvatar(p, size = "") {
   return el("span", { class: "pres-av notr " + size + (p.away ? " away" : ""), style: `--pc:${presColor(p.email)}`, title: nameOf(p.email) }, presInitials(nameOf(p.email)));
 }
-/** What this tab is doing right now; sent to everyone else on the board. */
+const isOwner = () => !!S.access.admin;
+const serverNow = () => Date.now() + (S.skew || 0);
+const isMissingDb = e => ["PGRST202", "PGRST205", "42P01", "42883"].includes(e?.code) || /could not find the (function|table)|does not exist/i.test(e?.message || "");
+function activityMissing() { S.activityMissing = true; if (isOwner()) { S.missing.add("update-6.sql"); renderBanner(); } paintPresence(); }
+/** What this tab is doing right now. */
 function presenceMeta() {
   return {
     section: S.section,
     item: S.section === "board" && S.detailId ? S.detailId : null,
     room: S.section === "board" && S.filter.room !== "all" ? S.filter.room : null,
     away: document.visibilityState === "hidden",
-    t: Date.now(),
   };
 }
 function startPresence() {
-  if (!LIVE || S.presence !== undefined) return;
-  S.presence = S.store.presence(presenceMeta(), onPresence, () => {
-    S.presenceDenied = true; S.missing.add("update-5.sql"); renderBanner(); paintPresence();
-  });
-  document.addEventListener("visibilitychange", updatePresence);
-}
-const updatePresence = debounce(() => {
-  if (!S.presence) return;
-  const m = presenceMeta(), key = JSON.stringify({ ...m, t: 0 });
-  if (key === S.presenceSent) return;     // nothing changed: don't send
-  S.presenceSent = key; S.presence.update(m);
-}, 150);
-function onPresence(state) {
-  const me = myEmail(), people = [];
-  for (const [email, metas] of Object.entries(state)) {
-    if (email === me || !metas?.length) continue;
-    // Someone with several tabs open: show their most recent active tab.
-    const sorted = [...metas].sort((a, b) => (a.away - b.away) || (b.t - a.t));
-    people.push({ email, ...sorted[0], away: metas.every(m => m.away) });
-  }
-  people.sort((a, b) => (a.away - b.away) || nameOf(a.email).localeCompare(nameOf(b.email)));
-  S.here = people;
-  S.meHere = !!state[me]?.length;   // our own tab is on the channel: proof that "who's here" is connected
+  if (S.presenceOn) return;
+  S.presenceOn = true;
+  document.addEventListener("visibilitychange", () => { updatePresence(); if (document.visibilityState === "visible" && isOwner()) loadSeen(); });
+  setInterval(() => { if (document.visibilityState === "visible") sendCheckIn(true); }, BEAT_MS);
+  sendCheckIn(true);
+  if (isOwner()) { loadSeen(); S.store.watchSeen(onSeen); setInterval(paintPresence, 30000); }
   paintPresence();
+}
+async function sendCheckIn(force, extra) {
+  if (S.activityMissing || !S.store) return;
+  const m = { ...presenceMeta(), ...extra }, key = JSON.stringify(m);
+  if (!force && key === S.presenceSent) return;     // nothing changed: don't send
+  S.presenceSent = key;
+  try { const t = await S.store.checkIn(m); if (t) S.skew = new Date(t) - Date.now(); }
+  catch (e) { if (isMissingDb(e)) activityMissing(); else S.presenceSent = null; }
+}
+const updatePresence = debounce(() => sendCheckIn(false), 150);
+async function loadSeen() {
+  try { const rows = await S.store.seen(); S.seen = new Map(rows.map(r => [r.email, r])); paintPresence(); }
+  catch (e) { if (isMissingDb(e)) activityMissing(); }
+}
+function onSeen(row) { (S.seen ||= new Map()).set(row.email, row); paintPresence(); }
+/** Others with the board open in the last two minutes. */
+function computeHere() {
+  const me = myEmail(), here = [];
+  for (const r of (S.seen || new Map()).values())
+    if (r.email !== me && serverNow() - new Date(r.at) < ONLINE_MS) here.push({ email: r.email, section: r.section, item: r.item_id, room: r.room_id, away: !!r.away });
+  return here.sort((a, b) => (a.away - b.away) || nameOf(a.email).localeCompare(nameOf(b.email)));
+}
+function ago(ts) {
+  const d = new Date(ts), s = Math.max(0, (serverNow() - d) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s / 60) + " min ago";
+  if (s < 6 * 3600) return Math.floor(s / 3600) + " h ago";
+  const time = d.toLocaleTimeString(LOCALE, { hour: "numeric", minute: "2-digit" });
+  const day0 = x => new Date(x.getFullYear(), x.getMonth(), x.getDate());
+  const days = Math.round((day0(new Date()) - day0(d)) / 864e5);
+  if (days === 0) return "today, " + time;
+  if (days === 1) return "yesterday, " + time;
+  return d.toLocaleDateString(LOCALE, { day: "numeric", month: "short", ...(days > 300 ? { year: "numeric" } : {}) }) + ", " + time;
 }
 function presStatus(p) {
   if (p.away) return [el("span", {}, "Away")];
@@ -1380,32 +1435,24 @@ function presStatus(p) {
   return [el("span", {}, "On the board")];
 }
 function paintPresence() {
-  const here = S.here || [];
-  // Header: a stack of faces, like Google Docs.
+  const owner = isOwner(), here = owner ? computeHere() : [];
+  S.here = here;
+  // Header: a stack of faces, like Google Docs. Only owners see it.
   const box = $("#presence");
-  const me = { email: myEmail(), you: true };
-  const on = here.length || S.meHere;
+  const me = { email: myEmail() };
   if (box) {
     const shown = here.slice(0, 4), extra = here.length - shown.length;
-    box.hidden = !on;
+    box.hidden = !owner;
     box.querySelector(".pres-stack")?.remove();   // replace only the faces, so an open list stays open
-    if (on) box.prepend(el("button", { type: "button", class: "pres-stack", onclick: togglePresList,
-      "aria-label": here.length ? `${here.length} other ${here.length === 1 ? "person" : "people"} here now` : "Just you here right now",
-      title: here.length ? here.map(p => nameOf(p.email)).join(", ") + " + you" : "Just you right now" },
+    if (owner) box.prepend(el("button", { type: "button", class: "pres-stack", onclick: togglePresList,
+      "aria-label": (here.length ? `${here.length} other ${here.length === 1 ? "person" : "people"} here now` : "Just you here right now") + ". Show last seen",
+      title: here.length ? here.map(p => nameOf(p.email)).join(", ") + " + you" : "Who's been on the board" },
       ...shown.map(p => presAvatar(p)), extra > 0 ? el("span", { class: "pres-av more" }, "+" + extra) : null,
       el("span", { class: "pres-av me", style: `--pc:${presColor(me.email)}`, title: "You" }, presInitials(nameOf(me.email))),
-      el("span", { class: "pres-live", "aria-hidden": "true" })));
+      S.activityMissing ? null : el("span", { class: "pres-live", "aria-hidden": "true" })));
   }
   const list = $("#pres-list");
-  if (list) {
-    if (!on) list.remove();
-    else list.replaceChildren(el("p", { class: "pres-h" }, "Here now"),
-      ...here.map(p => el("div", { class: "pres-row" + (p.away ? " away" : "") }, presAvatar(p),
-        el("div", {}, el("b", { class: "notr" }, nameOf(p.email)), el("p", {}, ...presStatus(p))),
-        p.item && S.byId.get(p.item) && !p.away ? el("button", { type: "button", class: "btn small ghost", onclick: () => { list.remove(); openDetail(p.item); } }, "Open") : null)),
-      el("div", { class: "pres-row" }, presAvatar(me), el("div", {}, el("b", {}, "You"))),
-      here.length ? null : el("p", { class: "pres-empty" }, "Just you right now. When someone else opens the board, their face appears here."));
-  }
+  if (list) { if (!owner) list.remove(); else list.replaceChildren(...presListBody(here, list).filter(Boolean)); }
   // Cards: little faces on the ideas people have open right now.
   document.querySelectorAll(".card .viewers").forEach(n => n.remove());
   const byItem = new Map();
@@ -1422,13 +1469,82 @@ function paintPresence() {
     d.replaceChildren(...(ps.length ? [...ps.map(p => presAvatar(p, "sm")), el("b", { class: "notr" }, " " + ps.map(p => nameOf(p.email)).join(", ") + " "),
       el("span", {}, ps.length > 1 ? "are also looking at this" : "is also looking at this")] : []));
   }
+  paintSeenBy();
+}
+function presListBody(here, list) {
+  if (S.activityMissing) return [el("p", { class: "pres-empty" }, "Run update-6.sql in Supabase to turn this on (see the banner above).")];
+  const me = myEmail(), herePeople = new Set(here.map(p => p.email));
+  const others = S.members.filter(m => m.email !== me && !herePeople.has(m.email))
+    .map(m => ({ email: m.email, r: S.seen?.get(m.email) }))
+    .sort((a, b) => (b.r ? +new Date(b.r.at) : 0) - (a.r ? +new Date(a.r.at) : 0) || nameOf(a.email).localeCompare(nameOf(b.email)));
+  const hist = email => el("button", { type: "button", class: "btn small ghost", onclick: () => { list.remove(); openActivity(email); } }, "History");
+  return [
+    el("p", { class: "pres-h" }, "Here now"),
+    ...here.map(p => el("div", { class: "pres-row" + (p.away ? " away" : "") }, presAvatar(p),
+      el("div", {}, el("b", { class: "notr" }, nameOf(p.email)), el("p", {}, ...presStatus(p))),
+      p.item && S.byId.get(p.item) && !p.away ? el("button", { type: "button", class: "btn small ghost", onclick: () => { list.remove(); openDetail(p.item); } }, "Open") : null,
+      hist(p.email))),
+    here.length ? null : el("p", { class: "pres-empty" }, "Nobody else is on the board right now."),
+    others.length ? el("p", { class: "pres-h" }, "Last seen") : null,
+    ...others.map(o => el("div", { class: "pres-row away" }, presAvatar({ email: o.email }),
+      el("div", {}, el("b", { class: "notr" }, nameOf(o.email)),
+        el("p", { title: o.r ? new Date(o.r.at).toLocaleString(LOCALE) : "" }, o.r ? "Last seen " + ago(o.r.at) : "Not seen yet")),
+      o.r ? hist(o.email) : null)),
+    el("p", { class: "pres-foot" }, "Only board owners can see this."),
+  ];
 }
 function togglePresList(e) {
   e.stopPropagation();
   const old = $("#pres-list"); if (old) { old.remove(); return; }
-  const list = el("div", { id: "pres-list", class: "pres-list", role: "dialog", "aria-label": "Here now" });
-  $("#presence").append(list); paintPresence();
+  const list = el("div", { id: "pres-list", class: "pres-list", role: "dialog", "aria-label": "Who's been on the board" });
+  $("#presence").append(list); paintPresence(); loadSeen();
   setTimeout(() => document.addEventListener("click", function off(ev) { if (!ev.target.closest("#pres-list")) { $("#pres-list")?.remove(); document.removeEventListener("click", off); } }), 0);
+}
+/** One person's history: what they opened, newest first. */
+async function openActivity(email) {
+  const body = el("div", { class: "panel-body act" }, el("p", { class: "hint" }, "Loading…"));
+  openOverlay("activity", el("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-label": "History for " + nameOf(email) },
+    panelHead(nameOf(email), () => closeOverlay("activity")), body));
+  let rows;
+  try { rows = await S.store.viewsBy("email", email); } catch (e) { body.replaceChildren(el("p", { class: "hint" }, errMsg(e))); return; }
+  const r = S.seen?.get(email), on = r && serverNow() - new Date(r.at) < ONLINE_MS;
+  const status = on ? el("p", { class: "act-status on" }, el("span", { class: "dot" }), ...presStatus({ section: r.section, item: r.item_id, room: r.room_id, away: r.away }))
+    : el("p", { class: "act-status" }, r ? "Last seen " + ago(r.at) : "Not seen yet");
+  const groups = new Map();
+  for (const v of rows) {
+    const it = v.item_id && S.byId.get(v.item_id), doc = v.doc_id && S.docs.find(x => x.id === v.doc_id);
+    if (!it && !doc) continue;
+    const day = new Date(v.at).toLocaleDateString(LOCALE, { weekday: "short", day: "numeric", month: "short" });
+    if (!groups.has(day)) groups.set(day, []);
+    const time = new Date(v.at).toLocaleTimeString(LOCALE, { hour: "numeric", minute: "2-digit" });
+    const thumb = it ? (imgUrl(it) ? el("img", { src: imgUrl(it), alt: "", loading: "lazy" }) : el("span", {}, it.kind === "note" ? "✎" : "◆"))
+      : el("span", {}, docKind(doc).label);
+    groups.get(day).push(el("button", { type: "button", class: "act-row", onclick: () => {
+      if (it) openDetail(it.id);
+      else { const u = S.urls.get(doc.path); if (u) window.open(u, "_blank", "noopener"); }
+    } }, el("span", { class: "act-th" }, thumb),
+      el("span", { class: "act-main" }, el("b", { class: "notr" }, it ? titleOf(it) : doc.name),
+        el("small", {}, it ? roomsLabel(it) : el("span", {}, "Document"))),
+      el("span", { class: "act-time notr" }, time)));
+  }
+  body.replaceChildren(status,
+    ...(groups.size ? [...groups].flatMap(([day, els]) => [el("p", { class: "pres-h notr" }, day), ...els])
+      : [el("p", { class: "hint" }, "Nothing opened yet.")]),
+    el("p", { class: "pres-foot" }, "Only board owners can see this. Each idea counts once per half hour."));
+}
+/** In an open idea (owners only): who has looked at it, and when last. */
+async function loadSeenBy(id) {
+  if (!isOwner() || S.activityMissing) return;
+  try { const rows = await S.store.viewsBy("item_id", id); S.seenBy = { id, rows }; paintSeenBy(); } catch {}
+}
+function paintSeenBy() {
+  const d = $("#d-seen"); if (!d) return;
+  const latest = new Map();
+  if (isOwner() && S.seenBy?.id === S.detailId) for (const v of S.seenBy.rows) if (v.email !== myEmail() && !latest.has(v.email)) latest.set(v.email, v.at);
+  d.hidden = !latest.size;
+  d.replaceChildren(...(latest.size ? [el("span", { class: "lbl" }, "Seen by"),
+    ...[...latest].map(([e, at]) => el("span", { class: "seen-chip", title: new Date(at).toLocaleString(LOCALE) }, presAvatar({ email: e }, "sm"),
+      el("b", { class: "notr" }, nameOf(e)), el("span", {}, ago(at))))] : []));
 }
 
 function renderBanner() {
@@ -1804,7 +1920,7 @@ function confirmBtn(label, armedLabel, fn, extra = "") {
 }
 
 /* ---------- Item detail ---------- */
-function openDetail(id) { S.detailId = id; S.replyOpen = null; renderDetail(true); paintPresence(); updatePresence(); }
+function openDetail(id) { S.detailId = id; S.replyOpen = null; renderDetail(true); paintPresence(); updatePresence(); loadSeenBy(id); }
 function renderDetail(force) {
   const it = S.byId.get(S.detailId);
   if (!it) { closeOverlay("detail"); return; }
@@ -1825,6 +1941,7 @@ function renderDetail(force) {
     el("div", { class: "cmeta" }, prioBadge(it.priority), el("span", {}, roomsLabel(it)), it.type ? el("span", {}, "· " + it.type) : null),
     el("h2", { class: "d-title" }, titleOf(it)),
     el("p", { id: "d-here", class: "d-here", hidden: true }),
+    el("p", { id: "d-seen", class: "d-seen", hidden: true }),
     parent ? el("p", { class: "d-by" }, "Markup on ", el("a", { href: "#", onclick: e => { e.preventDefault(); openDetail(parent.id); } }, titleOf(parent))) : null,
     it.kind !== "note" && it.note ? el("p", { class: "d-why" }, it.note) : null,
     el("p", { class: "d-by" }, `Added by ${nameOf(it.created_by)} · ${fmtDate(it.created_at)}` + (metaOf(it).source ? ` · From: ${metaOf(it).source}` : "")),
@@ -3341,6 +3458,8 @@ function docKind(d) {
 }
 /* Demo mode keeps files as data: URLs, which browsers won't open in a new tab directly. */
 function openDocLink(e) {
+  const doc = e.currentTarget.dataset.doc;
+  if (doc) sendCheckIn(true, { doc });   // logged for the board owner's history
   const href = e.currentTarget.getAttribute("href") || "";
   if (!href.startsWith("data:")) return;
   e.preventDefault();
@@ -3386,7 +3505,7 @@ function drawDocList() {
 }
 function docRow(d) {
   const url = S.urls.get(d.path) || null, k = docKind(d);
-  const link = (cls, ...kids) => el("a", { class: cls, href: url || "#", target: "_blank", rel: "noopener", onclick: openDocLink }, ...kids);
+  const link = (cls, ...kids) => el("a", { class: cls, href: url || "#", target: "_blank", rel: "noopener", "data-doc": d.id, onclick: openDocLink }, ...kids);
   const icon = link("doc-ic " + k.cls, k.cls === "img" && url ? el("img", { src: url, alt: "", loading: "lazy" }) : k.label);
   icon.setAttribute("aria-hidden", "true"); icon.tabIndex = -1;
   return el("div", { class: "doc" }, icon,

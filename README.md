@@ -10,7 +10,8 @@ Files:
 - `update-2.sql`: a one-time update for boards set up before documents, the floor plan and replies were added
 - `update-3.sql`: a one-time update that adds upvotes and the AI access list
 - `update-4.sql`: a one-time update that adds voice notes to comments
-- `update-5.sql`: a one-time update that turns on "who's here" (see who else has the board open, like Google Docs)
+- `update-5.sql`: a one-time update for the first version of "who's here" (replaced by update-6)
+- `update-6.sql`: a one-time update that makes "who's here" owner-only, and adds last seen and viewing history
 
 ## Try it first (2 minutes)
 
@@ -60,7 +61,7 @@ In **Authentication → URL Configuration**:
 
 ## Updating a board that's already set up
 
-If your board was set up before November 2026, run the updates once, in order: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, click **Run**, then do the same with `update-3.sql`, `update-4.sql` and `update-5.sql`. Until then the board shows a yellow banner naming the file still to run, and the features that need it stay switched off. Everything else keeps working.
+If your board was set up before November 2026, run the updates once, in order: in Supabase open **SQL Editor → New query**, paste all of `update-2.sql`, click **Run**, then do the same with `update-3.sql`, `update-4.sql`, `update-5.sql` and `update-6.sql`. Until then the board shows a yellow banner naming the file still to run, and the features that need it stay switched off. Everything else keeps working.
 
 ## AI features (optional)
 
@@ -121,6 +122,12 @@ To change the title, subtitle or the list of item types, edit `CONFIG` at the to
 - Images over ~1.5 MB are shrunk in the browser before upload. The free Supabase plan includes 1 GB of file storage, which is a few thousand photos.
 - Photos and data are private: only signed-in members can see them, and image links expire after a week.
 
-## Who's here
-Faces at the top of the board show who else has it open right now, like Google Docs. Tap them to see what each person is doing: looking at a card, browsing a room, in Documents, or away (their tab is in the background). A small face also appears on any card someone has open, and inside an open card you'll see "Mummy is also looking at this".
-It runs on a private live channel that only people on the members list can join (`update-5.sql`). Nothing is stored: it disappears when people close the board.
+## Who's here (owners only)
+Only board owners (the people in the `admins` table) see any of this. Everyone else sees nothing, and they can't read it from the database either.
+
+- **Faces at the top** show who has the board open right now, like Google Docs. A small face also appears on any card someone has open, and an open card shows "Mummy is also looking at this".
+- **Tap the faces** to see what each person is doing now (looking at a card, browsing a room, in Documents, or away), plus **Last seen** for everyone else.
+- **History** shows the ideas and documents a person opened, newest first. Each one counts once per half hour.
+- **Seen by**, inside an open idea, lists who has looked at it and when.
+
+While someone has the board open, it checks in about every 45 seconds. People drop off "here now" two minutes after their last check-in. It's turned on by `update-6.sql`, and it starts recording from the moment that update is run.
